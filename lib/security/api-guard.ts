@@ -86,7 +86,7 @@ export interface ValidatedChatPayload {
   message: string;
   history: Array<{ role: "user" | "assistant"; content: string }>;
   includeExternalSearch: boolean;
-  preferredProvider?: "auto" | "openai" | "gemini" | "mock";
+  preferredProvider?: "auto" | "openai" | "gemini" | "mock" | "local_fallback";
   stream?: boolean;
 }
 
@@ -152,6 +152,7 @@ export function validateChatRequestPayload(
     obj.preferredProvider === "openai" ||
     obj.preferredProvider === "gemini" ||
     obj.preferredProvider === "mock" ||
+    obj.preferredProvider === "local_fallback" ||
     obj.preferredProvider === "auto"
       ? obj.preferredProvider
       : "auto";

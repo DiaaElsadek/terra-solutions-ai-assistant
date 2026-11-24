@@ -15,13 +15,14 @@
     "lib/**/*.ts",
     "app/api/**/*.ts",
     "evaluation/**/*.ts",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "components/chat/AIResponseRenderer.tsx",
+    "components/ui/RichText.tsx"
   ],
   "exclude": [
     "node_modules",
     ".next",
-    ".tmp-test-dist",
-    "**/*.tsx"
+    ".tmp-test-dist"
   ]
 }
-

@@ -1,6 +1,36 @@
 {
+  "schemaVersion": "1.0.0",
   "version": "2.0.0",
-  "generatedAt": "2026-11-24T20:43:11.853055+00:00",
+  "generatedAt": "2026-11-24T22:11:01.115619+00:00",
+  "knowledgeBase": {
+    "id": "terra-main",
+    "name": "Terra Solutions Knowledge Base",
+    "language": [
+      "ar",
+      "en"
+    ],
+    "lastUpdated": "2026-11-24T22:11:01.115619+00:00",
+    "sources": [
+      {
+        "sourceId": "source-001",
+        "fileName": "Knowlege.xlsx",
+        "fileType": "xlsx",
+        "status": "active",
+        "version": 1,
+        "importDate": "2026-11-24T22:11:01.115619+00:00",
+        "rowCount": 448
+      },
+      {
+        "sourceId": "source-002",
+        "fileName": "clinics.json",
+        "fileType": "json",
+        "status": "active",
+        "version": 1,
+        "importDate": "2026-11-24T22:11:01.115619+00:00",
+        "rowCount": 4
+      }
+    ]
+  },
   "sources": [
     "data/raw/Knowlege.xlsx",
     "data/raw/clinics.json"
@@ -37,6 +67,7 @@
         ]
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -52,6 +83,7 @@
           80
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -93,6 +125,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -101,6 +134,7 @@
           9
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -141,6 +175,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -149,6 +184,7 @@
           10
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -189,6 +225,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -197,6 +234,7 @@
           11
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -238,6 +276,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -246,6 +285,7 @@
           12
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -287,6 +327,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -295,6 +336,7 @@
           15
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -336,6 +378,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -344,6 +387,7 @@
           18
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -385,6 +429,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -393,6 +438,7 @@
           21
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -434,6 +480,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -442,6 +489,7 @@
           24
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -484,6 +532,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -492,6 +541,7 @@
           25
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -534,6 +584,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -542,6 +593,7 @@
           26
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -583,6 +635,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -591,6 +644,7 @@
           27
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -634,6 +688,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -642,6 +697,7 @@
           29
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -682,6 +738,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -690,6 +747,7 @@
           30
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -731,6 +789,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -739,6 +798,7 @@
           33
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -779,6 +839,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -787,6 +848,7 @@
           34
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -829,6 +891,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -837,6 +900,7 @@
           35
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -878,6 +942,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -886,6 +951,7 @@
           36
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -927,6 +993,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -935,6 +1002,7 @@
           37
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -975,6 +1043,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -983,6 +1052,7 @@
           38
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1025,6 +1095,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1033,6 +1104,7 @@
           39
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1074,6 +1146,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1082,6 +1155,7 @@
           40
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1123,6 +1197,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1131,6 +1206,7 @@
           41
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1174,6 +1250,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1182,6 +1259,7 @@
           43
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1224,6 +1302,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1232,6 +1311,7 @@
           45
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1274,6 +1354,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1282,6 +1363,7 @@
           48
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1325,6 +1407,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1336,6 +1419,7 @@
           54
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1376,6 +1460,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1387,6 +1472,7 @@
           59
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1427,6 +1513,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1437,6 +1524,7 @@
           62
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1477,6 +1565,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1488,6 +1577,7 @@
           66
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1537,6 +1627,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1557,6 +1648,7 @@
           106
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1620,6 +1712,7 @@
         ]
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1638,6 +1731,7 @@
           126
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1677,6 +1771,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1685,6 +1780,7 @@
           118
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1717,6 +1813,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1725,6 +1822,7 @@
           119
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1757,6 +1855,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1765,6 +1864,7 @@
           120
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1805,6 +1905,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1824,6 +1925,7 @@
           162
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1875,6 +1977,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1886,6 +1989,7 @@
           137
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1929,6 +2033,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1937,6 +2042,7 @@
           147
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -1979,6 +2085,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -1987,6 +2094,7 @@
           148
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2029,6 +2137,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -2037,6 +2146,7 @@
           149
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2080,6 +2190,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -2091,6 +2202,7 @@
           154
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2135,6 +2247,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -2154,6 +2267,7 @@
           179
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2206,6 +2320,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -2214,6 +2329,7 @@
           180
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2271,6 +2387,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -2279,6 +2396,7 @@
           180
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2336,6 +2454,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -2344,6 +2463,7 @@
           180
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2403,6 +2523,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Filler+Botox+Threads",
         "rawSheet": "Filler+Botox+Threads",
@@ -2411,6 +2532,7 @@
           180
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2496,6 +2618,7 @@
         ]
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Laser",
         "rawSheet": "Laser ",
@@ -2515,6 +2638,7 @@
           12
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2569,6 +2693,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Laser",
         "rawSheet": "Laser ",
@@ -2578,6 +2703,7 @@
           19
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2624,6 +2750,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Laser",
         "rawSheet": "Laser ",
@@ -2633,6 +2760,7 @@
           19
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2679,6 +2807,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Laser",
         "rawSheet": "Laser ",
@@ -2688,6 +2817,7 @@
           19
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2734,6 +2864,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Laser",
         "rawSheet": "Laser ",
@@ -2743,6 +2874,7 @@
           19
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2789,6 +2921,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Laser",
         "rawSheet": "Laser ",
@@ -2798,6 +2931,7 @@
           19
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2847,6 +2981,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Hair+face Treatments",
         "rawSheet": "Hair+face Treatments  ",
@@ -2862,6 +2997,7 @@
           8
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2903,6 +3039,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Hair+face Treatments",
         "rawSheet": "Hair+face Treatments  ",
@@ -2931,6 +3068,7 @@
           31
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -2984,6 +3122,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Hair+face Treatments",
         "rawSheet": "Hair+face Treatments  ",
@@ -3001,6 +3140,7 @@
           31
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3075,6 +3215,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Hair+face Treatments",
         "rawSheet": "Hair+face Treatments  ",
@@ -3096,6 +3237,7 @@
           47
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3140,6 +3282,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Hair+face Treatments",
         "rawSheet": "Hair+face Treatments  ",
@@ -3153,6 +3296,7 @@
           55
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3200,6 +3344,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Hair+face Treatments",
         "rawSheet": "Hair+face Treatments  ",
@@ -3221,6 +3366,7 @@
           70
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3267,6 +3413,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3282,6 +3429,7 @@
           53
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3327,6 +3475,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3335,6 +3484,7 @@
           11
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3380,6 +3530,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3388,6 +3539,7 @@
           14
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3433,6 +3585,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3441,6 +3594,7 @@
           17
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3488,6 +3642,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3497,6 +3652,7 @@
           21
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3544,6 +3700,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3552,6 +3709,7 @@
           23
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3599,6 +3757,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3607,6 +3766,7 @@
           26
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3659,6 +3819,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3667,6 +3828,7 @@
           29
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3712,6 +3874,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3720,6 +3883,7 @@
           32
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3766,6 +3930,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3774,6 +3939,7 @@
           33
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3821,6 +3987,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3829,6 +3996,7 @@
           34
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3873,6 +4041,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3882,6 +4051,7 @@
           36
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3929,6 +4099,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3938,6 +4109,7 @@
           38
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -3986,6 +4158,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -3998,6 +4171,7 @@
           45
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4046,6 +4220,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4054,6 +4229,7 @@
           46
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4095,6 +4271,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4103,6 +4280,7 @@
           49
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4148,6 +4326,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4164,6 +4343,7 @@
           63
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4217,6 +4397,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4232,6 +4413,7 @@
           78
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4273,6 +4455,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4281,6 +4464,7 @@
           72
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4325,6 +4509,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4333,6 +4518,7 @@
           73
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4373,6 +4559,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4381,6 +4568,7 @@
           74
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4423,6 +4611,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4431,6 +4620,7 @@
           75
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4471,6 +4661,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Skin Booster",
         "rawSheet": "Skin Booster ",
@@ -4483,6 +4674,7 @@
           84
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4541,6 +4733,7 @@
         ]
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial",
         "rawSheet": "Facial ",
@@ -4557,6 +4750,7 @@
           9
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4603,6 +4797,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial",
         "rawSheet": "Facial ",
@@ -4617,6 +4812,7 @@
           17
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4661,6 +4857,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial",
         "rawSheet": "Facial ",
@@ -4671,6 +4868,7 @@
           21
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4714,6 +4912,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial",
         "rawSheet": "Facial ",
@@ -4725,6 +4924,7 @@
           26
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4765,6 +4965,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial",
         "rawSheet": "Facial ",
@@ -4773,6 +4974,7 @@
           29
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4821,6 +5023,7 @@
         "well-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Tattoo Removal",
         "rawSheet": "Tattoo Removal",
@@ -4831,6 +5034,7 @@
           5
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4902,6 +5106,7 @@
         "new-age"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Tattoo Removal",
         "rawSheet": "Tattoo Removal",
@@ -4912,6 +5117,7 @@
           6
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -4980,6 +5186,7 @@
         "dermadent"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Tattoo Removal",
         "rawSheet": "Tattoo Removal",
@@ -4990,6 +5197,7 @@
           7
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5060,6 +5268,7 @@
         "one-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Tattoo Removal",
         "rawSheet": "Tattoo Removal",
@@ -5070,6 +5279,7 @@
           8
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5139,6 +5349,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Tattoo Removal",
         "rawSheet": "Tattoo Removal",
@@ -5155,6 +5366,7 @@
           14
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5210,6 +5422,7 @@
         "dermadent"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Tattoo Removal",
         "rawSheet": "Tattoo Removal",
@@ -5230,6 +5443,7 @@
           27
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5287,6 +5501,7 @@
         "lactationAllowed": true
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5295,6 +5510,7 @@
           3
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5347,6 +5563,7 @@
         "lactationAllowed": true
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5355,6 +5572,7 @@
           4
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5407,6 +5625,7 @@
         "lactationAllowed": true
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5415,6 +5634,7 @@
           5
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5467,6 +5687,7 @@
         "lactationAllowed": true
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5475,6 +5696,7 @@
           6
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5527,6 +5749,7 @@
         "lactationAllowed": true
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5535,6 +5758,7 @@
           7
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5589,6 +5813,7 @@
         "lactationAllowed": false
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5597,6 +5822,7 @@
           8
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5649,6 +5875,7 @@
         "lactationAllowed": "doctor_evaluation"
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5657,6 +5884,7 @@
           9
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5710,6 +5938,7 @@
         "lactationAllowed": "doctor_evaluation"
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5718,6 +5947,7 @@
           10
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5771,6 +6001,7 @@
         "lactationAllowed": true
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5779,6 +6010,7 @@
           11
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5832,6 +6064,7 @@
         "lactationAllowed": "doctor_evaluation"
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5840,6 +6073,7 @@
           12
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5893,6 +6127,7 @@
         "lactationAllowed": "doctor_evaluation"
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5901,6 +6136,7 @@
           13
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -5955,6 +6191,7 @@
         "lactationAllowed": false
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -5963,6 +6200,7 @@
           14
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6019,6 +6257,7 @@
         "lactationAllowed": "doctor_evaluation"
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6027,6 +6266,7 @@
           15
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6084,6 +6324,7 @@
         "lactationAllowed": "doctor_evaluation"
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6092,6 +6333,7 @@
           16
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6146,6 +6388,7 @@
         "lactationAllowed": false
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6154,6 +6397,7 @@
           17
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6207,6 +6451,7 @@
         "lactationAllowed": true
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6215,6 +6460,7 @@
           18
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6268,6 +6514,7 @@
         "lactationAllowed": false
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6276,6 +6523,7 @@
           19
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6329,6 +6577,7 @@
         "lactationAllowed": false
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6337,6 +6586,7 @@
           20
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6390,6 +6640,7 @@
         "lactationAllowed": false
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6398,6 +6649,7 @@
           21
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6450,6 +6702,7 @@
         "lactationAllowed": false
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6458,6 +6711,7 @@
           22
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6505,6 +6759,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "pregnancy and lactation",
         "rawSheet": "pregnancy and lactation",
@@ -6535,6 +6790,7 @@
           23
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6620,6 +6876,7 @@
         ]
       },
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -6632,6 +6889,7 @@
           5
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6671,6 +6929,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -6685,6 +6944,7 @@
           13
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6730,6 +6990,7 @@
         "well-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -6741,6 +7002,7 @@
           18
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6793,6 +7055,7 @@
         "well-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -6805,6 +7068,7 @@
           24
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6850,6 +7114,7 @@
         "well-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -6864,6 +7129,7 @@
           32
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6914,6 +7180,7 @@
         "one-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -6923,6 +7190,7 @@
           38
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -6974,6 +7242,7 @@
         "one-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -6983,6 +7252,7 @@
           41
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7035,6 +7305,7 @@
         "one-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -7044,6 +7315,7 @@
           44
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7099,6 +7371,7 @@
         "one-touch"
       ],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -7108,6 +7381,7 @@
           47
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7154,6 +7428,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -7165,6 +7440,7 @@
           52
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7202,6 +7478,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -7216,6 +7493,7 @@
           60
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7258,6 +7536,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Slimming",
         "rawSheet": "Slimming ",
@@ -7269,6 +7548,7 @@
           65
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7304,6 +7584,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7316,6 +7597,7 @@
           5
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7354,6 +7636,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7364,6 +7647,7 @@
           9
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7408,6 +7692,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7418,6 +7703,7 @@
           13
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7460,6 +7746,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7478,6 +7765,7 @@
           26
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7530,6 +7818,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7541,6 +7830,7 @@
           33
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7579,6 +7869,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7591,6 +7882,7 @@
           39
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7631,6 +7923,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7643,6 +7936,7 @@
           45
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7682,6 +7976,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Facial Machines",
         "rawSheet": "Facial Machines  ",
@@ -7696,6 +7991,7 @@
           53
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7742,6 +8038,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -7757,6 +8054,7 @@
           8
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7816,6 +8114,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -7824,6 +8123,7 @@
           9
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7859,6 +8159,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -7867,6 +8168,7 @@
           10
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7900,6 +8202,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -7908,6 +8211,7 @@
           11
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7941,6 +8245,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -7949,6 +8254,7 @@
           12
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -7985,6 +8291,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -7993,6 +8300,7 @@
           13
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -8030,6 +8338,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -8038,6 +8347,7 @@
           14
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -8075,6 +8385,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -8084,6 +8395,7 @@
           16
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -8127,6 +8439,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -8139,6 +8452,7 @@
           22
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -8175,6 +8489,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -8187,6 +8502,7 @@
           28
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -8226,6 +8542,7 @@
       "offers": [],
       "clinicIds": [],
       "source": {
+        "sourceId": "source-001",
         "file": "Knowlege.xlsx",
         "sheet": "Dental",
         "rawSheet": "Dental",
@@ -8234,6 +8551,7 @@
           30
         ]
       },
+      "status": "active",
       "sourceType": "excel",
       "confidence": "high",
       "tags": [
@@ -8279,6 +8597,7 @@
         "dermadent"
       ],
       "source": {
+        "sourceId": "source-002",
         "file": "clinics.json",
         "sheet": "clinics.json",
         "rawSheet": "clinics.json",
@@ -8287,6 +8606,7 @@
           0
         ]
       },
+      "status": "active",
       "sourceType": "consolidated",
       "confidence": "high",
       "tags": [
@@ -8384,6 +8704,7 @@
         "one-touch"
       ],
       "source": {
+        "sourceId": "source-002",
         "file": "clinics.json",
         "sheet": "clinics.json",
         "rawSheet": "clinics.json",
@@ -8392,6 +8713,7 @@
           0
         ]
       },
+      "status": "active",
       "sourceType": "consolidated",
       "confidence": "high",
       "tags": [
@@ -8492,6 +8814,7 @@
         "well-touch"
       ],
       "source": {
+        "sourceId": "source-002",
         "file": "clinics.json",
         "sheet": "clinics.json",
         "rawSheet": "clinics.json",
@@ -8500,6 +8823,7 @@
           0
         ]
       },
+      "status": "active",
       "sourceType": "consolidated",
       "confidence": "high",
       "tags": [
@@ -8591,6 +8915,7 @@
         "new-age"
       ],
       "source": {
+        "sourceId": "source-002",
         "file": "clinics.json",
         "sheet": "clinics.json",
         "rawSheet": "clinics.json",
@@ -8599,6 +8924,7 @@
           0
         ]
       },
+      "status": "active",
       "sourceType": "consolidated",
       "confidence": "high",
       "tags": [
@@ -8700,6 +9026,7 @@
       ],
       "sources": [
         {
+          "sourceId": "source-002",
           "file": "clinics.json",
           "sheet": "clinics",
           "row": 0,
@@ -8768,6 +9095,7 @@
       ],
       "sources": [
         {
+          "sourceId": "source-002",
           "file": "clinics.json",
           "sheet": "clinics",
           "row": 0,
@@ -8824,6 +9152,7 @@
       ],
       "sources": [
         {
+          "sourceId": "source-002",
           "file": "clinics.json",
           "sheet": "clinics",
           "row": 0,
@@ -8868,6 +9197,7 @@
       ],
       "sources": [
         {
+          "sourceId": "source-002",
           "file": "clinics.json",
           "sheet": "clinics",
           "row": 0,

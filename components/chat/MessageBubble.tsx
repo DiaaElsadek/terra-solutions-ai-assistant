@@ -16,6 +16,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { AIResponseRenderer } from "./AIResponseRenderer";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface MessageBubbleProps {
@@ -153,7 +154,35 @@ export function MessageBubble({
             </div>
           )}
 
-          <MarkdownRenderer content={message.content} />
+          {message.structured &&
+          Array.isArray(message.structured.answer?.blocks) &&
+          message.status !== "streaming" ? (
+            <AIResponseRenderer
+              response={message.structured}
+              onSelectSource={(item) => {
+                const matched = message.sources?.find(
+                  (s) =>
+                    (item.sheetName && s.sheet === item.sheetName && s.row === item.rowNumber) ||
+                    (item.title && s.title === item.title)
+                );
+                if (matched) {
+                  setSelectedSource(matched);
+                } else {
+                  setSelectedSource({
+                    category: "Knowledge Base",
+                    title: item.title || item.fileName,
+                    type: "knowledge",
+                    file: item.fileName,
+                    sheet: item.sheetName,
+                    row: item.rowNumber,
+                    rows: item.rowNumber ? [item.rowNumber] : undefined,
+                  });
+                }
+              }}
+            />
+          ) : (
+            <MarkdownRenderer content={message.content} />
+          )}
 
           {/* Warnings (source conflicts, unavailable data, stopped stream) */}
           {message.warnings && message.warnings.length > 0 && (

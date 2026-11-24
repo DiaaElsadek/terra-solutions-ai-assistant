@@ -57,6 +57,11 @@ Only `NEXT_PUBLIC_APP_NAME` and `NEXT_PUBLIC_APP_VERSION` are exposed to the bro
 
 ## Documentation Suite
 
+- [GEMINI_INTEGRATION.md](./GEMINI_INTEGRATION.md) — Server-side Gemini RAG architecture, key handling & resilience
+- [KNOWLEDGE_ARCHITECTURE.md](./KNOWLEDGE_ARCHITECTURE.md) — Canonical dataset manifest (`knowledge.canonical.json`) & extensible ingestion pipeline
+- [RESPONSE_SCHEMA.md](./RESPONSE_SCHEMA.md) — Discriminated rich block protocol (`10` block types), semantic tones & RTL/LTR renderer
+- [FALLBACK_SYSTEM.md](./FALLBACK_SYSTEM.md) — Deterministic local fallback engine & conflict/abstention guarantees
+- [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) — Server environment variables & offline verification guide
 - [ENGINEERING_AUDIT.md](./ENGINEERING_AUDIT.md) — Initial repository findings & remediation plan
 - [KNOWLEDGE_PIPELINE.md](./KNOWLEDGE_PIPELINE.md) — Excel-to-canonical ETL pipeline & data integrity audit (`448/448` rows mapped, `0` unmapped)
 - [KNOWLEDGE_SCHEMA.md](./KNOWLEDGE_SCHEMA.md) — Canonical schema (`148` records), validation & bilingual retrieval architecture

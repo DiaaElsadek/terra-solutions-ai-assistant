@@ -1,4 +1,5 @@
 import type { RetrievalConfidence } from "./knowledge";
+import type { AIErrorCode, RichAIResponse } from "@/lib/ai/response-schema";
 
 /** Role of a message within a conversation. */
 export type MessageRole = "user" | "assistant" | "system";
@@ -60,8 +61,12 @@ export interface Message {
   warnings?: string[];
   /** Provider name used to generate this message. */
   provider?: string;
-  /** Whether this message came from deterministic knowledge retrieval mode rather than live LLM synthesis. */
+  /** Whether this message came from deterministic local fallback mode rather than live LLM synthesis. */
   isMock?: boolean;
+  /** Structured semantic response blocks validated on the backend. */
+  structured?: RichAIResponse;
+  /** Operational error category if fallback was activated due to an upstream issue. */
+  errorCategory?: AIErrorCode;
   /** Human-readable error description when status is 'error'. */
   errorMessage?: string;
 }

@@ -1,6 +1,6 @@
 # Knowledge Base Data Integrity Audit
 
-**Generated:** 2026-11-24T20:43:11.853055+00:00
+**Generated:** 2026-11-24T22:11:01.115619+00:00
 **Canonical Dataset:** `data/canonical/knowledge.canonical.json`
 
 ## Summary Metrics

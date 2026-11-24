@@ -27,8 +27,43 @@ export type KnowledgeRecordType =
   | "policy"
   | "overview";
 
+/** Status lifecycle of a source or canonical knowledge record. */
+export type KnowledgeRecordStatus = "active" | "inactive" | "archived";
+
+/** Supported ingestion source formats. */
+export type IngestionFileType =
+  | "xlsx"
+  | "xls"
+  | "csv"
+  | "json"
+  | "txt"
+  | "pdf"
+  | "docx";
+
+/** Manifest describing an approved source file in the canonical knowledge base. */
+export interface KnowledgeSourceManifest {
+  sourceId: string;
+  fileName: string;
+  fileType: IngestionFileType;
+  status: KnowledgeRecordStatus;
+  version: number;
+  importDate: string;
+  rowCount?: number;
+}
+
+/** High-level metadata for the consolidated canonical knowledge base. */
+export interface KnowledgeBaseMetadata {
+  id: string;
+  name: string;
+  language: string[];
+  lastUpdated: string;
+  sources: KnowledgeSourceManifest[];
+}
+
 /** Exact provenance pointer back to the original company source file. */
 export interface KnowledgeSourceRef {
+  /** Stable identifier linking to `knowledgeBase.sources`. */
+  sourceId?: string;
   /** Source filename (e.g., "Knowlege.xlsx" or "clinics.json"). */
   file: string;
   /** Human-readable sheet or section name. */
@@ -96,6 +131,7 @@ export interface KnowledgeRecord {
   confidence: "high" | "medium";
   tags: string[];
   language: "ar" | "en" | "mixed";
+  status?: KnowledgeRecordStatus;
   conflictNotes?: string[];
 }
 
@@ -131,6 +167,7 @@ export interface SearchOptions {
   clinicId?: string;
   limit?: number;
   language?: "ar" | "en" | "all";
+  includeInactive?: boolean;
 }
 
 /** Display metadata for a knowledge category. */
@@ -145,8 +182,10 @@ export interface KnowledgeCategoryInfo {
 
 /** Full canonical dataset bundle stored in data/canonical/knowledge.canonical.json. */
 export interface CanonicalKnowledgeDataset {
+  schemaVersion?: string;
   version: string;
   generatedAt: string;
+  knowledgeBase?: KnowledgeBaseMetadata;
   sources: string[];
   records: KnowledgeRecord[];
   clinics: CanonicalClinic[];

@@ -110,6 +110,18 @@ export function validateKnowledgeRecord(
   if (!Array.isArray(rec.prices)) {
     issues.push({ recordId: id, field: "prices", message: "prices must be an array" });
   }
+  if (
+    rec.status !== undefined &&
+    rec.status !== "active" &&
+    rec.status !== "inactive" &&
+    rec.status !== "archived"
+  ) {
+    issues.push({
+      recordId: id,
+      field: "status",
+      message: `Invalid record status: ${String(rec.status)}`,
+    });
+  }
 
   return issues;
 }

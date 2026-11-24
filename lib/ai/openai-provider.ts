@@ -1,6 +1,6 @@
 /**
  * Server-side OpenAI Chat Completions provider.
- * Supports structured JSON answers and SSE streaming with timeout/abort protection.
+ * Supports structured JSON (`RichAIResponse`) with source verification & PII redaction.
  */
 
 import { redactCustomerPII } from "@/lib/security/privacy";
@@ -10,6 +10,12 @@ import {
   buildSystemPromptWithContext,
   formatConversationHistory,
 } from "./prompt-builder";
+import {
+  mapConfidenceFromStatus,
+  mergeVerifiedMessageSources,
+  richResponseToMarkdown,
+  validateModelRichResponse,
+} from "./response-schema";
 import { validateAndNormalizeStructuredOutput } from "./response-validator";
 import type {
   AIProvider,
@@ -116,6 +122,38 @@ export const openaiProvider: AIProvider = {
         choices?: Array<{ message?: { content?: string } }>;
       };
       const rawText = data.choices?.[0]?.message?.content || "";
+
+      const richCheck = validateModelRichResponse(rawText, {
+        retrievedRecords: pkg.retrievedRecords,
+        confidence: request.retrieval.confidence,
+        fallbackLanguage: request.retrieval.classified.language,
+        provider: "openai",
+        model,
+      });
+
+      if (richCheck.ok && richCheck.response) {
+        const rich = richCheck.response;
+        const markdown = richResponseToMarkdown(rich);
+        return {
+          answer: markdown,
+          content: markdown,
+          language: rich.language,
+          intent: request.retrieval.classified.intent,
+          confidenceLevel: mapConfidenceFromStatus(rich.status),
+          requiresClarification: rich.status === "clarification",
+          warnings: pkg.warnings,
+          structured: rich,
+          sources: mergeVerifiedMessageSources(
+            pkg.sources,
+            rich.sources,
+            pkg.retrievedRecords
+          ),
+          externalSources: pkg.externalSources,
+          provider: `${config.name} · ${model}`,
+          isMock: false,
+        };
+      }
+
       const structured = validateAndNormalizeStructuredOutput(rawText, {
         language: request.retrieval.classified.language,
         intent: request.retrieval.classified.intent,
@@ -148,8 +186,6 @@ export const openaiProvider: AIProvider = {
   async *streamResponse(
     request: AIRequest
   ): AsyncGenerator<AIStreamChunk, void, unknown> {
-    // Call structured JSON completion for guaranteed metadata integrity, then emit smoothly,
-    // or fall back cleanly on abort.
     const full = await this.generateResponse(request);
     const words = full.answer.split(/(\s+)/);
     let buffer = "";
@@ -164,4 +200,3 @@ export const openaiProvider: AIProvider = {
     yield { type: "complete", response: full };
   },
 };
-

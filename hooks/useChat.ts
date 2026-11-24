@@ -7,8 +7,9 @@ import type { AIResponse } from "@/lib/ai/types";
 import * as convStore from "@/lib/storage/conversations";
 
 export interface ProviderStatusInfo {
-  activeProvider: "openai" | "gemini" | "mock";
+  activeProvider: "openai" | "gemini" | "mock" | "local_fallback";
   providerName: string;
+  model?: string;
   isMock: boolean;
   externalSearchAvailable: boolean;
   reason?: string;
@@ -131,6 +132,7 @@ export function useChat({
           body: JSON.stringify({
             message: queryText,
             history: historyBeforeTurn
+              .slice(0, -1)
               .filter((m) => m.role !== "system" && m.status !== "error")
               .slice(-12)
               .map((m) => ({ role: m.role, content: m.content })),
@@ -213,6 +215,8 @@ export function useChat({
             warnings: completedPayload.warnings,
             provider: completedPayload.provider,
             isMock: completedPayload.isMock,
+            structured: completedPayload.structured,
+            errorCategory: completedPayload.errorCategory,
           };
           convStore.addMessage(convId, finalMsg);
         } else if (streamedText.trim()) {

@@ -40,9 +40,9 @@ export function ChatHeader({
   const isMock = providerStatus ? providerStatus.isMock : true;
   const badgeText = providerStatus
     ? providerStatus.isMock
-      ? "Knowledge Search Mode"
+      ? "Local Knowledge Engine"
       : providerStatus.providerName
-    : "Knowledge Search Mode";
+    : "Local Knowledge Engine";
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background/95 px-3 sm:px-5">

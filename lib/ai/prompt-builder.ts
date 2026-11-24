@@ -5,6 +5,7 @@
  */
 
 import type { Message, MessageSource } from "@/types";
+import type { KnowledgeRecord } from "@/types/knowledge";
 import type { RetrievalOutput } from "@/lib/knowledge/retriever";
 import type { ExternalSearchResult } from "@/lib/search/types";
 import { SYSTEM_PROMPT } from "@/constants/prompts";
@@ -17,22 +18,28 @@ export function buildContextPackage(
     maxChars?: number;
     externalResults?: ExternalSearchResult[];
     externalSearchNote?: string;
+    contextualAnchors?: string[];
   } = {}
 ): {
   contextPackage: string;
   sources: MessageSource[];
   externalSources: MessageSource[];
+  retrievedRecords: KnowledgeRecord[];
   warnings: string[];
 } {
   const maxChars = options.maxChars ?? DEFAULT_MAX_CONTEXT_CHARS;
   const parts: string[] = [];
   const sources: MessageSource[] = [];
   const externalSources: MessageSource[] = [];
+  const retrievedRecords: KnowledgeRecord[] = [];
   const warnings: string[] = [];
   let charCount = 0;
 
   parts.push(
-    `RETRIEVAL METADATA: intent=${retrieval.classified.intent}, confidence=${retrieval.confidence}, language=${retrieval.classified.language}`
+    `RETRIEVAL METADATA: intent=${retrieval.classified.intent}, confidence=${retrieval.confidence}, language=${retrieval.classified.language}` +
+      (options.contextualAnchors && options.contextualAnchors.length > 0
+        ? `, contextAnchors=[${options.contextualAnchors.join(", ")}]`
+        : "")
   );
 
   if (retrieval.requiresClarification && retrieval.clarificationCandidates.length > 0) {
@@ -64,8 +71,8 @@ export function buildContextPackage(
           ? `  - Linked Clinics: ${r.clinicIds.join(", ")}`
           : "";
       const block = [
-        `[Source: ${r.source.file} | Sheet: ${r.source.sheet} | Rows: ${r.source.rows.join(", ")}]`,
-        `ID: ${r.id} | Type: ${r.recordType} | Category: ${r.category} | Score: ${item.score}`,
+        `[SourceId: ${r.source.sourceId || "source-001"} | File: ${r.source.file} | Sheet: ${r.source.sheet} | Rows: ${r.source.rows.join(", ")}]`,
+        `recordId: ${r.id} | Type: ${r.recordType} | Category: ${r.category} | Score: ${item.score}`,
         `Name: ${r.name}`,
         attrLines,
         priceLines,
@@ -81,6 +88,7 @@ export function buildContextPackage(
 
       parts.push(block);
       charCount += block.length;
+      retrievedRecords.push(r);
 
       sources.push({
         category: r.category,
@@ -98,9 +106,10 @@ export function buildContextPackage(
     if (retrieval.relatedRecords.length > 0 && charCount < maxChars - 800) {
       parts.push("=== RELATED RECORDS ===");
       for (const rel of retrieval.relatedRecords.slice(0, 3)) {
-        const relBlock = `[Related: ${rel.name} (${rel.source.sheet} R${rel.source.row})]\n${rel.description.slice(0, 500)}`;
+        const relBlock = `[Related: recordId=${rel.id} | ${rel.name} (${rel.source.sheet} R${rel.source.row})]\n${rel.description.slice(0, 500)}`;
         if (charCount + relBlock.length > maxChars) break;
         parts.push(relBlock);
+        retrievedRecords.push(rel);
         charCount += relBlock.length;
       }
     }
@@ -147,6 +156,7 @@ export function buildContextPackage(
     contextPackage: parts.join("\n\n"),
     sources,
     externalSources,
+    retrievedRecords,
     warnings,
   };
 }

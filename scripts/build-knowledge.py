@@ -192,7 +192,7 @@ class PipelineBuilder:
                     "Phone number / contact info",
                     "Operating hours",
                 ],
-                "sources": [{"file": "clinics.json", "sheet": "clinics", "row": 0, "rows": [0]}],
+                "sources": [{"sourceId": "source-002", "file": "clinics.json", "sheet": "clinics", "row": 0, "rows": [0]}],
             }
 
     def mark(self, sheet: str, rows: list[int]) -> None:
@@ -259,12 +259,14 @@ class PipelineBuilder:
             "clinicIds": sorted(set(clinic_ids or [])),
             "safetyFlags": safety_flags,
             "source": {
+                "sourceId": "source-002" if source_file == "clinics.json" else "source-001",
                 "file": source_file,
                 "sheet": sheet.strip(),
                 "rawSheet": sheet,
                 "row": clean_rows[0] if clean_rows else 0,
                 "rows": clean_rows,
             },
+            "status": "active",
             "sourceType": source_type,
             "confidence": "high",
             "tags": build_tags(f"{name} {description}", extra_tags),
@@ -1550,9 +1552,37 @@ def main() -> None:
             }
         )
 
+    now_iso = datetime.now(timezone.utc).isoformat()
     canonical_bundle = {
+        "schemaVersion": "1.0.0",
         "version": "2.0.0",
-        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "generatedAt": now_iso,
+        "knowledgeBase": {
+            "id": "terra-main",
+            "name": "Terra Solutions Knowledge Base",
+            "language": ["ar", "en"],
+            "lastUpdated": now_iso,
+            "sources": [
+                {
+                    "sourceId": "source-001",
+                    "fileName": "Knowlege.xlsx",
+                    "fileType": "xlsx",
+                    "status": "active",
+                    "version": 1,
+                    "importDate": now_iso,
+                    "rowCount": total_excel_rows,
+                },
+                {
+                    "sourceId": "source-002",
+                    "fileName": "clinics.json",
+                    "fileType": "json",
+                    "status": "active",
+                    "version": 1,
+                    "importDate": now_iso,
+                    "rowCount": len(clinics_raw),
+                },
+            ],
+        },
         "sources": ["data/raw/Knowlege.xlsx", "data/raw/clinics.json"],
         "records": builder.records,
         "clinics": list(builder.clinic_map.values()),

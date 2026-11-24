@@ -424,7 +424,14 @@ export class KnowledgeRetriever {
     const primaryTokens = tokenizeQuery(query);
     const expandedTokens = expandSynonyms(primaryTokens);
 
-    const { category, recordType, clinicId, limit = 8, language = "all" } = options;
+    const {
+      category,
+      recordType,
+      clinicId,
+      limit = 8,
+      language = "all",
+      includeInactive = false,
+    } = options;
 
     if (
       classified.intent === "greeting" ||
@@ -456,7 +463,9 @@ export class KnowledgeRetriever {
       };
     }
 
-    let candidates = this.index;
+    let candidates = includeInactive
+      ? this.index
+      : this.index.filter((c) => (c.record.status ?? "active") === "active");
     if (category) {
       candidates = candidates.filter((c) => c.record.category === category);
     }

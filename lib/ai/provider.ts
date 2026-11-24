@@ -1,73 +1,73 @@
 /**
  * Server-side AI provider selector & orchestration helper.
- * Automatically picks OpenAI or Google Gemini when configured on the server,
- * and otherwise provides the explicit deterministic Knowledge Search Mode fallback.
+ * Prioritizes Google Gemini when configured on the server, supports OpenAI,
+ * and provides `localFallbackProvider` whenever upstream LLMs are unavailable.
  */
 
-import { openaiProvider } from "./openai-provider";
 import { geminiProvider } from "./gemini-provider";
-import { mockProvider } from "./mock-provider";
+import { openaiProvider } from "./openai-provider";
+import { localFallbackProvider } from "./providers/local-fallback-provider";
 import type { AIProvider } from "./types";
 
-export type PreferredProvider = "auto" | "openai" | "gemini" | "mock";
+export type PreferredProvider =
+  | "auto"
+  | "openai"
+  | "gemini"
+  | "mock"
+  | "local_fallback";
 
-/**
- * Resolve which server provider handles chat generation.
- * Never exposes API keys to client components.
- */
 export function resolveServerAIProvider(
   preferred: PreferredProvider = "auto"
 ): { provider: AIProvider; fallbackUsed: boolean; reason?: string } {
-  if (preferred === "mock") {
-    return { provider: mockProvider, fallbackUsed: false };
+  if (preferred === "mock" || preferred === "local_fallback") {
+    return { provider: localFallbackProvider, fallbackUsed: true };
   }
 
   const explicitEnv = process.env.AI_PROVIDER?.trim().toLowerCase();
-  const openaiReady = openaiProvider.validateConfiguration().configured;
   const geminiReady = geminiProvider.validateConfiguration().configured;
-
-  if (preferred === "openai") {
-    if (openaiReady) return { provider: openaiProvider, fallbackUsed: false };
-    return {
-      provider: mockProvider,
-      fallbackUsed: true,
-      reason: "Requested OpenAI provider is not configured on the server.",
-    };
-  }
+  const openaiReady = openaiProvider.validateConfiguration().configured;
 
   if (preferred === "gemini") {
     if (geminiReady) return { provider: geminiProvider, fallbackUsed: false };
     return {
-      provider: mockProvider,
+      provider: localFallbackProvider,
       fallbackUsed: true,
       reason: "Requested Gemini provider is not configured on the server.",
     };
   }
 
-  // Auto mode: honor AI_PROVIDER if set, otherwise pick whichever provider is configured
-  if (explicitEnv === "gemini" && geminiReady) {
-    return { provider: geminiProvider, fallbackUsed: false };
+  if (preferred === "openai") {
+    if (openaiReady) return { provider: openaiProvider, fallbackUsed: false };
+    return {
+      provider: localFallbackProvider,
+      fallbackUsed: true,
+      reason: "Requested OpenAI provider is not configured on the server.",
+    };
   }
+
+  // Auto mode: honor explicit AI_PROVIDER env, otherwise prefer Gemini
   if (explicitEnv === "openai" && openaiReady) {
     return { provider: openaiProvider, fallbackUsed: false };
+  }
+  if (explicitEnv === "gemini" && geminiReady) {
+    return { provider: geminiProvider, fallbackUsed: false };
   }
   if (geminiReady) return { provider: geminiProvider, fallbackUsed: false };
   if (openaiReady) return { provider: openaiProvider, fallbackUsed: false };
 
   return {
-    provider: mockProvider,
+    provider: localFallbackProvider,
     fallbackUsed: true,
     reason:
-      "No upstream LLM API key (OPENAI_API_KEY, GOOGLE_AI_API_KEY, or GEMINI_API_KEY) is configured on the server.",
+      "No upstream LLM API key (API_KEY, GOOGLE_AI_API_KEY, GEMINI_API_KEY, or OPENAI_API_KEY) is configured on the server.",
   };
 }
 
-/** Backward-compatible accessor for deterministic/test use. */
 export function getAIProvider(type: PreferredProvider = "auto"): AIProvider {
   return resolveServerAIProvider(type).provider;
 }
 
-export { openaiProvider, geminiProvider, mockProvider };
+export { geminiProvider, openaiProvider, localFallbackProvider, localFallbackProvider as mockProvider };
 export type {
   AIProvider,
   AIProviderConfig,

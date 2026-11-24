@@ -1,21 +1,29 @@
 /**
  * Server-side AI Chat API Route.
  *
- * Security & Reliability Controls:
- * - Rate limiting (sliding-window per client IP)
- * - Body byte-size & message length caps + sanitization
- * - Server-only knowledge retrieval (never exposes raw files in public/)
- * - Optional Google Custom Search (strictly secondary, PII-redacted)
- * - OpenAI / Gemini / Deterministic Knowledge Search Mode orchestration
- * - NDJSON progressive streaming with AbortSignal handling & safe error redaction
+ * Pipeline:
+ * 1. Rate limiting & request payload sanitization
+ * 2. Conversation follow-up context resolution
+ * 3. Server-only canonical knowledge retrieval + provenance extraction
+ * 4. Optional PII-redacted secondary external Google search
+ * 5. Gemini (or OpenAI) grounded generation with strict JSON schema validation
+ * 6. Automatic resilient fallback to deterministic `localFallbackProvider` on any
+ *    API key issue, timeout, rate limit, HTTP error, or invalid schema output
+ * 7. Pre-validated progressive NDJSON streaming or JSON response
  */
 
 import { NextResponse } from "next/server";
 import { knowledgeRetriever } from "@/lib/knowledge/retriever";
+import { resolveContextualQuery } from "@/lib/knowledge/context-query";
 import { buildContextPackage } from "@/lib/ai/prompt-builder";
-import { resolveServerAIProvider } from "@/lib/ai/provider";
+import {
+  resolveServerAIProvider,
+  localFallbackProvider,
+} from "@/lib/ai/provider";
+import { AIProviderError } from "@/lib/ai/gemini-provider";
+import type { AIErrorCode } from "@/lib/ai/response-schema";
 import { googleSearchProvider } from "@/lib/search/google-search";
-import { SYSTEM_PROMPT } from "@/constants/prompts";
+import { TERRA_SYSTEM_PROMPT } from "@/lib/ai/prompts/terra-system-prompt";
 import {
   checkRateLimit,
   extractClientKey,
@@ -23,6 +31,7 @@ import {
   validateChatRequestPayload,
 } from "@/lib/security/api-guard";
 import type { Message } from "@/types";
+import type { AIRequest, AIResponse } from "@/lib/ai/types";
 
 export async function GET() {
   const { provider, fallbackUsed, reason } = resolveServerAIProvider("auto");
@@ -30,10 +39,67 @@ export async function GET() {
     status: "ok",
     activeProvider: provider.config.id,
     providerName: provider.config.name,
+    model: provider.config.model,
     isMock: provider.config.isMock,
     externalSearchAvailable: googleSearchProvider.isAvailable(),
     reason: fallbackUsed ? reason : undefined,
   });
+}
+
+function classifyProviderFailure(err: unknown): AIErrorCode {
+  if (err instanceof AIProviderError) return err.category;
+  const msg = err instanceof Error ? err.message.toLowerCase() : "";
+  if (msg.includes("429") || msg.includes("rate limit")) return "GEMINI_RATE_LIMIT";
+  if (msg.includes("timeout") || msg.includes("abort")) return "GEMINI_TIMEOUT";
+  if (msg.includes("not configured") || msg.includes("api key")) return "MISSING_API_KEY";
+  if (msg.includes("json") || msg.includes("schema")) return "INVALID_MODEL_RESPONSE";
+  return "GEMINI_UNAVAILABLE";
+}
+
+async function generateWithFallback(
+  provider: ReturnType<typeof resolveServerAIProvider>["provider"],
+  aiRequest: AIRequest
+): Promise<AIResponse> {
+  if (provider.config.id === "local_fallback" || provider.config.id === "mock") {
+    return localFallbackProvider.generateResponse(aiRequest);
+  }
+
+  try {
+    return await provider.generateResponse(aiRequest);
+  } catch (err) {
+    // Re-throw if client intentionally cancelled generation via AbortController
+    if (aiRequest.signal?.aborted) {
+      throw err;
+    }
+    const category = classifyProviderFailure(err);
+    const safeReason = toSafeErrorMessage(err);
+    console.warn("[Terra AI Fallback Activated]", {
+      failedProvider: provider.config.id,
+      errorCategory: category,
+      reason: safeReason,
+    });
+
+    const fallbackResponse = await localFallbackProvider.generateResponse(aiRequest);
+    const notice =
+      aiRequest.retrieval.classified.language === "ar"
+        ? "تم التبديل تلقائيًا إلى محرك المعرفة المحلي لعدم توفر استجابة Gemini حاليًا — الإجابة التالية مستخرجة مباشرة من ملفات الشركة المعتمدة."
+        : `Automatic local fallback active (${category}): answered deterministically from approved company knowledge files.`;
+
+    fallbackResponse.warnings = Array.from(
+      new Set([notice, ...fallbackResponse.warnings])
+    );
+    fallbackResponse.fallbackUsed = true;
+    fallbackResponse.errorCategory = category;
+    if (fallbackResponse.structured) {
+      fallbackResponse.structured.meta = {
+        ...fallbackResponse.structured.meta,
+        provider: "local_fallback",
+        fallbackReason: safeReason,
+        errorCategory: category,
+      };
+    }
+    return fallbackResponse;
+  }
 }
 
 export async function POST(request: Request) {
@@ -44,6 +110,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "Rate limit exceeded. Please wait a moment before sending another query.",
+        errorCategory: "INVALID_REQUEST",
       },
       {
         status: 429,
@@ -62,7 +129,7 @@ export async function POST(request: Request) {
     rawBody = await request.text();
   } catch {
     return NextResponse.json(
-      { error: "Unable to read request body." },
+      { error: "Unable to read request body.", errorCategory: "INVALID_REQUEST" },
       { status: 400 }
     );
   }
@@ -70,7 +137,7 @@ export async function POST(request: Request) {
   const validated = validateChatRequestPayload(rawBody);
   if (!validated.ok) {
     return NextResponse.json(
-      { error: validated.error },
+      { error: validated.error, errorCategory: "INVALID_REQUEST" },
       { status: validated.status }
     );
   }
@@ -78,14 +145,31 @@ export async function POST(request: Request) {
   const { message, history, includeExternalSearch, preferredProvider, stream } =
     validated.data;
 
-  // 3. Server-side retrieval
-  const retrieval = knowledgeRetriever.retrieve(message, { limit: 6 });
+  // 3. Follow-up context resolution + Server-side canonical knowledge retrieval
+  const contextual = resolveContextualQuery(message, history);
+  let retrieval: ReturnType<typeof knowledgeRetriever.retrieve>;
+  try {
+    retrieval = knowledgeRetriever.retrieve(contextual.effectiveQuery, { limit: 6 });
+  } catch (err) {
+    console.error("[Terra Knowledge Retrieval Error]", toSafeErrorMessage(err));
+    return NextResponse.json(
+      {
+        error: "Internal knowledge retrieval error.",
+        errorCategory: "KNOWLEDGE_RETRIEVAL_ERROR",
+      },
+      { status: 500 }
+    );
+  }
 
   // 4. Optional secondary external Google Search
   let externalResults = undefined;
   let externalSearchNote: string | undefined = undefined;
   if (includeExternalSearch) {
-    const ext = await googleSearchProvider.search(message, 3, request.signal);
+    const ext = await googleSearchProvider.search(
+      contextual.effectiveQuery,
+      3,
+      request.signal
+    );
     if (!ext.available) {
       externalSearchNote = ext.error;
     } else {
@@ -97,12 +181,11 @@ export async function POST(request: Request) {
   const pkg = buildContextPackage(retrieval, {
     externalResults,
     externalSearchNote,
+    contextualAnchors: contextual.extractedAnchors,
   });
 
   // 5. Provider resolution
   const resolved = resolveServerAIProvider(preferredProvider);
-  const provider = resolved.provider;
-
   const historyMessages: Message[] = history.map((h, idx) => ({
     id: `hist-${idx}`,
     role: h.role,
@@ -111,10 +194,10 @@ export async function POST(request: Request) {
     status: "sent",
   }));
 
-  const aiRequest = {
+  const aiRequest: AIRequest = {
     userMessage: message,
     conversationHistory: historyMessages,
-    systemPrompt: SYSTEM_PROMPT,
+    systemPrompt: TERRA_SYSTEM_PROMPT,
     contextPackage: pkg.contextPackage,
     retrieval,
     externalResults,
@@ -122,8 +205,22 @@ export async function POST(request: Request) {
     signal: request.signal,
   };
 
-  // 6. Streaming NDJSON response
-  if (stream && provider.streamResponse) {
+  // 6. Generate & validate response BEFORE streaming so partial unvalidated JSON is never shown
+  let finalResponse: AIResponse;
+  try {
+    finalResponse = await generateWithFallback(resolved.provider, aiRequest);
+  } catch (err) {
+    return NextResponse.json(
+      {
+        error: toSafeErrorMessage(err),
+        errorCategory: classifyProviderFailure(err),
+      },
+      { status: 499 }
+    );
+  }
+
+  // 7. Stream validated output progressively over NDJSON when requested
+  if (stream) {
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
@@ -132,35 +229,40 @@ export async function POST(request: Request) {
             encoder.encode(
               JSON.stringify({
                 type: "meta",
-                provider: provider.config.name,
-                isMock: provider.config.isMock,
-                intent: retrieval.classified.intent,
-                confidenceLevel: retrieval.confidence,
-                sources: pkg.sources,
-                externalSources: pkg.externalSources,
+                provider: finalResponse.provider,
+                isMock: finalResponse.isMock,
+                intent: finalResponse.intent,
+                confidenceLevel: finalResponse.confidenceLevel,
+                sources: finalResponse.sources,
+                externalSources: finalResponse.externalSources,
+                errorCategory: finalResponse.errorCategory,
               }) + "\n"
             )
           );
 
-          for await (const chunk of provider.streamResponse!(aiRequest)) {
+          const words = finalResponse.answer.split(/(\s+)/);
+          let buf = "";
+          for (let i = 0; i < words.length; i++) {
             if (request.signal.aborted) break;
-            if (chunk.type === "delta") {
+            buf += words[i];
+            if (i % 10 === 0 || i === words.length - 1) {
               controller.enqueue(
                 encoder.encode(
-                  JSON.stringify({ type: "delta", text: chunk.text }) + "\n"
+                  JSON.stringify({ type: "delta", text: buf }) + "\n"
                 )
               );
-            } else if (chunk.type === "complete") {
-              controller.enqueue(
-                encoder.encode(
-                  JSON.stringify({
-                    type: "done",
-                    payload: chunk.response,
-                  }) + "\n"
-                )
-              );
+              buf = "";
             }
           }
+
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({
+                type: "done",
+                payload: finalResponse,
+              }) + "\n"
+            )
+          );
         } catch (err) {
           controller.enqueue(
             encoder.encode(
@@ -185,14 +287,6 @@ export async function POST(request: Request) {
     });
   }
 
-  // 7. Standard JSON response
-  try {
-    const aiResponse = await provider.generateResponse(aiRequest);
-    return NextResponse.json(aiResponse, { status: 200 });
-  } catch (err) {
-    return NextResponse.json(
-      { error: toSafeErrorMessage(err) },
-      { status: 502 }
-    );
-  }
+  // 8. Standard JSON response
+  return NextResponse.json(finalResponse, { status: 200 });
 }

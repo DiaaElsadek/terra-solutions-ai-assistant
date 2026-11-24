@@ -12,6 +12,18 @@ export {
 export { normalizeText, detectLanguage, tokenizeQuery } from "./normalize";
 export { classifyQuery, type QueryIntent, type ClassifiedQuery } from "./intent";
 export { expandSynonyms } from "./synonyms";
+export {
+  resolveContextualQuery,
+  type ConversationTurn,
+  type ContextualQueryResult,
+} from "./context-query";
+export { KnowledgeIngestionPipeline } from "./ingestion/pipeline";
+export type {
+  RawIngestionDocument,
+  ParsedIngestionItem,
+  SourceParser,
+  IngestionOutcome,
+} from "./ingestion/types";
 export { validateCanonicalDataset, validateKnowledgeRecord } from "./validator";
 export {
   getCanonicalDataset,

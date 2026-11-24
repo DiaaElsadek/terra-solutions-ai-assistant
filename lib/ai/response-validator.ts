@@ -1,10 +1,14 @@
 /**
- * Structured LLM response validation & safe normalization.
- * Prevents malformed LLM JSON or hallucinated fields from crashing UI rendering.
+ * Structured LLM response validation & safe normalization helpers.
  */
 
-import type { RetrievalConfidence } from "@/types/knowledge";
+import type { RetrievalConfidence, KnowledgeRecord } from "@/types/knowledge";
 import type { StructuredAIOutput } from "./types";
+import {
+  extractJsonString,
+  sanitizePlainText,
+  validateModelRichResponse,
+} from "./response-schema";
 
 const VALID_CONFIDENCE = new Set<RetrievalConfidence>([
   "strong",
@@ -15,26 +19,53 @@ const VALID_CONFIDENCE = new Set<RetrievalConfidence>([
 
 const VALID_LANGS = new Set(["ar", "en", "mixed"]);
 
-/** Extract JSON payload even if an upstream model wraps it in markdown fences. */
-function extractJsonCandidate(raw: string): string {
-  const trimmed = raw.trim();
-  const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if (fenceMatch?.[1]) {
-    return fenceMatch[1].trim();
-  }
-  const firstBrace = trimmed.indexOf("{");
-  const lastBrace = trimmed.lastIndexOf("}");
-  if (firstBrace !== -1 && lastBrace > firstBrace) {
-    return trimmed.slice(firstBrace, lastBrace + 1);
-  }
-  return trimmed;
-}
+export { validateModelRichResponse, richResponseToMarkdown } from "./response-schema";
 
+/**
+ * Legacy-compatible normalizer that also accepts RichAIResponse JSON payloads.
+ */
 export function validateAndNormalizeStructuredOutput(
   rawText: string,
-  fallback: Omit<StructuredAIOutput, "answer">
+  fallback: Omit<StructuredAIOutput, "answer">,
+  options?: {
+    retrievedRecords?: KnowledgeRecord[];
+    provider?: "gemini" | "openai";
+    model?: string;
+  }
 ): StructuredAIOutput {
-  const candidate = extractJsonCandidate(rawText);
+  if (options?.retrievedRecords) {
+    const validated = validateModelRichResponse(rawText, {
+      retrievedRecords: options.retrievedRecords,
+      confidence: fallback.confidenceLevel,
+      fallbackLanguage: fallback.language,
+      provider: options.provider || "gemini",
+      model: options.model || "unknown",
+    });
+    if (validated.ok && validated.response) {
+      const r = validated.response;
+      const derivedConf: RetrievalConfidence =
+        r.status === "not_found"
+          ? "none"
+          : r.status === "clarification"
+          ? "ambiguous"
+          : r.status === "partial"
+          ? "partial"
+          : "strong";
+
+      return {
+        answer: r.answer.summary,
+        language: r.language,
+        intent: fallback.intent,
+        confidenceLevel: derivedConf,
+        requiresClarification: r.status === "clarification" || fallback.requiresClarification,
+        clarificationQuestion: fallback.clarificationQuestion,
+        warnings: fallback.warnings,
+        structured: r,
+      };
+    }
+  }
+
+  const candidate = extractJsonString(rawText);
   try {
     const parsed = JSON.parse(candidate) as Record<string, unknown>;
     if (
@@ -56,21 +87,23 @@ export function validateAndNormalizeStructuredOutput(
       const warnings = Array.isArray(parsed.warnings)
         ? parsed.warnings
             .filter((w): w is string => typeof w === "string" && w.trim() !== "")
+            .map(sanitizePlainText)
+            .filter(Boolean)
             .slice(0, 6)
         : fallback.warnings;
 
       const clarificationQuestion =
         typeof parsed.clarificationQuestion === "string" &&
         parsed.clarificationQuestion.trim()
-          ? parsed.clarificationQuestion.trim()
+          ? sanitizePlainText(parsed.clarificationQuestion)
           : fallback.clarificationQuestion;
 
       return {
-        answer: parsed.answer.trim(),
+        answer: sanitizePlainText(parsed.answer) || parsed.answer.trim(),
         language,
         intent:
           typeof parsed.intent === "string" && parsed.intent.trim()
-            ? parsed.intent.trim()
+            ? sanitizePlainText(parsed.intent)
             : fallback.intent,
         confidenceLevel,
         requiresClarification:
@@ -82,11 +115,11 @@ export function validateAndNormalizeStructuredOutput(
       };
     }
   } catch {
-    // Upstream returned plain Markdown instead of JSON — wrap safely
+    // Plain Markdown/text response wrapped safely below
   }
 
   return {
-    answer: rawText.trim() || "No answer was generated.",
+    answer: sanitizePlainText(rawText) || "No answer was generated.",
     language: fallback.language,
     intent: fallback.intent,
     confidenceLevel: fallback.confidenceLevel,
@@ -95,4 +128,3 @@ export function validateAndNormalizeStructuredOutput(
     warnings: fallback.warnings,
   };
 }
-
