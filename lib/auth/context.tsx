@@ -4,8 +4,8 @@
  * Authentication context provider.
  * Wraps the application to provide auth state and actions.
  *
- * ⚠️  Currently uses the local demo adapter.
- *     Replace `localAuthAdapter` with a real auth provider in production.
+ * NOTE: Currently uses the local demo adapter.
+ *       Replace `localAuthAdapter` with a real auth provider in production.
  */
 
 import {

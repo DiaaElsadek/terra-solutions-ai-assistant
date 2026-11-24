@@ -1,9 +1,9 @@
 /**
  * Local authentication adapter — DEMO ONLY.
  *
- * ⚠️  This adapter stores user credentials in localStorage with SHA-256
- *     hashing. It is NOT suitable for production use. Replace with a
- *     real auth provider (NextAuth, Clerk, Auth0, etc.) before deploying.
+ * NOTE: This adapter stores user credentials in localStorage with SHA-256
+ *       hashing. It is NOT suitable for production use. Replace with a
+ *       real auth provider (NextAuth, Clerk, Auth0, etc.) before deploying.
  *
  * Security notes:
  * - Passwords are hashed with SHA-256 (not bcrypt — this is a demo).

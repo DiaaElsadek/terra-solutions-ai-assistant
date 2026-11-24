@@ -2,7 +2,7 @@
  * Safe localStorage wrapper.
  * Handles SSR, quota errors, corruption, and serialization.
  *
- * ⚠️  DEMO ONLY — localStorage is device/browser-specific and not
+ * DEMO ONLY — localStorage is device/browser-specific and not
  *     shared between employees. A production deployment must use a
  *     proper backend database.
  */

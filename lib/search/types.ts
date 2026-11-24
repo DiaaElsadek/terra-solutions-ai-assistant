@@ -2,7 +2,7 @@
  * External search provider interface.
  * Prepared for future Google Custom Search or similar integration.
  *
- * ⚠️  Not implemented in the initial frontend-only release.
+ * NOTE: Not implemented in the initial frontend-only release.
  *     The API key must be stored server-side and accessed via
  *     a Next.js API route — never from the browser.
  */

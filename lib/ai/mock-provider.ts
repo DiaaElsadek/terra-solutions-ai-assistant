@@ -71,7 +71,7 @@ ${tattooBlock}
 
 ---
 > **ملاحظة للكول سنتر:** اسألني عن أي جهاز بالاسم لعرض طريقة العمل والموانع والتعليمات الكاملة.
-*📋 المصدر: قاعدة بيانات Terra Solutions (أوراق: Laser, Facial Machines, Slimming, Tattoo Removal)*`
+*المصدر: قاعدة بيانات Terra Solutions (أوراق: Laser, Facial Machines, Slimming, Tattoo Removal)*`
     : `## Available Clinic Devices & Specifications
 
 ### 1. Laser Hair Removal Devices
@@ -88,7 +88,7 @@ ${tattooBlock}
 
 ---
 > **Agent Tip:** Ask about any specific device by name (e.g., *Candela*, *Vivace*, *Clear + Brilliant*, *HIFU*, *Endolift*) for full operating instructions and contraindications.
-*📋 Source: Terra Solutions Knowledge Base (Laser, Facial Machines, Slimming, Tattoo Removal)*`;
+*Source: Terra Solutions Knowledge Base (Laser, Facial Machines, Slimming, Tattoo Removal)*`;
 
   return { content, sources, provider: config.name, isMock: true };
 }
@@ -120,9 +120,9 @@ function handlePricingIntent(arabic: boolean): AIResponse {
 | **كريم التخدير (Laser)** | مجاني حسب طلب المريض | Laser |
 | **Veneers (ابتسامات الأسنان)** | يزداد السعر كلما زادت التفاصيل الطبيعية والشفافية (من 2D إلى Diamond Feldspathic) | Dental |
 
-> ⚠️ **تنبيه هام:** **العروض الحالية وأسعار الباقات الكاملة** لباقي الخدمات (الفيلر، البوتوكس، الليزر، الفيشال، إلخ) غير متوفرة في ملف البيانات المرفق. يرجى مراجعة قائمة الأسعار المعتمدة في النظام أو مدير العيادة قبل تأكيد أي سعر للعميل.
+> **تنبيه هام:** **العروض الحالية وأسعار الباقات الكاملة** لباقي الخدمات (الفيلر، البوتوكس، الليزر، الفيشال، إلخ) غير متوفرة في ملف البيانات المرفق. يرجى مراجعة قائمة الأسعار المعتمدة في النظام أو مدير العيادة قبل تأكيد أي سعر للعميل.
 
-*📋 المصدر: قاعدة بيانات Terra Solutions*`
+*المصدر: قاعدة بيانات Terra Solutions*`
     : `## Verified Pricing & Offer Information
 
 Below are the **only** verified prices and pricing notes present in the supplied knowledge base:
@@ -137,9 +137,9 @@ Below are the **only** verified prices and pricing notes present in the supplied
 | **Laser Numbing Cream** | Free upon patient request | Laser |
 | **Dental Veneers** | Cost increases with natural detail & layering (2D → Diamond Feldspathic) | Dental |
 
-> ⚠️ **Unavailable Information Notice:** Current promotional **offers, package prices, and full price lists** for other services (Fillers, Botox, Laser sessions, Facials, etc.) are **not included** in the supplied Excel knowledge base. Please check with the clinic price sheet or supervisor before quoting unverified prices.
+> **Unavailable Information Notice:** Current promotional **offers, package prices, and full price lists** for other services (Fillers, Botox, Laser sessions, Facials, etc.) are **not included** in the supplied Excel knowledge base. Please check with the clinic price sheet or supervisor before quoting unverified prices.
 
-*📋 Source: Terra Solutions Knowledge Base (${threadRecords.length + tattooRecords.length + dentalRecords.length} related records checked)*`;
+*Source: Terra Solutions Knowledge Base (${threadRecords.length + tattooRecords.length + dentalRecords.length} related records checked)*`;
 
   return { content, sources, provider: config.name, isMock: true };
 }
@@ -200,17 +200,17 @@ function handleClinicIntent(query: string, arabic: boolean): AIResponse | null {
 ${body}
 
 ---
-> ⚠️ **ملاحظة هامة:** قاعدة البيانات الحالية لا تحتوي على **عناوين العيادات أو أرقام الهواتف أو ساعات العمل**. المعلومات أعلاه تقتصر على الأجهزة والخدمات الموثّقة لكل عيادة في ملف البيانات.
+> **ملاحظة هامة:** قاعدة البيانات الحالية لا تحتوي على **عناوين العيادات أو أرقام الهواتف أو ساعات العمل**. المعلومات أعلاه تقتصر على الأجهزة والخدمات الموثّقة لكل عيادة في ملف البيانات.
 
-*📋 المصدر: Tattoo Removal & Slimming sheets*`
+*المصدر: Tattoo Removal & Slimming sheets*`
     : `## Verified Clinic Information
 
 ${body}
 
 ---
-> ⚠️ **Unavailable Details:** Clinic street **addresses, phone numbers, and operating hours** are **not included** in the supplied Excel knowledge base. Only clinic-specific devices, doctors, and services are verified above.
+> **Unavailable Details:** Clinic street **addresses, phone numbers, and operating hours** are **not included** in the supplied Excel knowledge base. Only clinic-specific devices, doctors, and services are verified above.
 
-*📋 Source: Terra Solutions Knowledge Base (Tattoo Removal & Slimming sheets)*`;
+*Source: Terra Solutions Knowledge Base (Tattoo Removal & Slimming sheets)*`;
 
   return { content, sources, provider: config.name, isMock: true };
 }
@@ -228,7 +228,7 @@ function handleComparisonIntent(query: string, arabic: boolean): AIResponse | nu
   if (/botox|بوتوكس|بوتكس/.test(norm) && /filler|فيلر|فلر/.test(norm)) {
     const botoxRecord = knowledgeEngine.getByCategory("botox")[0];
     return {
-      content: `## Botox vs. Hyaluronic Fillers Comparison\n\n${botoxRecord?.content || ""}\n\n*📋 Source: Filler+Botox+Threads sheet*`,
+      content: `## Botox vs. Hyaluronic Fillers Comparison\n\n${botoxRecord?.content || ""}\n\n*Source: Filler+Botox+Threads sheet*`,
       sources: [{ category: "Botox", title: "Botox vs Fillers Comparison", type: "knowledge" }],
       provider: config.name,
       isMock: true,
@@ -241,7 +241,7 @@ function handleComparisonIntent(query: string, arabic: boolean): AIResponse | nu
       .find((r) => r.title.includes("مقارنة") || r.content.includes("Dr. CYJ Hair Filler"));
     if (comp) {
       return {
-        content: `## Hair Injections Comparison\n\n${comp.content}\n\n*📋 Source: Hair+face Treatments sheet*`,
+        content: `## Hair Injections Comparison\n\n${comp.content}\n\n*Source: Hair+face Treatments sheet*`,
         sources: [{ category: "Hair Treatments", title: comp.title, type: "knowledge" }],
         provider: config.name,
         isMock: true,
@@ -255,7 +255,7 @@ function handleComparisonIntent(query: string, arabic: boolean): AIResponse | nu
       .find((r) => r.title.includes("الكولاجين") || r.content.includes("الفرق بينها وبين الفيلر"));
     if (sb) {
       return {
-        content: `## Collagen Stimulating Injections vs. Fillers\n\n${sb.content}\n\n*📋 Source: Skin Booster sheet*`,
+        content: `## Collagen Stimulating Injections vs. Fillers\n\n${sb.content}\n\n*Source: Skin Booster sheet*`,
         sources: [{ category: "Skin Boosters", title: sb.title, type: "knowledge" }],
         provider: config.name,
         isMock: true,
@@ -269,8 +269,8 @@ function handleComparisonIntent(query: string, arabic: boolean): AIResponse | nu
     if (/filler|فيلر/.test(norm) && fillerRecord) {
       return {
         content: arabic
-          ? `## مقارنة منتجات الفيلر المتوفرة\n\nلتنفيذ مقارنة دقيقة، أي منتجين تحديدًا ترغب بمقارنتهما؟ إليك قائمة الفيلر المتوفرة في قاعدة البيانات:\n\n${fillerRecord.content}\n\n> 💡 اكتب مثلاً: **"قارن بين Juvederm Voluma و Radiesse"**.\n\n*📋 المصدر: Filler+Botox+Threads*`
-          : `## Filler Products Available to Compare\n\nWhich two specific products would you like to compare? Here are the verified fillers in our knowledge base:\n\n${fillerRecord.content}\n\n> 💡 **Tip:** Ask e.g. *"Compare Juvederm Voluma and Radiesse"* or *"Compare Botox vs Fillers"* for a focused comparison.\n\n*📋 Source: Filler+Botox+Threads sheet*`,
+          ? `## مقارنة منتجات الفيلر المتوفرة\n\nلتنفيذ مقارنة دقيقة، أي منتجين تحديدًا ترغب بمقارنتهما؟ إليك قائمة الفيلر المتوفرة في قاعدة البيانات:\n\n${fillerRecord.content}\n\n> **نصيحة:** اكتب مثلاً **"قارن بين Juvederm Voluma و Radiesse"**.\n\n*المصدر: Filler+Botox+Threads*`
+          : `## Filler Products Available to Compare\n\nWhich two specific products would you like to compare? Here are the verified fillers in our knowledge base:\n\n${fillerRecord.content}\n\n> **Tip:** Ask e.g. *"Compare Juvederm Voluma and Radiesse"* or *"Compare Botox vs Fillers"* for a focused comparison.\n\n*Source: Filler+Botox+Threads sheet*`,
         sources: [{ category: "Dermal Fillers", title: fillerRecord.title, type: "knowledge" }],
         provider: config.name,
         isMock: true,
@@ -300,10 +300,10 @@ function handleComparisonIntent(query: string, arabic: boolean): AIResponse | nu
     top
       .map(
         (t) =>
-          `### ${t.record.title}\n📂 *${CATEGORIES[t.record.category]?.nameEn || t.record.category}*\n\n${t.record.content}`
+          `### ${t.record.title}\n**Category:** *${CATEGORIES[t.record.category]?.nameEn || t.record.category}*\n\n${t.record.content}`
       )
       .join("\n\n---\n\n") +
-    `\n\n---\n*📋 Source: Terra Solutions Knowledge Base*`;
+    `\n\n---\n*Source: Terra Solutions Knowledge Base*`;
 
   return { content, sources, provider: config.name, isMock: true };
 }
@@ -327,7 +327,7 @@ function formatKnowledgeResponse(
 
     sections.push(
       `### ${record.title}\n` +
-        `📂 **Category:** ${catInfo?.nameEn || record.category} (${catInfo?.nameAr || ""}) · **Source Sheet:** \`${record.source.sheet}\`\n\n` +
+        `**Category:** ${catInfo?.nameEn || record.category} (${catInfo?.nameAr || ""}) · **Source Sheet:** \`${record.source.sheet}\`\n\n` +
         record.content
     );
 
@@ -366,7 +366,7 @@ function formatKnowledgeResponse(
     sections.join("\n\n---\n\n") +
     priceNote +
     safetyFooter +
-    `\n\n*📋 Source: Terra Solutions Official Excel Knowledge Base*`;
+    `\n\n*Source: Terra Solutions Official Excel Knowledge Base*`;
 
   return { content, sources };
 }
@@ -424,7 +424,7 @@ export const mockProvider: AIProvider = {
         .join("\n");
 
       return {
-        content: `## Our Products & Services\n\nTerra Solutions' knowledge base covers the following verified service categories:\n\n| Category | القسم | Overview | Records |\n| --- | --- | --- | --- |\n${list}\n\n---\nAsk about any specific product, treatment, device, or safety question for full details.\n\n*📋 Source: Terra Solutions Knowledge Base*`,
+        content: `## Our Products & Services\n\nTerra Solutions' knowledge base covers the following verified service categories:\n\n| Category | القسم | Overview | Records |\n| --- | --- | --- | --- |\n${list}\n\n---\nAsk about any specific product, treatment, device, or safety question for full details.\n\n*Source: Terra Solutions Knowledge Base*`,
         sources: [],
         provider: config.name,
         isMock: true,

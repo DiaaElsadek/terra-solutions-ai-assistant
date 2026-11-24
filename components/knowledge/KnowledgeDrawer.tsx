@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 import type { KnowledgeCategory } from "@/types/knowledge";
 import { knowledgeEngine } from "@/lib/knowledge";
 import { Badge } from "@/components/ui/Badge";
+import { RichText } from "@/components/ui/RichText";
 
 interface KnowledgeDrawerProps {
   isOpen: boolean;
@@ -159,7 +160,11 @@ export function KnowledgeDrawer({
                   dir="auto"
                   className="text-xs text-foreground-muted line-clamp-3 leading-relaxed"
                 >
-                  {record.content.replace(/\|/g, " · ").replace(/\*\*/g, "")}
+                  <RichText
+                    text={record.content
+                      .replace(/\|/g, " · ")
+                      .replace(/\*\*/g, "")}
+                  />
                 </p>
 
                 <button

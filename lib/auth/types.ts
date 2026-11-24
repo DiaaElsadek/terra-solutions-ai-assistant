@@ -1,7 +1,7 @@
 /**
  * Authentication types.
  *
- * ⚠️  TEMPORARY LOCAL ADAPTER
+ * TEMPORARY LOCAL ADAPTER
  * This module provides a demo-only authentication interface.
  * In production, replace LocalAuthAdapter with a real auth provider
  * (e.g., NextAuth, Clerk, Auth0, Firebase Auth).
