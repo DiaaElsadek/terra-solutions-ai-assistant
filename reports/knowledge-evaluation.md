@@ -1,6 +1,6 @@
 # Terra AI Knowledge Evaluation Report
 
-**Generated:** 2026-11-24T23:14:39.044Z
+**Generated:** 2026-11-24T23:39:40.824Z
 **Evaluation Set:** `evaluation/questions.json` (56 grounded questions)
 
 ## Summary Metrics

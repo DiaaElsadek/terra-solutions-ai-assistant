@@ -18,7 +18,8 @@ export type SemanticTone =
   | "danger"
   | "info"
   | "muted"
-  | "accent";
+  | "accent"
+  | "important";
 
 export type AIErrorCode =
   | "MISSING_API_KEY"
@@ -126,7 +127,19 @@ export const ALLOWED_SEMANTIC_TONES = new Set<SemanticTone>([
   "info",
   "muted",
   "accent",
+  "important",
 ]);
+
+export const INLINE_SEMANTIC_TAGS = [
+  "important",
+  "warning",
+  "success",
+  "danger",
+  "info",
+  "muted",
+] as const;
+
+export type InlineSemanticTag = (typeof INLINE_SEMANTIC_TAGS)[number];
 
 export const ALLOWED_BLOCK_TYPES = new Set<RichResponseBlock["type"]>([
   "heading",
@@ -146,8 +159,48 @@ export function sanitizePlainText(value: unknown): string {
   if (typeof value !== "string") return "";
   return value
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, "")
     .replace(/<\/?[a-zA-Z][^>]*>/g, "")
     .trim();
+}
+
+const VALID_INLINE_SEMANTIC_PAIR_RE =
+  /<(important|warning|success|danger|info|muted)>([^<]*(?:<(?!\/?(?:script|style)\b)[^<]*)*?)<\/\1>/gi;
+
+/**
+ * Sanitizes rich inline text while preserving strictly attribute-free paired
+ * semantic highlight tags (`<important>`, `<warning>`, `<success>`, `<danger>`, `<info>`, `<muted>`).
+ * Any HTML, script/style blocks, attributes, unknown tags, or unclosed markers
+ * degrade cleanly to safe plain text.
+ */
+export function sanitizeRichText(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const withoutScripts = value
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, "");
+
+  const preserved: string[] = [];
+  const tokenized = withoutScripts.replace(
+    VALID_INLINE_SEMANTIC_PAIR_RE,
+    (_full, rawTag: string, inner: string) => {
+      const cleanTag = rawTag.toLowerCase();
+      const cleanInner = sanitizePlainText(inner);
+      if (!cleanInner) return "";
+      const token = `\u0000TERRA_SEM_${preserved.length}\u0000`;
+      preserved.push(`<${cleanTag}>${cleanInner}</${cleanTag}>`);
+      return token;
+    }
+  );
+
+  const strippedRest = tokenized.replace(/<\/?[a-zA-Z][^>]*>/g, "");
+  return strippedRest
+    .replace(/\u0000TERRA_SEM_(\d+)\u0000/g, (_m, idx) => preserved[Number(idx)] ?? "")
+    .trim();
+}
+
+/** Remove semantic highlight wrappers cleanly for plain-text copy/summaries. */
+export function stripSemanticTags(text: string): string {
+  return text.replace(/<\/?(important|warning|success|danger|info|muted)>/gi, "");
 }
 
 export function normalizeTone(value: unknown, fallback: SemanticTone = "default"): SemanticTone {
@@ -172,13 +225,13 @@ export function validateSingleBlock(raw: unknown): RichResponseBlock | null {
       return { type: "heading", level: lvl, text, tone: normalizeTone(obj.tone, "accent") };
     }
     case "paragraph": {
-      const text = sanitizePlainText(obj.text);
+      const text = sanitizeRichText(obj.text);
       if (!text) return null;
       return { type: "paragraph", text, tone: normalizeTone(obj.tone) };
     }
     case "list": {
       const rawItems = Array.isArray(obj.items) ? obj.items : [];
-      const items = rawItems.map(sanitizePlainText).filter(Boolean).slice(0, 40);
+      const items = rawItems.map(sanitizeRichText).filter(Boolean).slice(0, 40);
       if (items.length === 0) return null;
       const title = sanitizePlainText(obj.title) || undefined;
       return {
@@ -220,7 +273,7 @@ export function validateSingleBlock(raw: unknown): RichResponseBlock | null {
             cleanRow[col.key] =
               val === undefined || val === null || val === ""
                 ? "—"
-                : sanitizePlainText(String(val)) || "—";
+                : sanitizeRichText(String(val)) || "—";
           }
           return cleanRow;
         });
@@ -252,7 +305,7 @@ export function validateSingleBlock(raw: unknown): RichResponseBlock | null {
       return { type: "badge", label, tone: normalizeTone(obj.tone, "accent") };
     }
     case "callout": {
-      const text = sanitizePlainText(obj.text);
+      const text = sanitizeRichText(obj.text);
       if (!text) return null;
       return {
         type: "callout",
@@ -262,7 +315,7 @@ export function validateSingleBlock(raw: unknown): RichResponseBlock | null {
       };
     }
     case "quote": {
-      const text = sanitizePlainText(obj.text);
+      const text = sanitizeRichText(obj.text);
       if (!text) return null;
       return {
         type: "quote",

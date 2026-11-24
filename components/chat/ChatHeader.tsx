@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   Menu,
   PanelLeftOpen,
@@ -8,6 +7,7 @@ import {
   BookOpen,
   ShieldCheck,
 } from "lucide-react";
+import { TerraMark } from "@/components/branding/TerraMark";
 import { Button } from "@/components/ui/Button";
 import { BRAND } from "@/constants/brand";
 
@@ -59,27 +59,9 @@ export function ChatHeader({
         )}
 
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-background-tertiary lg:hidden">
-            <Image
-              src="/images/T_logo.svg"
-              alt=""
-              width={11}
-              height={18}
-              unoptimized
-              className="h-4 w-auto object-contain"
-            />
-          </div>
+          <TerraMark size="xs" variant="badge" className="lg:hidden" />
           {sidebarCollapsed && (
-            <div className="hidden lg:flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-background-tertiary">
-              <Image
-                src="/images/T_logo.svg"
-                alt=""
-                width={11}
-                height={18}
-                unoptimized
-                className="h-4 w-auto object-contain"
-              />
-            </div>
+            <TerraMark size="xs" variant="badge" className="hidden lg:inline-flex" />
           )}
 
           <div className="min-w-0">

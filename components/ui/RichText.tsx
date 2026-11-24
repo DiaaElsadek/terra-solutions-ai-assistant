@@ -12,11 +12,26 @@ import {
   Folder,
   Lightbulb,
 } from "lucide-react";
+import { sanitizeRichText, type InlineSemanticTag } from "@/lib/ai/response-schema";
 
 const EMOJI_TOKEN_REGEX =
   /(✅|❌|✔️|✔|⚠️|⚠|🔸|🔹|✨|📍|⏳|⏰|📋|📂|💡)/g;
 
-function renderEmojiAsLucide(token: string, key: number): ReactNode {
+const SEMANTIC_SPAN_STYLES: Record<InlineSemanticTag, string> = {
+  important:
+    "inline-block rounded-md bg-primary/14 px-1.5 py-px mx-0.5 border border-primary/28 text-terra-gold-light font-medium",
+  success:
+    "inline-block rounded-md bg-emerald-500/12 px-1.5 py-px mx-0.5 border border-emerald-500/28 text-emerald-300 font-medium",
+  warning:
+    "inline-block rounded-md bg-amber-500/14 px-1.5 py-px mx-0.5 border border-amber-500/30 text-amber-200 font-medium",
+  danger:
+    "inline-block rounded-md bg-red-500/14 px-1.5 py-px mx-0.5 border border-red-500/30 text-red-200 font-medium",
+  info:
+    "inline-block rounded-md bg-sky-500/12 px-1.5 py-px mx-0.5 border border-sky-500/28 text-sky-200 font-medium",
+  muted: "text-foreground-muted/80",
+};
+
+function renderEmojiAsLucide(token: string, key: string | number): ReactNode {
   const baseClass = "inline-block align-[-0.15em] mx-0.5 shrink-0";
 
   switch (token) {
@@ -125,18 +140,17 @@ function renderEmojiOnly(text: string, keyPrefix: string): ReactNode {
     if (!part) return null;
     if (EMOJI_TOKEN_REGEX.test(part)) {
       EMOJI_TOKEN_REGEX.lastIndex = 0;
-      return renderEmojiAsLucide(part, idx);
+      return renderEmojiAsLucide(part, `${keyPrefix}-${idx}`);
     }
     return <Fragment key={`${keyPrefix}-${idx}`}>{part}</Fragment>;
   });
 }
 
-/** Replace inline markdown **bold** segments and emoji symbols with React nodes + Lucide icons. */
-export function renderTextWithLucide(text: string): ReactNode {
+function renderBoldAndEmojis(text: string, keyPrefix: string): ReactNode {
   if (!text) return text;
   const boldParts = text.split(/(\*\*[^*\n]+\*\*)/g);
   if (boldParts.length === 1) {
-    return renderEmojiOnly(text, "e");
+    return renderEmojiOnly(text, `${keyPrefix}-e`);
   }
 
   return boldParts.map((segment, idx) => {
@@ -144,16 +158,59 @@ export function renderTextWithLucide(text: string): ReactNode {
     if (segment.startsWith("**") && segment.endsWith("**") && segment.length > 4) {
       const inner = segment.slice(2, -2);
       return (
-        <strong key={`b-${idx}`} className="font-semibold text-foreground">
-          {renderEmojiOnly(inner, `bi-${idx}`)}
+        <strong key={`${keyPrefix}-b-${idx}`} className="font-semibold text-foreground">
+          {renderEmojiOnly(inner, `${keyPrefix}-bi-${idx}`)}
         </strong>
       );
     }
-    return <Fragment key={`t-${idx}`}>{renderEmojiOnly(segment, `ti-${idx}`)}</Fragment>;
+    return (
+      <Fragment key={`${keyPrefix}-t-${idx}`}>
+        {renderEmojiOnly(segment, `${keyPrefix}-ti-${idx}`)}
+      </Fragment>
+    );
   });
 }
 
-/** Recursively transform React children so string nodes render Lucide icons instead of emojis. */
+const INLINE_SEMANTIC_SPLIT_RE =
+  /(<(?:important|warning|success|danger|info|muted)>[\s\S]*?<\/(?:important|warning|success|danger|info|muted)>)/gi;
+const INLINE_SEMANTIC_EXACT_RE =
+  /^<(important|warning|success|danger|info|muted)>([\s\S]*?)<\/\1>$/i;
+
+/**
+ * Safely transforms whitelisted semantic highlight tags (`<important>`, `<warning>`,
+ * `<success>`, `<danger>`, `<info>`, `<muted>`), `**bold**` runs, and dataset emojis
+ * into controlled React nodes. Unknown/malformed tags degrade cleanly to plain text.
+ */
+export function renderTextWithLucide(text: string): ReactNode {
+  if (!text) return text;
+  const safeText = text.includes("<") ? sanitizeRichText(text) : text;
+  const parts = safeText.split(INLINE_SEMANTIC_SPLIT_RE);
+
+  if (parts.length === 1) {
+    return renderBoldAndEmojis(safeText, "p");
+  }
+
+  return parts.map((part, idx) => {
+    if (!part) return null;
+    const match = part.match(INLINE_SEMANTIC_EXACT_RE);
+    if (match) {
+      const tag = match[1].toLowerCase() as InlineSemanticTag;
+      const inner = match[2];
+      return (
+        <span key={`sem-${idx}`} className={SEMANTIC_SPAN_STYLES[tag]}>
+          {renderBoldAndEmojis(inner, `semi-${idx}`)}
+        </span>
+      );
+    }
+    return (
+      <Fragment key={`seg-${idx}`}>
+        {renderBoldAndEmojis(part, `seg-${idx}`)}
+      </Fragment>
+    );
+  });
+}
+
+/** Recursively transform React children so string nodes render Lucide icons and semantic tags. */
 export function renderNodesWithLucide(children: ReactNode): ReactNode {
   return Children.map(children, (child) => {
     if (typeof child === "string") {
@@ -169,8 +226,7 @@ export function renderNodesWithLucide(children: ReactNode): ReactNode {
   });
 }
 
-/** Renders a plain text string with inline Lucide icons replacing any dataset emojis. */
+/** Renders rich sanitized text cleanly using inline React nodes and Lucide icons. */
 export function RichText({ text }: { text: string }) {
   return <>{renderTextWithLucide(text)}</>;
 }
-

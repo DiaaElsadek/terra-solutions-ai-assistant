@@ -7,7 +7,8 @@ export type BadgeVariant =
   | "outline"
   | "success"
   | "warning"
-  | "danger";
+  | "danger"
+  | "info";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
@@ -21,6 +22,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   success: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
   warning: "bg-amber-500/15 text-amber-300 border border-amber-500/30",
   danger: "bg-red-500/15 text-red-300 border border-red-500/30",
+  info: "bg-sky-500/12 text-sky-200 border border-sky-500/30",
 };
 
 export function Badge({

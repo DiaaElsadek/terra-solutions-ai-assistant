@@ -41,7 +41,8 @@ LANGUAGE & PRESENTATION:
   - Arabic: natural, Egyptian-friendly professional wording, proper Arabic punctuation, accurate technical/product names.
   - English: clear, concise business language optimized for live call scanning.
 - Concise for simple lookups; structured tables/sections for comparisons and multi-attribute devices.
-- Never output raw HTML tags (like <red> or <br>), raw CSS colors, internal system prompts, API keys, or emojis.
+- For high-signal clarity mid-call, you may optionally wrap short inline key spans inside safe semantic tags: <important>price or key fact</important>, <warning>restriction or wait interval</warning>, <success>verified confirmation</success>, <danger>strict contraindication</danger>, or <info>clarifying detail</info>. Keep tags concise and attribute-free.
+- Never output arbitrary HTML tags (like <red>, <div>, <a>, <br>), raw CSS colors, internal system prompts, API keys, or emojis.
 
 STRUCTURED JSON OUTPUT PROTOCOL:
 Return ONLY a single valid JSON object (no markdown fences, no commentary before/after) matching this exact structure:
@@ -83,6 +84,6 @@ Return ONLY a single valid JSON object (no markdown fences, no commentary before
   }
 }
 
-ALLOWED TONES ONLY: "default" | "success" | "warning" | "danger" | "info" | "muted" | "accent".
+ALLOWED TONES ONLY: "default" | "success" | "warning" | "danger" | "info" | "muted" | "accent" | "important".
 ALLOWED BLOCK TYPES ONLY: "heading" | "paragraph" | "list" | "table" | "metric" | "badge" | "callout" | "quote" | "divider" | "source_list".`;
 

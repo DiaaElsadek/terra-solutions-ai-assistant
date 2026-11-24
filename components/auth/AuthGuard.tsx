@@ -2,8 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { BrandLogo } from "@/components/ui/BrandLogo";
-import { Spinner } from "@/components/ui/Spinner";
+import { TerraMark } from "@/components/branding/TerraMark";
 import { useAuth } from "@/lib/auth/context";
 import { ROUTES } from "@/constants/config";
 
@@ -25,13 +24,13 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground gap-4">
-        <BrandLogo href="" compact size="lg" priority />
-        <Spinner size="lg" className="text-primary" />
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground gap-4 px-4">
+        <TerraMark size="lg" variant="tile" />
+        <div className="w-28 h-1 rounded-full terra-shimmer" aria-hidden="true" />
         <p className="text-sm text-foreground-muted">
           {isLoading
-          ? "Loading Terra Solutions Assistant…"
-          : "Redirecting to sign in…"}
+            ? "Loading Terra Solutions Assistant…"
+            : "Redirecting to sign in…"}
         </p>
       </div>
     );

@@ -3,7 +3,8 @@
 import { useState, useEffect, useSyncExternalStore, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Mail, Lock, AlertCircle, Info, Sparkles } from "lucide-react";
+import { Mail, Lock, AlertCircle, Info } from "lucide-react";
+import { TerraMark } from "@/components/branding/TerraMark";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -139,7 +140,7 @@ export function SignInForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="rounded-2xl border border-border bg-background-secondary p-6 sm:p-8 shadow-xl">
+      <div className="rounded-2xl border border-border bg-background-secondary p-6 sm:p-8 terra-subtle-shadow">
         <div className="flex flex-col items-center text-center mb-6">
           <BrandLogo href="/" compact size="lg" priority className="mb-4" />
           <h1 className="font-display text-2xl font-bold text-foreground">
@@ -235,7 +236,7 @@ export function SignInForm() {
             size="md"
             disabled={isSubmitting}
             onClick={handleDemoAgentSignIn}
-            leftIcon={<Sparkles className="h-4 w-4 text-primary" />}
+            leftIcon={<TerraMark size="xs" variant="bare" />}
             className="w-full"
           >
             Quick Demo Agent Sign-In

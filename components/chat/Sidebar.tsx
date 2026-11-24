@@ -123,22 +123,23 @@ export function Sidebar({
         </Button>
 
         <div className="relative flex items-center">
-          <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-foreground-muted/60" />
+          <Search className="pointer-events-none absolute start-2.5 h-3.5 w-3.5 text-foreground-muted/60" />
           <input
             ref={effectiveSearchRef}
             type="text"
+            dir="auto"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search chats… (/)"
             aria-label="Search conversations"
-            className="w-full h-9 rounded-lg bg-background-secondary border border-border pl-8 pr-7 text-xs text-foreground placeholder:text-foreground-muted/50 focus:outline-none focus:border-primary"
+            className="w-full h-9 rounded-lg bg-background-secondary border border-border ps-8 pe-7 text-xs text-foreground placeholder:text-foreground-muted/50 focus:outline-none focus:border-primary"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => onSearchChange("")}
               aria-label="Clear search"
-              className="absolute right-2 p-0.5 text-foreground-muted hover:text-foreground"
+              className="absolute end-2 p-0.5 text-foreground-muted hover:text-foreground cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
             </button>

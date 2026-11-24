@@ -34,10 +34,12 @@ export const COLORS = {
 export const FONTS = {
   body: "Inter",
   display: "Space Grotesk",
+  arabic: "IBM Plex Sans Arabic",
 } as const;
 
 /** Navigation links for the marketing pages. */
 export const NAV_LINKS = [
+  { label: "Capabilities", href: "/#capabilities" },
   { label: "Knowledge Coverage", href: "/#services" },
   { label: "Operations & Clinics", href: "/#about" },
 ] as const;

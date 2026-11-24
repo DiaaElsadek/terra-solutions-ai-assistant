@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Droplets,
-  Sparkles,
+  Stethoscope,
   Layers,
   User,
   Zap,
@@ -30,7 +30,7 @@ import { ROUTES } from "@/constants/config";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Droplets,
-  Sparkles,
+  Sparkles: Stethoscope,
   Layers,
   User,
   Zap,
@@ -87,7 +87,7 @@ export function ProductsSection() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat) => {
-            const IconComponent = ICON_MAP[cat.icon] || Sparkles;
+            const IconComponent = ICON_MAP[cat.icon] || Stethoscope;
             const highlights = VERIFIED_HIGHLIGHTS[cat.id] || [];
 
             return (

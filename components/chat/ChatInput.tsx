@@ -80,7 +80,11 @@ export function ChatInput({
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isGenerating}
-            placeholder="Ask about services, prices, offers, devices… · اسأل عن الخدمات أو الأسعار أو العروض..."
+            placeholder={
+              isGenerating
+                ? "Preparing verified answer…"
+                : "Ask about services, prices, offers, or devices… · اسأل عن الخدمات أو الأسعار أو العروض أو الأجهزة..."
+            }
             aria-label="Message Terra Solutions Assistant"
             className="flex-1 resize-none bg-transparent py-1.5 text-sm text-foreground placeholder:text-foreground-muted/50 focus:outline-none disabled:opacity-60 max-h-[168px] leading-relaxed"
           />

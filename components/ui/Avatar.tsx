@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { clsx } from "clsx";
+import { TerraMark } from "@/components/branding/TerraMark";
 
 export interface AvatarProps {
   name?: string;
@@ -26,38 +26,23 @@ export function Avatar({
   size = "md",
   className,
 }: AvatarProps) {
-  const sizeClass = size === "sm" ? "h-7 w-7 text-xs" : "h-9 w-9 text-xs";
-
   if (variant === "assistant") {
     return (
-      <div
-        aria-hidden="true"
-        className={clsx(
-          "shrink-0 rounded-lg bg-background-tertiary border border-primary/35 flex items-center justify-center",
-          sizeClass,
-          className
-        )}
-      >
-        <Image
-          src="/images/T_logo.svg"
-          alt=""
-          width={14}
-          height={24}
-          unoptimized
-          className={clsx(
-            "w-auto object-contain",
-            size === "sm" ? "h-4" : "h-5"
-          )}
-        />
-      </div>
+      <TerraMark
+        size={size === "sm" ? "xs" : "sm"}
+        variant="tile"
+        className={className}
+      />
     );
   }
+
+  const sizeClass = size === "sm" ? "h-7 w-7 text-[11px]" : "h-9 w-9 text-xs";
 
   return (
     <div
       aria-hidden="true"
       className={clsx(
-        "shrink-0 rounded-lg bg-background-tertiary border border-border-hover text-terra-gold-light font-semibold flex items-center justify-center",
+        "shrink-0 rounded-xl bg-background-tertiary border border-border-hover text-terra-gold-light font-semibold flex items-center justify-center",
         sizeClass,
         className
       )}
