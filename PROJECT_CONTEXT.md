@@ -2,7 +2,7 @@
 
 ## Overview
 
-Terra AI Assistant is a three-experience internal web application built on **Next.js 16.4.6** using App Router route groups so the Marketing/Auth experience and the full-screen Chat Workspace share one design system while using dedicated layouts.
+Terra AI Assistant is a full-stack internal AI knowledge retrieval platform built on **Next.js 16.4.6** (App Router, Cache Components & Partial Prefetching), **React 19.3.0**, **TypeScript 5** (strict mode), and **Tailwind CSS 4.3.3** for Terra Solutions' Call Center and Customer Support teams.
 
 ---
 
@@ -10,73 +10,61 @@ Terra AI Assistant is a three-experience internal web application built on **Nex
 
 ```text
 app/
-├── (marketing)/
-│   ├── layout.tsx          # Navbar + Footer shell
-│   ├── page.tsx            # Landing page (/)
-│   ├── signin/page.tsx     # Sign In (/signin)
-│   └── signup/page.tsx     # Sign Up (/signup)
-├── (chat)/
-│   ├── layout.tsx          # Full-viewport workspace container
-│   └── chat/page.tsx       # Protected AI Workspace (/chat)
-├── api/chat/route.ts       # Prepared server-side LLM proxy endpoint
-├── globals.css             # Terra brand design tokens & Tailwind v4 @theme inline
-├── layout.tsx              # Root layout (Inter, Space Grotesk, AuthProvider)
-└── not-found.tsx           # Branded 404 page
+├── (marketing)/              # Public landing, sign-in, sign-up pages
+├── (chat)/chat/page.tsx      # Protected AI Knowledge Workspace
+├── api/
+│   ├── chat/route.ts         # Rate-limited RAG chat + NDJSON streaming endpoint
+│   └── knowledge/route.ts    # Server-only Knowledge Explorer API (clinics/records/related)
+├── globals.css               # Terra brand tokens (#0D0B07, #161209, #CBB36A)
+└── layout.tsx                # Root layout & AuthProvider
 
 components/
-├── ui/                     # Button, Input, Card, Badge, Modal, Spinner, Avatar, BrandLogo
-├── layout/                 # Navbar, Footer
-├── landing/                # Hero, ProductsSection, CompanyIntro
-├── auth/                   # SignInForm, SignUpForm, AuthGuard
-├── chat/                   # ChatWorkspace, Sidebar, ConversationList, ConversationItem,
-│                           # ChatHeader, ChatMessages, MessageBubble, MarkdownRenderer,
-│                           # ChatInput, SuggestedPrompts, TypingIndicator
-└── knowledge/              # KnowledgeDrawer (live category/record browser)
+├── ui/                       # Button, Input, Card, Badge, Modal, Spinner, Avatar, BrandLogo
+├── layout/                   # Navbar, Footer
+├── landing/                  # Hero, ProductsSection, CompanyIntro (sanitized public summaries)
+├── auth/                     # SignInForm, SignUpForm, AuthGuard
+├── chat/                     # ChatWorkspace, Sidebar, ChatHeader, MessageBubble (Source Modal),
+│                             # MarkdownRenderer, ChatInput (Stop generation), SuggestedPrompts
+└── knowledge/                # KnowledgeDrawer (clinic filter, detail & related records)
 
-hooks/
-├── useConversations.ts     # Conversation CRUD, search, date grouping, sidebar prefs
-└── useChat.ts              # Message sending, retry, auto-titling, quota handling
+data/
+├── raw/                      # Original Knowlege.xlsx, clinics.json, legacy exports (private)
+└── canonical/                # knowledge.canonical.json (148 records), unresolved.json ([])
 
 lib/
-├── ai/                     # AIProvider interface, prompt-builder, mock-provider, factory
-├── auth/                   # AuthProvider interface, React Context, localAuthAdapter
-├── knowledge/              # Parser, bilingual search engine, categories, data loader
-├── search/                 # External SearchProvider interface + stubSearchProvider
-└── storage/                # Safe localStorage wrapper + conversation store
+├── knowledge/                # normalize, intent, synonyms, retriever, validator, server-store, public-summary
+├── ai/                       # prompt-builder, response-validator, openai-provider, gemini-provider,
+│                             # mock-provider, provider selector
+├── security/                 # api-guard (rate limit, size/length checks, safe errors), privacy (PII redaction)
+├── search/                   # google-search (optional server Custom Search) + types
+├── auth/                     # local-adapter (demo-only localStorage SHA-256) + types + context
+└── storage/                  # SSR-safe localStorage conversation persistence
 
-constants/                  # brand.ts, config.ts, prompts.ts
-types/                      # Shared TypeScript interfaces
-public/data/knowledge.json  # Official Excel-derived JSON dataset
+evaluation/                   # 56-case bilingual QA set, evaluation runner & report generator
+reports/                      # knowledge-audit.{json,md} & knowledge-evaluation.md
+scripts/                      # build-knowledge.py, run-compiled.cjs, cjs-alias-hook.cjs
+tests/                        # knowledge.test.ts, ai-and-security.test.ts, storage-and-auth.test.ts
 ```
 
 ---
 
 ## LocalStorage Persistence Schema (`terra_v1_*`)
 
-All browser persistence is centralized in `lib/storage/local-storage.ts` and `lib/storage/conversations.ts`.
+Client workspace conversation history and demo auth remain in browser `localStorage` (`lib/storage/local-storage.ts`, `lib/storage/conversations.ts`) with SSR guards, corrupt-JSON auto-recovery, and `QuotaExceededError` handling:
 
 | Key | Type | Purpose |
 | --- | --- | --- |
-| `terra_v1_conversations` | `ConversationSummary[]` | Index of conversations sorted by `updatedAt` |
-| `terra_v1_conv_{id}` | `Message[]` | Messages belonging to conversation `{id}` |
-| `terra_v1_active_conversation` | `string` | Last selected conversation ID |
-| `terra_v1_preferences` | `UserPreferences` | `{ sidebarCollapsed, lastActiveConversationId }` |
-| `terra_v1_auth_user` | `AuthUser` | Currently signed-in demo agent profile |
-| `terra_v1_auth_session` | `string` | Active demo user ID |
-| `terra_v1_auth_users` | `StoredUser[]` | Registered demo accounts (SHA-256 password hash + salt, never plaintext) |
-| `terra_v1_remember_email` | `string` | Optional remembered email address |
-
-### Safety Mechanisms
-- **SSR Guard:** `isAvailable()` prevents access during server rendering.
-- **Hydration Safety:** All reads happen inside `useEffect` with skeleton states prior to hydration.
-- **Corruption Recovery:** Invalid JSON entries are caught, removed, and replaced with safe defaults.
-- **Quota Handling:** `QuotaExceededError` is caught cleanly and surfaces a non-blocking banner warning.
+| `terra_v1_conversations` | `ConversationSummary[]` | Sorted conversation summaries |
+| `terra_v1_conv_{id}` | `Message[]` | Messages for conversation `{id}` |
+| `terra_v1_active_conversation` | `string` | Active conversation ID |
+| `terra_v1_preferences` | `UserPreferences` | Sidebar state & last active conversation |
+| `terra_v1_auth_user` / `_session` | `AuthUser` / `string` | Demo agent session |
+| `terra_v1_auth_users` | `StoredUser[]` | Demo accounts (salted SHA-256, never plaintext) |
 
 ---
 
-## Backend Migration Roadmap
+## Production Hardening Roadmap
 
-1. **Database Persistence:** Replace `lib/storage/conversations.ts` calls inside `hooks/useConversations.ts` and `hooks/useChat.ts` with REST/tRPC calls backed by PostgreSQL or Supabase.
-2. **Production Authentication:** Implement `AuthProvider` (`lib/auth/types.ts`) with NextAuth/Auth.js, Clerk, or Auth0, and replace `AuthGuard` with server/middleware verification.
-3. **LLM Synthesis & Vector RAG:** Complete `app/api/chat/route.ts` with your chosen LLM SDK and swap `KnowledgeEngine` (`lib/knowledge/index.ts`) to hybrid/vector retrieval if the dataset grows significantly.
-
+1. **Server Authentication Middleware:** Replace demo `localAuthAdapter` (`lib/auth/local-adapter.ts`) and browser-only `AuthGuard` with server-validated sessions (Auth.js / Clerk / SSO) guarding `/chat`, `/api/chat`, and `/api/knowledge`.
+2. **Shared Database & Distributed Rate Limiting:** Replace `localStorage` conversation storage with PostgreSQL/Supabase and swap `lib/security/api-guard.ts`'s in-memory `Map` with Redis/Upstash for multi-instance deployments.
+3. **Optional Hybrid Vector Retrieval:** The pre-indexed deterministic engine (`knowledgeRetriever`) handles `148` canonical records cleanly (`93.9%` Top-1, `100%` Recall@3); if the knowledge base scales to thousands of rows, add embedding vectors alongside lexical/synonym scoring.

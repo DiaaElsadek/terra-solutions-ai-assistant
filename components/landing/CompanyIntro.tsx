@@ -3,22 +3,18 @@ import { Building2, CheckCircle2, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ROUTES } from "@/constants/config";
-import { getKnowledgeRecords, getKnowledgeSheetCount } from "@/lib/knowledge/data";
-
-/** Verified partner clinics referenced inside the supplied Excel dataset. */
-const VERIFIED_CLINICS = [
-  { name: "Well Touch", scope: "Q-Switch PV Laser Tattoo Removal & Z-Lipo / Z-Wave Slimming" },
-  { name: "New Age", scope: "DEKA Q-Switch Tattoo Removal (with Dr. Mitra)" },
-  { name: "Demadent + VIP", scope: "PV Laser + SPECTRA Tattoo Removal & Microblading Consultation" },
-  { name: "One Touch", scope: "Q-Switch Ultralight, Cool Shaping, Lipozero, HIFU & InBody" },
-] as const;
+import {
+  getPublicClinicSummaries,
+  getPublicDatasetOverview,
+} from "@/lib/knowledge/public-summary";
 
 /**
- * Company introduction built solely from verified Terra Solutions details.
+ * Company introduction built solely from verified Terra Solutions details
+ * using sanitized public summary metadata (never raw internal notes).
  */
 export function CompanyIntro() {
-  const totalRecords = getKnowledgeRecords().length;
-  const totalSheets = getKnowledgeSheetCount();
+  const clinics = getPublicClinicSummaries();
+  const overview = getPublicDatasetOverview();
 
   return (
     <section id="about" className="py-20 bg-background">
@@ -37,16 +33,17 @@ export function CompanyIntro() {
               supporting aesthetic and dental clinics with trained customer support specialists.
             </p>
             <p className="mt-3 text-base text-foreground-muted leading-relaxed">
-              Instead of navigating {totalSheets} separate Excel sheets mid-call, Terra AI Assistant
-              unifies {totalRecords} structured knowledge sections into one fast conversational tool —
-              helping agents answer customer inquiries consistently while respecting clinical boundaries.
+              Instead of navigating {overview.sheetsCount} separate Excel sheets mid-call,
+              Terra AI Assistant unifies {overview.recordsCount} normalized knowledge entries
+              across {overview.clinicsCount} partner clinics into one fast conversational tool —
+              helping agents answer inquiries consistently while respecting clinical boundaries.
             </p>
 
             <ul className="mt-6 space-y-3">
               {[
                 "Structured product tables, device specs, and pre/post-care protocols",
                 "Dedicated pregnancy and lactation safety matrix for quick screening",
-                "Clear source attribution back to the original company spreadsheet",
+                "Row-level source attribution back to the official company spreadsheet",
               ].map((point) => (
                 <li
                   key={point}
@@ -71,7 +68,7 @@ export function CompanyIntro() {
             </div>
           </div>
 
-          {/* Right column: Verified clinics covered in dataset */}
+          {/* Right column: Verified clinics consolidated from clinics.json + Excel */}
           <div className="rounded-2xl border border-border bg-background-secondary p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 border border-primary/30 text-primary">
@@ -82,22 +79,22 @@ export function CompanyIntro() {
                   Clinics Referenced in Knowledge Base
                 </h3>
                 <p className="text-xs text-foreground-muted">
-                  Verified from Tattoo Removal &amp; Slimming operational sheets
+                  Consolidated from clinics.json &amp; operational sheets
                 </p>
               </div>
             </div>
 
             <div className="space-y-3">
-              {VERIFIED_CLINICS.map((clinic) => (
+              {clinics.map((clinic) => (
                 <div
-                  key={clinic.name}
+                  key={clinic.id}
                   className="rounded-xl border border-border bg-background-tertiary/70 p-4"
                 >
                   <div className="font-display text-sm font-semibold text-primary">
                     {clinic.name}
                   </div>
                   <p className="mt-1 text-xs text-foreground-muted leading-relaxed">
-                    {clinic.scope}
+                    {clinic.services.join(" · ") || "Partner clinic"}
                   </p>
                 </div>
               ))}
@@ -108,4 +105,3 @@ export function CompanyIntro() {
     </section>
   );
 }
-

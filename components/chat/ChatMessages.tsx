@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Sparkles } from "lucide-react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import type { Message } from "@/types";
 import { MessageBubble } from "./MessageBubble";
 import { TypingIndicator } from "./TypingIndicator";
@@ -44,8 +44,8 @@ export function ChatMessages({
   if (messages.length === 0 && !isGenerating) {
     return (
       <div className="flex-1 overflow-y-auto px-4 py-8 sm:px-6 flex flex-col items-center justify-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 border border-primary/40 text-primary mb-4">
-          <Sparkles className="h-6 w-6" />
+        <div className="mb-5 rounded-2xl border border-primary/25 bg-primary/5 px-5 py-3">
+          <BrandLogo href="" compact size="md" priority />
         </div>
         <h2 className="font-display text-2xl font-bold text-foreground text-center">
           How can I assist your call today?

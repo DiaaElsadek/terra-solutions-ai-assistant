@@ -1,0 +1,195 @@
+{
+  "generatedAt": "2026-11-24T20:43:11.853055+00:00",
+  "sourceFiles": {
+    "excel": "data/raw/Knowlege.xlsx",
+    "clinics": "data/raw/clinics.json",
+    "legacyJson": "data/raw/knowledge.json",
+    "extractedJson": "data/raw/knowlege-extracted.json"
+  },
+  "counts": {
+    "totalSourceSheets": 10,
+    "totalSourceNonEmptyRows": 448,
+    "totalExtractedRows": 448,
+    "totalSourceNonWhitespaceCells": 771,
+    "totalCanonicalRecords": 148,
+    "successfullyMappedSourceRows": 448,
+    "unmappedSourceRows": 0,
+    "duplicateOrConflictingFindings": 4
+  },
+  "sheetBreakdown": [
+    {
+      "sheet": "Filler+Botox+Threads",
+      "nonEmptyRows": 113,
+      "mappedRows": 113,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Laser ",
+      "nonEmptyRows": 19,
+      "mappedRows": 19,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Hair+face Treatments  ",
+      "nonEmptyRows": 63,
+      "mappedRows": 63,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Skin Booster ",
+      "nonEmptyRows": 58,
+      "mappedRows": 58,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Facial ",
+      "nonEmptyRows": 24,
+      "mappedRows": 24,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Tattoo Removal",
+      "nonEmptyRows": 27,
+      "mappedRows": 27,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "pregnancy and lactation",
+      "nonEmptyRows": 23,
+      "mappedRows": 23,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Slimming ",
+      "nonEmptyRows": 51,
+      "mappedRows": 51,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Facial Machines  ",
+      "nonEmptyRows": 43,
+      "mappedRows": 43,
+      "unmappedRows": 0
+    },
+    {
+      "sheet": "Dental",
+      "nonEmptyRows": 27,
+      "mappedRows": 27,
+      "unmappedRows": 0
+    }
+  ],
+  "legacyJsonDiffSheets": [
+    "Filler+Botox+Threads",
+    "Skin Booster ",
+    "Facial Machines  "
+  ],
+  "conflicts": [
+    {
+      "id": "conflict-botox-postcare",
+      "severity": "error",
+      "topic": "Botox post-care duration copy-paste error",
+      "description": "Row 156 under Botox in 'Filler+Botox+Threads' repeats filler aftercare ('النتائج تدوم بين 3 شهور إلى 1 سنة، حسب نوع الفلر'), contradicting Botox durability of 3–6 months (R132, R147, R148, R162).",
+      "sources": [
+        {
+          "file": "Knowlege.xlsx",
+          "sheet": "Filler+Botox+Threads",
+          "row": 156,
+          "rows": [
+            156
+          ]
+        },
+        {
+          "file": "Knowlege.xlsx",
+          "sheet": "Filler+Botox+Threads",
+          "row": 162,
+          "rows": [
+            162
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conflict-radiesse-duration",
+      "severity": "warning",
+      "topic": "Radiesse durability discrepancy",
+      "description": "Radiesse R96 specifies '12–18 شهر', whereas R106 repeats generic filler post-care '3 شهور إلى 1 سنة'.",
+      "sources": [
+        {
+          "file": "Knowlege.xlsx",
+          "sheet": "Filler+Botox+Threads",
+          "row": 96,
+          "rows": [
+            96
+          ]
+        },
+        {
+          "file": "Knowlege.xlsx",
+          "sheet": "Filler+Botox+Threads",
+          "row": 106,
+          "rows": [
+            106
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conflict-clinic-spelling",
+      "severity": "warning",
+      "topic": "Clinic spelling variants across files",
+      "description": "'clinics.json' lists 'Dermadent' and 'Well Touch'; 'Tattoo Removal' R7 writes 'Demadent + Vip' and R21 'ديرمادنت', while 'Slimming ' R20/R26 writes 'WellTouch'.",
+      "sources": [
+        {
+          "file": "clinics.json",
+          "sheet": "clinics",
+          "row": 0,
+          "rows": [
+            0
+          ]
+        },
+        {
+          "file": "Knowlege.xlsx",
+          "sheet": "Tattoo Removal",
+          "row": 7,
+          "rows": [
+            7,
+            21
+          ]
+        },
+        {
+          "file": "Knowlege.xlsx",
+          "sheet": "Slimming ",
+          "row": 20,
+          "rows": [
+            20,
+            26
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conflict-legacy-json-diffs",
+      "severity": "warning",
+      "topic": "Legacy knowledge.json diffs vs. Knowlege.xlsx",
+      "description": "Original Knowlege.xlsx fixes 'المضاعفات' (vs typo 'المضفات' in legacy knowledge.json Facial Machines R6), has 'تدريجية' vs 'تدريجيًا' (Skin Booster), and includes Wingdings bullet 0xf0b7 on Restylane kysse.",
+      "sources": [
+        {
+          "file": "Knowlege.xlsx",
+          "sheet": "Facial Machines  ",
+          "row": 6,
+          "rows": [
+            6
+          ]
+        },
+        {
+          "file": "knowledge.json",
+          "sheet": "Facial Machines  ",
+          "row": 6,
+          "rows": [
+            6
+          ]
+        }
+      ]
+    }
+  ],
+  "unmappedRows": []
+}

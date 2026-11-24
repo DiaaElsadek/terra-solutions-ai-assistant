@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/lib/auth/context";
 import { ROUTES } from "@/constants/config";
@@ -24,7 +25,8 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground gap-3">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground gap-4">
+        <BrandLogo href="" compact size="lg" priority />
         <Spinner size="lg" className="text-primary" />
         <p className="text-sm text-foreground-muted">
           {isLoading ? "Loading Terra AI Workspace…" : "Redirecting to sign in…"}

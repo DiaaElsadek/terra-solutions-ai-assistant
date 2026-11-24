@@ -1,4 +1,4 @@
-/** Available knowledge categories derived from the Excel data sheets. */
+/** Canonical knowledge categories derived from Terra Solutions' Excel workbook and clinics list. */
 export type KnowledgeCategory =
   | "fillers"
   | "botox"
@@ -13,70 +13,150 @@ export type KnowledgeCategory =
   | "pregnancy-safety"
   | "slimming"
   | "facial-machines"
-  | "dental";
+  | "dental"
+  | "clinics";
 
-/** A normalized knowledge record extracted from the company data. */
-export interface KnowledgeRecord {
-  /** Stable identifier (category + index). */
-  id: string;
-  /** Primary category. */
-  category: KnowledgeCategory;
-  /** Optional sub-category (e.g., "Juvederm" under "fillers"). */
-  subcategory?: string;
-  /** Record title — product name, treatment name, etc. */
-  title: string;
-  /** English title if different from the primary title. */
-  titleEn?: string;
-  /** Full content — may contain Markdown-like formatting. */
-  content: string;
-  /** Searchable tags extracted from the content. */
-  tags: string[];
-  /** Primary language of the content. */
-  language: "ar" | "en" | "mixed";
-  /** Source attribution. */
-  source: {
-    /** Original Excel sheet name. */
-    sheet: string;
-    /** Row range in the original data [start, end]. */
-    rowRange: [number, number];
-  };
-  /** Optional structured metadata (e.g., country, price, duration). */
-  metadata?: Record<string, string>;
+/** Semantic type of a canonical knowledge record. */
+export type KnowledgeRecordType =
+  | "product"
+  | "service"
+  | "device"
+  | "clinic"
+  | "safety-rule"
+  | "comparison"
+  | "policy"
+  | "overview";
+
+/** Exact provenance pointer back to the original company source file. */
+export interface KnowledgeSourceRef {
+  /** Source filename (e.g., "Knowlege.xlsx" or "clinics.json"). */
+  file: string;
+  /** Human-readable sheet or section name. */
+  sheet: string;
+  /** Exact worksheet name in the Excel workbook (may include trailing spaces). */
+  rawSheet?: string;
+  /** Primary 1-based Excel row number (0 for non-tabular JSON like clinics.json). */
+  row: number;
+  /** Exact list of 1-based Excel rows contributing to this record. */
+  rows: number[];
 }
 
-/** A search result with relevance scoring. */
+/** Structured pricing entry extracted without fabrication. */
+export interface PriceItem {
+  amount?: number;
+  currency?: string;
+  unit?: string;
+  note: string;
+}
+
+/** Documented data conflict or copy-paste contradiction detected in source files. */
+export interface KnowledgeConflict {
+  id: string;
+  severity: "warning" | "error";
+  topic: string;
+  description: string;
+  sources: KnowledgeSourceRef[];
+}
+
+/** Safety metadata attached to treatments/products when verified in source data. */
+export interface SafetyFlags {
+  pregnancyAllowed?: boolean;
+  lactationAllowed?: boolean | "doctor_evaluation";
+  contraindications?: string[];
+  preCare?: string[];
+  postCare?: string[];
+}
+
+/** Canonical validated knowledge record. */
+export interface KnowledgeRecord {
+  id: string;
+  recordType: KnowledgeRecordType;
+  category: KnowledgeCategory;
+  subcategory?: string;
+  /** Primary display name/title. */
+  name: string;
+  /** Kept for compatibility with UI components. */
+  title: string;
+  nameAr?: string;
+  nameEn?: string;
+  titleEn?: string;
+  aliases: string[];
+  description: string;
+  /** Kept as Markdown-friendly formatted view of description + attributes. */
+  content: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  attributes: Record<string, string>;
+  prices: PriceItem[];
+  offers: string[];
+  clinicIds: string[];
+  safetyFlags?: SafetyFlags;
+  source: KnowledgeSourceRef;
+  sourceType: "excel" | "clinics-json" | "consolidated";
+  confidence: "high" | "medium";
+  tags: string[];
+  language: "ar" | "en" | "mixed";
+  conflictNotes?: string[];
+}
+
+/** Canonical clinic entity consolidated from clinics.json + Excel sheets. */
+export interface CanonicalClinic {
+  id: string;
+  name: string;
+  aliases: string[];
+  devices: Array<{ device: string; service: string; technology?: string; note?: string }>;
+  services: string[];
+  doctors: string[];
+  notes: string[];
+  missingFields: string[];
+  sources: KnowledgeSourceRef[];
+}
+
+/** Retrieval confidence tier calibrated across queries. */
+export type RetrievalConfidence = "strong" | "partial" | "ambiguous" | "none";
+
+/** Search result with explainable match breakdown. */
 export interface SearchResult {
-  /** The matched knowledge record. */
   record: KnowledgeRecord;
-  /** Relevance score (higher is better). */
   score: number;
-  /** Which fields matched the query. */
   matchedFields: string[];
+  matchReasons: string[];
+  relatedIds?: string[];
 }
 
 /** Options for filtering knowledge search. */
 export interface SearchOptions {
-  /** Restrict search to a specific category. */
   category?: KnowledgeCategory;
-  /** Maximum number of results to return. Defaults to 10. */
+  recordType?: KnowledgeRecordType;
+  clinicId?: string;
   limit?: number;
-  /** Filter by content language. Defaults to 'all'. */
   language?: "ar" | "en" | "all";
 }
 
 /** Display metadata for a knowledge category. */
 export interface KnowledgeCategoryInfo {
-  /** Category identifier. */
   id: KnowledgeCategory;
-  /** Arabic display name. */
   nameAr: string;
-  /** English display name. */
   nameEn: string;
-  /** Short description. */
   description: string;
-  /** Lucide icon name. */
   icon: string;
-  /** Number of records in this category. */
   recordCount: number;
 }
 
+/** Full canonical dataset bundle stored in data/canonical/knowledge.canonical.json. */
+export interface CanonicalKnowledgeDataset {
+  version: string;
+  generatedAt: string;
+  sources: string[];
+  records: KnowledgeRecord[];
+  clinics: CanonicalClinic[];
+  conflicts: KnowledgeConflict[];
+  stats: {
+    excelSheets: number;
+    excelNonEmptyRows: number;
+    excelNonWhitespaceCells: number;
+    canonicalRecords: number;
+    clinicsCount: number;
+    conflictsCount: number;
+  };
+}

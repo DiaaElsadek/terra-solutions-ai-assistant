@@ -1,45 +1,39 @@
-# AI Provider & External Search Architecture
+# AI Providers, Structured Output & External Search
 
-## Provider Abstraction (`lib/ai/`)
+## Overview (`lib/ai/` & `app/api/chat/route.ts`)
 
-The chat workspace depends solely on the `AIProvider` interface (`lib/ai/types.ts`) via `getAIProvider()` (`lib/ai/provider.ts`):
-
-- `AIRequest`: `{ userMessage, conversationHistory, knowledgeContext?, systemPrompt }`
-- `AIResponse`: `{ content, sources, provider, isMock }`
-
-### Current Mode: `mockProvider` (`lib/ai/mock-provider.ts`)
-- Clearly labeled in the workspace header as **Knowledge Search Mode**.
-- Executes real local retrieval via `knowledgeEngine.search()` and specialized intent handlers (devices, verified pricing/offers, clinic lookup, comparisons, call-center scripts).
-- Formats output into scannable Markdown tables, callouts, and source attributions.
-- Never fabricates prices, offers, clinic addresses, or medical suitability claims.
+All AI generation runs strictly on the server via `/api/chat` (`POST` for answers/streaming, `GET` for provider readiness status). Client components (`hooks/useChat.ts`) never call upstream AI APIs directly and never hold API keys.
 
 ---
 
-## System Prompt & Clinical Guardrails (`constants/prompts.ts`)
+## Provider Resolution (`lib/ai/provider.ts`)
 
-`buildSystemPrompt()` (`lib/ai/prompt-builder.ts`) injects retrieved knowledge records alongside strict instructions:
-1. Treat the Excel knowledge base as the single source of truth for Terra Solutions.
-2. Never invent prices, offers, clinic contact details, or specifications.
-3. Explicitly state when requested information is absent from the knowledge base.
-4. Always direct patient-specific medical suitability, contraindications, and diagnoses to a qualified clinic specialist.
-5. Distinguish internal company records from any future external search results.
+`resolveServerAIProvider(preferred)` selects an implementation of `AIProvider` (`lib/ai/types.ts`):
 
----
+1. **Google Gemini** (`lib/ai/gemini-provider.ts`) — Active when `GOOGLE_AI_API_KEY`, `GEMINI_API_KEY`, or Gemini-formatted `API_KEY` (`AIza...`) is set on the server (default model `gemini-2.5-flash`, override via `GEMINI_MODEL`).
+2. **OpenAI** (`lib/ai/openai-provider.ts`) — Active when `OPENAI_API_KEY` or OpenAI-formatted `API_KEY` (`sk-...`) is set on the server (default model `gpt-4o-mini`, override via `OPENAI_MODEL`).
+3. **Deterministic Knowledge Search Mode** (`lib/ai/mock-provider.ts`) — Explicit `isMock: true` fallback used when no upstream LLM key is configured or when explicitly requested (`preferredProvider: "mock"`). It performs the full canonical retrieval pipeline and honest abstention without inventing an LLM label.
 
-## Connecting a Real LLM Provider
-
-1. Set a server-side secret key in `.env.local` (never `NEXT_PUBLIC_*`):
-   ```env
-   OPENAI_API_KEY=sk-...
-   # or
-   GOOGLE_AI_API_KEY=...
-   ```
-2. Complete `app/api/chat/route.ts` to call your preferred LLM SDK using the server-computed `systemPrompt` and conversation `history`.
-3. Add an `apiProvider` in `lib/ai/` that `POST`s to `/api/chat` and switch `getAIProvider()` to return it.
+You can pin selection between OpenAI and Gemini with `AI_PROVIDER=openai` or `AI_PROVIDER=gemini`.
 
 ---
 
-## External Search Readiness (`lib/search/types.ts`)
+## Grounded Context & Structured Contract (`constants/prompts.ts`, `lib/ai/prompt-builder.ts`, `lib/ai/response-validator.ts`)
 
-`SearchProvider` defines an optional secondary search interface (`ExternalSearchResult` with `isExternal: true` and source URL attribution). Currently wired to `stubSearchProvider` (`isAvailable() === false`) so the assistant never claims to have performed live Google searches when offline.
+- `PROMPT_VERSION = "2.0.0"` enforces company-truth grounding, strict no-fabrication rules (prices, discounts, clinic addresses/hours), medical diagnosis/prescription abstention, conflict disclosure, ambiguity clarification, and bilingual Arabic/English response style without emojis.
+- `buildContextPackage()` serializes up to a bounded character budget (`7,500` chars) including retrieved records, Excel file/sheet/row provenance, related records, conflict alerts, missing-data indicators, and optional secondary external links.
+- `validateAndNormalizeStructuredOutput()` parses structured JSON (`answer`, `language`, `intent`, `confidenceLevel`, `requiresClarification`, `clarificationQuestion`, `warnings`) and safely wraps plain-Markdown upstream outputs without throwing.
 
+---
+
+## Streaming & Cancellation
+
+When `stream: true` is sent to `POST /api/chat`, the route emits `application/x-ndjson` frames (`meta`, `delta`, `done`, `error`) and wires `request.signal` through to an `AbortController` with a `22s` upstream timeout. The Workspace UI renders progressive streaming text and exposes a **Stop generation** control (`hooks/useChat.ts`).
+
+---
+
+## Optional External Web Search (`lib/search/google-search.ts`)
+
+- Configured strictly on the server via `GOOGLE_SEARCH_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID`.
+- Returns `{ available: false, results: [] }` with an explicit note when unconfigured — never fabricates web results.
+- Redacts customer PII (`redactCustomerPII`) before sending queries, enforces a `6s` timeout, and separates returned links under secondary external citations (`isExternal: true`).

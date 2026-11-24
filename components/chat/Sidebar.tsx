@@ -87,8 +87,8 @@ export function Sidebar({
       className="flex h-full w-72 flex-col border-r border-border bg-sidebar"
     >
       {/* Top brand & collapse */}
-      <div className="flex h-14 items-center justify-between px-3.5 border-b border-border shrink-0">
-        <BrandLogo href={ROUTES.home} subtitle="Knowledge Workspace" />
+      <div className="flex h-14 items-center justify-between gap-2 px-3.5 border-b border-border shrink-0">
+        <BrandLogo href={ROUTES.home} subtitle="Knowledge Workspace" size="sm" priority />
         <div className="flex items-center gap-1">
           <button
             type="button"

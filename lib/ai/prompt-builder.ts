@@ -1,54 +1,166 @@
 /**
- * Prompt builder — constructs the full prompt with system instructions
- * and knowledge context for the AI provider.
+ * Context-grounded prompt construction.
+ * Builds a compact, budget-capped context package from top ranked records,
+ * related records, conflicts, and optional external sources.
  */
 
-import type { Message } from "@/types";
-import type { SearchResult } from "@/types/knowledge";
+import type { Message, MessageSource } from "@/types";
+import type { RetrievalOutput } from "@/lib/knowledge/retriever";
+import type { ExternalSearchResult } from "@/lib/search/types";
 import { SYSTEM_PROMPT } from "@/constants/prompts";
 
-/**
- * Build the system prompt with injected knowledge context.
- */
-export function buildSystemPrompt(knowledgeResults: SearchResult[]): string {
-  if (knowledgeResults.length === 0) {
-    return (
-      SYSTEM_PROMPT +
-      "\n\nIMPORTANT: No relevant information was found in the knowledge base for this query. " +
-      "Inform the user that the specific information they requested is not available in the current dataset, " +
-      "and suggest they rephrase or ask about a different topic."
+const DEFAULT_MAX_CONTEXT_CHARS = 7500;
+
+export function buildContextPackage(
+  retrieval: RetrievalOutput,
+  options: {
+    maxChars?: number;
+    externalResults?: ExternalSearchResult[];
+    externalSearchNote?: string;
+  } = {}
+): {
+  contextPackage: string;
+  sources: MessageSource[];
+  externalSources: MessageSource[];
+  warnings: string[];
+} {
+  const maxChars = options.maxChars ?? DEFAULT_MAX_CONTEXT_CHARS;
+  const parts: string[] = [];
+  const sources: MessageSource[] = [];
+  const externalSources: MessageSource[] = [];
+  const warnings: string[] = [];
+  let charCount = 0;
+
+  parts.push(
+    `RETRIEVAL METADATA: intent=${retrieval.classified.intent}, confidence=${retrieval.confidence}, language=${retrieval.classified.language}`
+  );
+
+  if (retrieval.requiresClarification && retrieval.clarificationCandidates.length > 0) {
+    parts.push(
+      `AMBIGUITY DETECTED: Multiple matching candidates exist (${retrieval.clarificationCandidates
+        .map((c) => c.name)
+        .join("; ")}). Ask a concise clarification question.`
     );
   }
 
-  const contextParts = knowledgeResults.map((result, idx) => {
-    const r = result.record;
-    return [
-      `--- Source ${idx + 1}: [${r.category}] ${r.title} ---`,
-      r.content,
-      `(Source: ${r.source.sheet}, relevance: ${result.score.toFixed(1)})`,
-    ].join("\n");
-  });
+  if (retrieval.results.length === 0 || retrieval.confidence === "none") {
+    parts.push(
+      "RETRIEVED COMPANY RECORDS: NONE. No reliable match exists in Terra Solutions' dataset. Do NOT fabricate company facts; honestly state that the requested information is unavailable."
+    );
+  } else {
+    parts.push("=== RETRIEVED COMPANY KNOWLEDGE (AUTHORITATIVE) ===");
 
-  return [
-    SYSTEM_PROMPT,
-    "",
-    "=== RETRIEVED KNOWLEDGE CONTEXT ===",
-    "Use the following company knowledge to answer the user's question.",
-    "Reference the source categories when presenting information.",
-    "",
-    ...contextParts,
-    "",
-    "=== END OF KNOWLEDGE CONTEXT ===",
-  ].join("\n");
+    for (const item of retrieval.results.slice(0, 5)) {
+      const r = item.record;
+      const attrLines = Object.entries(r.attributes)
+        .map(([k, v]) => `  - ${k}: ${v}`)
+        .join("\n");
+      const priceLines =
+        r.prices.length > 0
+          ? `  - Verified Prices: ${r.prices.map((p) => p.note).join(" | ")}`
+          : "";
+      const clinicLines =
+        r.clinicIds.length > 0
+          ? `  - Linked Clinics: ${r.clinicIds.join(", ")}`
+          : "";
+      const block = [
+        `[Source: ${r.source.file} | Sheet: ${r.source.sheet} | Rows: ${r.source.rows.join(", ")}]`,
+        `ID: ${r.id} | Type: ${r.recordType} | Category: ${r.category} | Score: ${item.score}`,
+        `Name: ${r.name}`,
+        attrLines,
+        priceLines,
+        clinicLines,
+        `Content:\n${r.description}`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      if (charCount + block.length > maxChars && sources.length >= 1) {
+        break;
+      }
+
+      parts.push(block);
+      charCount += block.length;
+
+      sources.push({
+        category: r.category,
+        title: r.name,
+        type: "knowledge",
+        file: r.source.file,
+        sheet: r.source.sheet,
+        row: r.source.row,
+        rows: r.source.rows,
+        confidenceScore: item.score,
+        matchReasons: item.matchReasons,
+      });
+    }
+
+    if (retrieval.relatedRecords.length > 0 && charCount < maxChars - 800) {
+      parts.push("=== RELATED RECORDS ===");
+      for (const rel of retrieval.relatedRecords.slice(0, 3)) {
+        const relBlock = `[Related: ${rel.name} (${rel.source.sheet} R${rel.source.row})]\n${rel.description.slice(0, 500)}`;
+        if (charCount + relBlock.length > maxChars) break;
+        parts.push(relBlock);
+        charCount += relBlock.length;
+      }
+    }
+  }
+
+  if (retrieval.conflicts.length > 0) {
+    parts.push("=== SOURCE CONFLICTS TO DISCLOSE ===");
+    for (const cf of retrieval.conflicts) {
+      parts.push(`- [${cf.severity}] ${cf.topic}: ${cf.description}`);
+      warnings.push(`Source conflict: ${cf.description}`);
+    }
+  }
+
+  for (const ind of retrieval.missingIndicators) {
+    warnings.push(ind);
+  }
+  if (retrieval.missingIndicators.length > 0) {
+    parts.push("=== MISSING DATA INDICATORS ===");
+    retrieval.missingIndicators.forEach((m) => parts.push(`- ${m}`));
+  }
+
+  if (options.externalResults && options.externalResults.length > 0) {
+    parts.push(
+      "=== EXTERNAL WEB SEARCH RESULTS (SECONDARY — NEVER OVERRIDE TERRA DATA) ==="
+    );
+    for (const ext of options.externalResults.slice(0, 3)) {
+      parts.push(
+        `[EXTERNAL: ${ext.title} | ${ext.url}]\n${ext.snippet}`
+      );
+      externalSources.push({
+        category: "External Web",
+        title: ext.title,
+        type: "external",
+        url: ext.url,
+        snippet: ext.snippet,
+        publishedAt: ext.publishedAt,
+      });
+    }
+  } else if (options.externalSearchNote) {
+    parts.push(`EXTERNAL SEARCH STATUS: ${options.externalSearchNote}`);
+  }
+
+  return {
+    contextPackage: parts.join("\n\n"),
+    sources,
+    externalSources,
+    warnings,
+  };
+}
+
+export function buildSystemPromptWithContext(contextPackage: string): string {
+  return `${SYSTEM_PROMPT}\n\n${contextPackage}`;
 }
 
 /**
- * Format conversation history for the AI provider.
- * Trims to the most recent messages to stay within context limits.
+ * Format conversation history for the AI provider (last N non-error turns).
  */
 export function formatConversationHistory(
   messages: Message[],
-  maxMessages = 20
+  maxMessages = 12
 ): Array<{ role: "user" | "assistant"; content: string }> {
   return messages
     .filter((m) => m.role !== "system" && m.status !== "error")
@@ -58,4 +170,3 @@ export function formatConversationHistory(
       content: m.content,
     }));
 }
-

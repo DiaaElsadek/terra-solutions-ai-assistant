@@ -6,14 +6,17 @@ import {
   RotateCcw,
   BookOpen,
   Database,
+  Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import type { ProviderStatusInfo } from "@/hooks/useChat";
 
 interface ChatHeaderProps {
   title: string;
   hasMessages: boolean;
   sidebarCollapsed: boolean;
+  providerStatus: ProviderStatusInfo | null;
   onOpenMobileSidebar: () => void;
   onExpandDesktopSidebar: () => void;
   onClearConversation: () => void;
@@ -21,22 +24,29 @@ interface ChatHeaderProps {
 }
 
 /**
- * Top bar of the chat workspace with sidebar controls, active title,
- * Knowledge Mode status badge, Knowledge Explorer trigger, and Clear Chat action.
+ * Top bar of the chat workspace showing live AI provider status,
+ * Knowledge Explorer trigger, sidebar toggle, and Clear action.
  */
 export function ChatHeader({
   title,
   hasMessages,
   sidebarCollapsed,
+  providerStatus,
   onOpenMobileSidebar,
   onExpandDesktopSidebar,
   onClearConversation,
   onOpenKnowledgeDrawer,
 }: ChatHeaderProps) {
+  const isMock = providerStatus ? providerStatus.isMock : true;
+  const badgeText = providerStatus
+    ? providerStatus.isMock
+      ? "Knowledge Search Mode"
+      : providerStatus.providerName
+    : "Knowledge Search Mode";
+
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background/95 px-3 sm:px-5">
       <div className="flex items-center gap-2.5 min-w-0">
-        {/* Mobile sidebar open */}
         <button
           type="button"
           onClick={onOpenMobileSidebar}
@@ -46,7 +56,6 @@ export function ChatHeader({
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* Desktop expand sidebar when collapsed */}
         {sidebarCollapsed && (
           <button
             type="button"
@@ -69,12 +78,19 @@ export function ChatHeader({
 
       <div className="flex items-center gap-2 shrink-0">
         <Badge
-          variant="gold"
+          variant={isMock ? "gold" : "success"}
           className="hidden sm:inline-flex"
-          title="Queries Terra Solutions Excel dataset locally. No external LLM key connected."
+          title={
+            providerStatus?.reason ||
+            "Grounded in Terra Solutions' canonical server knowledge base."
+          }
         >
-          <Database className="h-3 w-3" />
-          Knowledge Search Mode
+          {isMock ? (
+            <Database className="h-3 w-3" />
+          ) : (
+            <Sparkles className="h-3 w-3" />
+          )}
+          {badgeText}
         </Badge>
 
         <Button
@@ -103,4 +119,3 @@ export function ChatHeader({
     </header>
   );
 }
-

@@ -19,7 +19,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <BrandLogo href={ROUTES.home} />
+        <BrandLogo href={ROUTES.home} priority hideSubtitleOnMobile />
 
         {/* Desktop navigation */}
         <nav aria-label="Main navigation" className="hidden md:flex items-center gap-8">

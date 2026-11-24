@@ -13,7 +13,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* Brand column */}
           <div className="space-y-3">
-            <BrandLogo href={ROUTES.home} subtitle="Internal Knowledge Hub" />
+            <BrandLogo href={ROUTES.home} subtitle="Internal Knowledge Hub" size="md" />
             <p className="text-sm text-foreground-muted max-w-xs leading-relaxed">
               Call Center, Chat Support &amp; BPO Services in Egypt. Empowering support teams with verified product and clinical knowledge.
             </p>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles, Search, ShieldCheck, Globe } from "lucide-react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ROUTES } from "@/constants/config";
@@ -18,6 +19,10 @@ export function Hero() {
 
       <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
+          <div className="mb-5 flex justify-center">
+            <BrandLogo href="" compact size="lg" priority />
+          </div>
+
           <Badge variant="gold" className="mb-6">
             <Sparkles className="h-3.5 w-3.5" />
             Internal Call Center Knowledge Assistant

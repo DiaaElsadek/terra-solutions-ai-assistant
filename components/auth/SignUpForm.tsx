@@ -111,7 +111,7 @@ export function SignUpForm() {
     <div className="w-full max-w-md mx-auto">
       <div className="rounded-2xl border border-border bg-background-secondary p-6 sm:p-8 shadow-xl">
         <div className="flex flex-col items-center text-center mb-6">
-          <BrandLogo href="" compact className="mb-3" />
+          <BrandLogo href="/" compact size="lg" priority className="mb-4" />
           <h1 className="font-display text-2xl font-bold text-foreground">
             Create Agent Account
           </h1>

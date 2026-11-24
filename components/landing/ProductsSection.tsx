@@ -25,7 +25,7 @@ import {
   CardFooter,
 } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { getKnowledgeCategories } from "@/lib/knowledge/data";
+import { getPublicCategorySummaries } from "@/lib/knowledge/public-summary";
 import { ROUTES } from "@/constants/config";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -67,7 +67,7 @@ const VERIFIED_HIGHLIGHTS: Record<string, string[]> = {
  * Displays verified product and service categories extracted from the company dataset.
  */
 export function ProductsSection() {
-  const categories = getKnowledgeCategories().filter((c) => c.recordCount > 0);
+  const categories = getPublicCategorySummaries();
 
   return (
     <section id="services" className="py-20 bg-background-secondary border-b border-border">

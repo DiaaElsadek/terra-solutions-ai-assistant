@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   },
   description:
     "Internal knowledge assistant for Terra Solutions. Helping call center agents access company information, products, services, and device specifications through a conversational AI interface.",
+  icons: {
+    icon: [{ url: "/images/T_logo.svg", type: "image/svg+xml" }],
+    shortcut: "/images/T_logo.svg",
+  },
   robots: { index: false, follow: false },
 };
 

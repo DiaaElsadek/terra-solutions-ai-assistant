@@ -1,473 +1,570 @@
 /**
- * Knowledge-aware mock AI provider.
+ * Deterministic Knowledge Retrieval Provider (Fallback / Development Mode).
  *
- * Performs REAL bilingual retrieval against the supplied Terra Solutions
- * Excel dataset and formats structured, call-center-ready Markdown responses.
- *
- * Clearly marked as "Knowledge Search Mode" — never fabricates prices,
- * promotions, clinic addresses, or medical suitability claims.
+ * Uses the canonical retrieval pipeline (`knowledgeRetriever`) directly without an
+ * external LLM. Explicitly sets `isMock: true` so the UI always displays
+ * "Knowledge Search Mode (Deterministic)" rather than pretending an LLM generated it.
  */
 
-import type { AIProvider, AIRequest, AIResponse, AIProviderConfig } from "./types";
-import type { MessageSource } from "@/types";
-import { knowledgeEngine, normalizeText } from "@/lib/knowledge";
+import { knowledgeRetriever } from "@/lib/knowledge/retriever";
 import { CATEGORIES } from "@/lib/knowledge/categories";
 import { KNOWLEDGE_NOT_FOUND_RESPONSE, WELCOME_MESSAGE } from "@/constants/prompts";
+import { toSafeErrorMessage } from "@/lib/security/api-guard";
+import type { MessageSource } from "@/types";
+import type {
+  AIProvider,
+  AIProviderConfig,
+  AIRequest,
+  AIResponse,
+  AIStreamChunk,
+  ProviderValidationResult,
+} from "./types";
 
 const config: AIProviderConfig = {
-  name: "Terra Knowledge Search (Local Mode)",
+  id: "mock",
+  name: "Terra Knowledge Search (Deterministic Mode)",
   isMock: true,
-  maxContextLength: 8000,
+  maxContextChars: 7500,
 };
 
-function isArabicQuery(query: string): boolean {
-  return /[\u0600-\u06FF]/.test(query);
+function toExternalSources(request: AIRequest): MessageSource[] {
+  return (request.externalResults || []).map((ext) => ({
+    category: "External Web",
+    title: ext.title,
+    type: "external",
+    url: ext.url,
+    snippet: ext.snippet,
+    publishedAt: ext.publishedAt,
+  }));
 }
 
-/** Build a structured devices overview from verified sheets. */
-function handleDevicesIntent(arabic: boolean): AIResponse {
-  const laserDevices = knowledgeEngine
-    .getByCategory("laser")
-    .filter((r) => r.title.includes("Devices") || r.content.includes("كانديلا"));
-  const facialMachines = knowledgeEngine.getByCategory("facial-machines");
-  const slimmingDevices = knowledgeEngine
-    .getByCategory("slimming")
-    .filter(
-      (r) =>
-        !/Wegovy|Lipolysis/i.test(r.title)
+function appendExternalSection(
+  base: string,
+  request: AIRequest,
+  arabic: boolean
+): string {
+  if (request.externalResults && request.externalResults.length > 0) {
+    const rows = request.externalResults
+      .map(
+        (e) =>
+          `- **[External] ${e.title}** (${e.source}) — ${e.snippet} ([Link](${e.url}))`
+      )
+      .join("\n");
+    return (
+      base +
+      (arabic
+        ? `\n\n### مصادر خارجية ثانوية (غير تابعة لسياسة تيرا الرسمية)\n${rows}`
+        : `\n\n### External Web References (Secondary — Not Official Terra Policy)\n${rows}`)
     );
-  const tattooRecords = knowledgeEngine.getByCategory("tattoo-removal");
+  }
+  if (request.externalSearchNote) {
+    return `${base}\n\n> **External Search:** ${request.externalSearchNote}`;
+  }
+  return base;
+}
 
-  const sources: MessageSource[] = [
-    { category: "Laser Hair Removal", title: "Laser Devices", type: "knowledge" },
-    { category: "Facial Machines & Devices", title: "Facial Machines", type: "knowledge" },
-    { category: "Slimming & Body Contouring", title: "Body & Slimming Devices", type: "knowledge" },
-    { category: "Tattoo Removal", title: "Clinic Tattoo Devices", type: "knowledge" },
-  ];
+function buildDevicesResponse(request: AIRequest, arabic: boolean): AIResponse {
+  const laserDevs = knowledgeRetriever
+    .getByCategory("laser")
+    .filter((r) => r.recordType === "device");
+  const facialDevs = knowledgeRetriever
+    .getByCategory("facial-machines")
+    .filter((r) => r.recordType === "device");
+  const slimDevs = knowledgeRetriever
+    .getByCategory("slimming")
+    .filter((r) => r.recordType === "device");
+  const tattooDevs = knowledgeRetriever
+    .getByCategory("tattoo-removal")
+    .filter((r) => r.recordType === "device");
 
-  const laserBlock = laserDevices.map((r) => `#### ${r.title}\n${r.content}`).join("\n\n");
-  const facialList = facialMachines
-    .map((r) => `- **${r.title}** — ${r.content.split("\n")[0]}`)
-    .join("\n");
-  const slimmingList = slimmingDevices
-    .map((r) => `- **${r.title}** — ${r.content.split("\n")[0]}`)
-    .join("\n");
-  const tattooBlock = tattooRecords[0]?.content.split("معلومات مهمة")[0]?.trim() || "";
+  const toSources = (
+    list: typeof laserDevs
+  ): MessageSource[] =>
+    list.map((r) => ({
+      category: CATEGORIES[r.category]?.nameEn || r.category,
+      title: r.name,
+      type: "knowledge",
+      file: r.source.file,
+      sheet: r.source.sheet,
+      row: r.source.row,
+      rows: r.source.rows,
+    }));
 
-  const content = arabic
+  const formatList = (list: typeof laserDevs) =>
+    list
+      .map((r) => {
+        const firstLine = r.description.split("\n")[0];
+        return `- **${r.name}** — ${firstLine} *(Sheet: \`${r.source.sheet}\`, Row ${r.source.row})*`;
+      })
+      .join("\n");
+
+  const body = arabic
     ? `## الأجهزة المتوفرة في العيادات ومواصفاتها
 
-### 1. أجهزة إزالة الشعر بالليزر
-${laserBlock}
+### 1. أجهزة إزالة الشعر بالليزر (${laserDevs.length})
+${formatList(laserDevs)}
 
-### 2. أجهزة البشرة والوجه (Facial Machines)
-${facialList}
+### 2. أجهزة البشرة والوجه (${facialDevs.length})
+${formatList(facialDevs)}
 
-### 3. أجهزة التنحيف ونحت الجسم (Slimming Devices)
-${slimmingList}
+### 3. أجهزة التنحيف ونحت الجسم (${slimDevs.length})
+${formatList(slimDevs)}
 
-### 4. أجهزة إزالة التاتو حسب العيادة
-${tattooBlock}
+### 4. أجهزة إزالة التاتو حسب العيادة (${tattooDevs.length})
+${formatList(tattooDevs)}
 
----
-> **ملاحظة للكول سنتر:** اسألني عن أي جهاز بالاسم لعرض طريقة العمل والموانع والتعليمات الكاملة.
-*المصدر: قاعدة بيانات Terra Solutions (أوراق: Laser, Facial Machines, Slimming, Tattoo Removal)*`
+> **ملاحظة:** اسألني عن أي جهاز بالاسم لعرض المواصفات التفصيلية والموانع.`
     : `## Available Clinic Devices & Specifications
 
-### 1. Laser Hair Removal Devices
-${laserBlock}
+### 1. Laser Hair Removal Devices (${laserDevs.length})
+${formatList(laserDevs)}
 
-### 2. Facial & Skin Rejuvenation Machines
-${facialList}
+### 2. Facial & Skin Rejuvenation Machines (${facialDevs.length})
+${formatList(facialDevs)}
 
-### 3. Slimming & Body Contouring Devices
-${slimmingList}
+### 3. Slimming & Body Contouring Devices (${slimDevs.length})
+${formatList(slimDevs)}
 
-### 4. Tattoo Removal Devices by Clinic
-${tattooBlock}
+### 4. Tattoo Removal Devices by Clinic (${tattooDevs.length})
+${formatList(tattooDevs)}
 
----
-> **Agent Tip:** Ask about any specific device by name (e.g., *Candela*, *Vivace*, *Clear + Brilliant*, *HIFU*, *Endolift*) for full operating instructions and contraindications.
-*Source: Terra Solutions Knowledge Base (Laser, Facial Machines, Slimming, Tattoo Removal)*`;
+> **Agent Tip:** Ask about any specific device by name (e.g., *Candela*, *Vivace*, *Clear + Brilliant*, *HIFU*, *Endolift*) for complete protocols and contraindications.`;
 
-  return { content, sources, provider: config.name, isMock: true };
-}
-
-/** Handle price, offer, and package queries strictly from verified records. */
-function handlePricingIntent(arabic: boolean): AIResponse {
-  const threadRecords = knowledgeEngine.getByCategory("threads");
-  const tattooRecords = knowledgeEngine.getByCategory("tattoo-removal");
-  const dentalRecords = knowledgeEngine.getByCategory("dental");
-
-  const sources: MessageSource[] = [
-    { category: "Face Threads", title: "Thread Types & Pricing", type: "knowledge" },
-    { category: "Tattoo Removal", title: "Tattoo Removal Pricing Policy", type: "knowledge" },
-    { category: "Dental Services", title: "Veneer Pricing Guidance", type: "knowledge" },
+  const answer = appendExternalSection(body, request, arabic);
+  const sources = [
+    ...toSources(laserDevs.slice(0, 2)),
+    ...toSources(facialDevs.slice(0, 2)),
+    ...toSources(slimDevs.slice(0, 2)),
+    ...toSources(tattooDevs.slice(0, 2)),
   ];
 
-  const content = arabic
-    ? `## الأسعار والمعلومات المالية المتوفرة في قاعدة البيانات
-
-فيما يلي **فقط** الأسعار والسياسات السعرية الموثّقة في ملف المعرفة الحالي:
-
-| الخدمة / المنتج | السعر / السياسة الموثّقة | المصدر |
-| --- | --- | --- |
-| **Aptos Cat Eye Threads** | **5,000 AED** | Filler+Botox+Threads |
-| **Aptos Lifting Threads** | **8,000 AED** | Filler+Botox+Threads |
-| **Rainbow Mono Threads** | **70 AED** للخيط الواحد | Filler+Botox+Threads |
-| **PDO Threads** | **299 AED** للخيط الواحد | Filler+Botox+Threads |
-| **إزالة التاتو (Tattoo Removal)** | كل الأسعار تبدأ حسب حجم الوشم ولونه | Tattoo Removal |
-| **كريم التخدير (Laser)** | مجاني حسب طلب المريض | Laser |
-| **Veneers (ابتسامات الأسنان)** | يزداد السعر كلما زادت التفاصيل الطبيعية والشفافية (من 2D إلى Diamond Feldspathic) | Dental |
-
-> **تنبيه هام:** **العروض الحالية وأسعار الباقات الكاملة** لباقي الخدمات (الفيلر، البوتوكس، الليزر، الفيشال، إلخ) غير متوفرة في ملف البيانات المرفق. يرجى مراجعة قائمة الأسعار المعتمدة في النظام أو مدير العيادة قبل تأكيد أي سعر للعميل.
-
-*المصدر: قاعدة بيانات Terra Solutions*`
-    : `## Verified Pricing & Offer Information
-
-Below are the **only** verified prices and pricing notes present in the supplied knowledge base:
-
-| Service / Product | Verified Price / Pricing Rule | Source Sheet |
-| --- | --- | --- |
-| **Aptos Cat Eye Threads** | **5,000 AED** | Filler+Botox+Threads |
-| **Aptos Lifting Threads** | **8,000 AED** | Filler+Botox+Threads |
-| **Rainbow Mono Threads** | **70 AED** per thread | Filler+Botox+Threads |
-| **PDO Threads** | **299 AED** per thread | Filler+Botox+Threads |
-| **Tattoo Removal** | Prices start based on tattoo size and color | Tattoo Removal |
-| **Laser Numbing Cream** | Free upon patient request | Laser |
-| **Dental Veneers** | Cost increases with natural detail & layering (2D → Diamond Feldspathic) | Dental |
-
-> **Unavailable Information Notice:** Current promotional **offers, package prices, and full price lists** for other services (Fillers, Botox, Laser sessions, Facials, etc.) are **not included** in the supplied Excel knowledge base. Please check with the clinic price sheet or supervisor before quoting unverified prices.
-
-*Source: Terra Solutions Knowledge Base (${threadRecords.length + tattooRecords.length + dentalRecords.length} related records checked)*`;
-
-  return { content, sources, provider: config.name, isMock: true };
+  return {
+    answer,
+    content: answer,
+    language: request.retrieval.classified.language,
+    intent: "device_specs",
+    confidenceLevel: "strong",
+    requiresClarification: false,
+    warnings: [],
+    sources,
+    externalSources: toExternalSources(request),
+    provider: config.name,
+    isMock: true,
+  };
 }
 
-/** Handle clinic-specific queries honestly. */
-function handleClinicIntent(query: string, arabic: boolean): AIResponse | null {
-  const norm = normalizeText(query);
-  const mentionsClinic =
-    /clinic|clinics|well\s*touch|new\s*age|demadent|dermadent|one\s*touch|عياد|ديرمادنت/.test(norm);
+function buildPricingResponse(request: AIRequest, arabic: boolean): AIResponse {
+  const pricedRecords = knowledgeRetriever
+    .getAllRecords()
+    .filter((r) => r.prices.length > 0);
 
-  if (!mentionsClinic) return null;
-
-  const sources: MessageSource[] = [
-    { category: "Tattoo Removal", title: "Clinics & Q-Switch Devices", type: "knowledge" },
-    { category: "Slimming & Body Contouring", title: "Clinic Slimming Devices", type: "knowledge" },
-  ];
-
-  const clinicsData = [
-    {
-      name: "Well Touch (WellTouch)",
-      match: /well\s*touch/.test(norm),
-      details:
-        "- **Tattoo Removal:** PV Laser (Q-Switch) — with all doctors\n- **Slimming:** Z-Lipo & Z-Wave (with Beauty Therapist)",
-    },
-    {
-      name: "New Age",
-      match: /new\s*age/.test(norm),
-      details: "- **Tattoo Removal:** DEKA (Q-Switch) — with Dr. Mitra",
-    },
-    {
-      name: "Demadent / Dermadent + VIP",
-      match: /demadent|dermadent|ديرمادنت|vip/.test(norm),
-      details:
-        "- **Tattoo Removal:** PV Laser + SPECTRA (Q-Switch)\n- **Microblading Removal:** Available **exclusively at Dermadent** (case-by-case doctor consultation required)",
-    },
-    {
-      name: "One Touch",
-      match: /one\s*touch/.test(norm),
-      details:
-        "- **Tattoo Removal:** Q-Switch Ultralight — with all doctors\n- **Slimming & Body:** Cool Shaping (same as Z-Lipo), Lipozero (same as Z-Wave), HIFU, InBody InBalance 3D (Doctor + Beauty Therapist)",
-    },
-    {
-      name: "All Clinics",
-      match: false,
-      details:
-        "- **Endolift (French Dermacool 2025):** Available across **all clinics** (Doctors only)",
-    },
-  ];
-
-  const specificMatches = clinicsData.filter((c) => c.match);
-  const toShow = specificMatches.length > 0 ? specificMatches : clinicsData;
-
-  const body = toShow.map((c) => `### ${c.name}\n${c.details}`).join("\n\n");
-
-  const content = arabic
-    ? `## معلومات العيادات الموثّقة في قاعدة البيانات
-
-${body}
-
----
-> **ملاحظة هامة:** قاعدة البيانات الحالية لا تحتوي على **عناوين العيادات أو أرقام الهواتف أو ساعات العمل**. المعلومات أعلاه تقتصر على الأجهزة والخدمات الموثّقة لكل عيادة في ملف البيانات.
-
-*المصدر: Tattoo Removal & Slimming sheets*`
-    : `## Verified Clinic Information
-
-${body}
-
----
-> **Unavailable Details:** Clinic street **addresses, phone numbers, and operating hours** are **not included** in the supplied Excel knowledge base. Only clinic-specific devices, doctors, and services are verified above.
-
-*Source: Terra Solutions Knowledge Base (Tattoo Removal & Slimming sheets)*`;
-
-  return { content, sources, provider: config.name, isMock: true };
-}
-
-/** Handle comparison queries. */
-function handleComparisonIntent(query: string, arabic: boolean): AIResponse | null {
-  const norm = normalizeText(query);
-  const isCompare = /compare|comparison|difference|vs|versus|مقارن|قارن|الفرق/.test(norm);
-  if (!isCompare) return null;
-
-  // Check if query targets specific records
-  const results = knowledgeEngine.search(query, { limit: 6 });
-
-  // Built-in verified comparison tables in the dataset:
-  if (/botox|بوتوكس|بوتكس/.test(norm) && /filler|فيلر|فلر/.test(norm)) {
-    const botoxRecord = knowledgeEngine.getByCategory("botox")[0];
-    return {
-      content: `## Botox vs. Hyaluronic Fillers Comparison\n\n${botoxRecord?.content || ""}\n\n*Source: Filler+Botox+Threads sheet*`,
-      sources: [{ category: "Botox", title: "Botox vs Fillers Comparison", type: "knowledge" }],
-      provider: config.name,
-      isMock: true,
-    };
-  }
-
-  if (/hair|شعر|prp|cyj|stem/.test(norm)) {
-    const comp = knowledgeEngine
-      .getByCategory("hair-treatments")
-      .find((r) => r.title.includes("مقارنة") || r.content.includes("Dr. CYJ Hair Filler"));
-    if (comp) {
-      return {
-        content: `## Hair Injections Comparison\n\n${comp.content}\n\n*Source: Hair+face Treatments sheet*`,
-        sources: [{ category: "Hair Treatments", title: comp.title, type: "knowledge" }],
-        provider: config.name,
-        isMock: true,
-      };
-    }
-  }
-
-  if (/collagen|كولاجين|sculptra|radiesse/.test(norm) && /filler|فيلر/.test(norm)) {
-    const sb = knowledgeEngine
-      .getByCategory("skin-boosters")
-      .find((r) => r.title.includes("الكولاجين") || r.content.includes("الفرق بينها وبين الفيلر"));
-    if (sb) {
-      return {
-        content: `## Collagen Stimulating Injections vs. Fillers\n\n${sb.content}\n\n*Source: Skin Booster sheet*`,
-        sources: [{ category: "Skin Boosters", title: sb.title, type: "knowledge" }],
-        provider: config.name,
-        isMock: true,
-      };
-    }
-  }
-
-  // Generic comparison prompt ("Compare these two products" or "Compare two filler products")
-  if (/these two|two filler|بين نوعين|منتجين/.test(norm) || results.length < 2) {
-    const fillerRecord = knowledgeEngine.getByCategory("fillers")[0];
-    if (/filler|فيلر/.test(norm) && fillerRecord) {
-      return {
-        content: arabic
-          ? `## مقارنة منتجات الفيلر المتوفرة\n\nلتنفيذ مقارنة دقيقة، أي منتجين تحديدًا ترغب بمقارنتهما؟ إليك قائمة الفيلر المتوفرة في قاعدة البيانات:\n\n${fillerRecord.content}\n\n> **نصيحة:** اكتب مثلاً **"قارن بين Juvederm Voluma و Radiesse"**.\n\n*المصدر: Filler+Botox+Threads*`
-          : `## Filler Products Available to Compare\n\nWhich two specific products would you like to compare? Here are the verified fillers in our knowledge base:\n\n${fillerRecord.content}\n\n> **Tip:** Ask e.g. *"Compare Juvederm Voluma and Radiesse"* or *"Compare Botox vs Fillers"* for a focused comparison.\n\n*Source: Filler+Botox+Threads sheet*`,
-        sources: [{ category: "Dermal Fillers", title: fillerRecord.title, type: "knowledge" }],
-        provider: config.name,
-        isMock: true,
-      };
-    }
-
-    return {
-      content: arabic
-        ? `## مقارنة المنتجات أو العلاجات\n\nمن فضلك حدد **اسمي المنتجين أو الخدمتين** اللتين ترغب بمقارنتهما (مثال:\n- *قارن بين البوتوكس والفيلر*\n- *قارن بين Z-Lipo و Cool Shaping*\n- *قارن بين Dr. CYJ و PRP للشعر*\n- *قارن بين Veneer 3D و VIP Lounge*)`
-        : `## Product & Service Comparison\n\nCould you clarify **which two products or treatments** you'd like to compare?\n\n**Verified comparisons you can ask for right away:**\n- *Compare Botox vs. Fillers*\n- *Compare Collagen Stimulators vs. Fillers*\n- *Compare Dr. CYJ Hair Filler vs. PRP vs. Stem Cells*\n- *Compare Juvederm vs. Teosyal fillers*\n- *Compare Z-Lipo vs. Cool Shaping / Z-Wave vs. Lipozero*`,
-      sources: [],
-      provider: config.name,
-      isMock: true,
-    };
-  }
-
-  // Format top 2 results side-by-side
-  const top = results.slice(0, 2);
-  const sources: MessageSource[] = top.map((r) => ({
-    category: CATEGORIES[r.record.category]?.nameEn || r.record.category,
-    title: r.record.title,
+  const sources: MessageSource[] = pricedRecords.map((r) => ({
+    category: CATEGORIES[r.category]?.nameEn || r.category,
+    title: r.name,
     type: "knowledge",
+    file: r.source.file,
+    sheet: r.source.sheet,
+    row: r.source.row,
+    rows: r.source.rows,
   }));
 
-  const content =
-    `## Comparison: ${top.map((t) => t.record.title).join(" vs. ")}\n\n` +
-    top
-      .map(
-        (t) =>
-          `### ${t.record.title}\n**Category:** *${CATEGORIES[t.record.category]?.nameEn || t.record.category}*\n\n${t.record.content}`
-      )
-      .join("\n\n---\n\n") +
-    `\n\n---\n*Source: Terra Solutions Knowledge Base*`;
+  const rowsMd = pricedRecords
+    .map(
+      (r) =>
+        `| **${r.name}** | ${r.prices.map((p) => p.note).join("; ")} | \`${r.source.sheet}\` R${r.source.row} |`
+    )
+    .join("\n");
 
-  return { content, sources, provider: config.name, isMock: true };
+  const body = arabic
+    ? `## الأسعار الموثّقة في قاعدة البيانات
+
+| المنتج / الخدمة | السعر / السياسة السعرية | المصدر |
+| --- | --- | --- |
+${rowsMd}
+
+> **تنبيه هام:** **العروض الترويجية الحالية وأسعار الباقات الكاملة** لباقي الخدمات (الفيلر، البوتوكس، الليزر، الفيشال، الأسنان، التنحيف) غير متوفرة في ملف البيانات المرفق. يرجى الرجوع إلى قائمة الأسعار المعتمدة بالعيادة.`
+    : `## Verified Pricing & Offers Summary
+
+| Service / Product | Verified Price / Rule | Source |
+| --- | --- | --- |
+${rowsMd}
+
+> **Unavailable Information Notice:** Current promotional **offers, package prices, and full price lists** for other treatments (Fillers, Botox, Laser sessions, Facials, Dental Veneers, Slimming) are **not included** in the supplied Excel knowledge base. Verify exact pricing with clinic reception or your supervisor.`;
+
+  const answer = appendExternalSection(body, request, arabic);
+  return {
+    answer,
+    content: answer,
+    language: request.retrieval.classified.language,
+    intent: "price_offer_lookup",
+    confidenceLevel: "partial",
+    requiresClarification: false,
+    warnings: [
+      "Promotional offers and package price lists are unavailable in the supplied workbook.",
+    ],
+    sources,
+    externalSources: toExternalSources(request),
+    provider: config.name,
+    isMock: true,
+  };
 }
 
-/** Format standard knowledge search results into a structured call-center Markdown response. */
-function formatKnowledgeResponse(
-  query: string,
-  results: ReturnType<typeof knowledgeEngine.search>,
-  arabic: boolean
-): { content: string; sources: MessageSource[] } {
-  if (results.length === 0) {
-    return { content: KNOWLEDGE_NOT_FOUND_RESPONSE, sources: [] };
-  }
+function buildClinicResponse(request: AIRequest, arabic: boolean): AIResponse {
+  const clinics = knowledgeRetriever.getClinics();
+  const hints = request.retrieval.classified.clinicHints;
+  const targetClinics =
+    hints.length > 0 ? clinics.filter((c) => hints.includes(c.id)) : clinics;
 
-  const sources: MessageSource[] = [];
-  const sections: string[] = [];
+  const sources: MessageSource[] = targetClinics.map((c) => ({
+    category: "Clinics",
+    title: c.name,
+    type: "knowledge",
+    file: "clinics.json + Knowlege.xlsx",
+    sheet: "clinics",
+    row: 0,
+    rows: [0],
+  }));
 
-  for (const result of results.slice(0, 4)) {
-    const record = result.record;
-    const catInfo = CATEGORIES[record.category];
+  const blocks = targetClinics
+    .map((c) => {
+      const devList = c.devices
+        .map(
+          (d) =>
+            `- **${d.device}** — ${d.service}` +
+            (d.technology ? ` (${d.technology})` : "") +
+            (d.note ? ` · *${d.note}*` : "")
+        )
+        .join("\n");
+      const notesStr = c.notes.length > 0 ? `\n- **Notes:** ${c.notes.join(" ")}` : "";
+      return `### ${c.name}\n- **Verified Services:** ${c.services.join(", ")}\n${devList}${notesStr}`;
+    })
+    .join("\n\n");
 
-    sections.push(
-      `### ${record.title}\n` +
-        `**Category:** ${catInfo?.nameEn || record.category} (${catInfo?.nameAr || ""}) · **Source Sheet:** \`${record.source.sheet}\`\n\n` +
-        record.content
-    );
+  const body = arabic
+    ? `## معلومات العيادات الموثّقة\n\n${blocks}\n\n> **بيانات غير متوفرة:** **عناوين العيادات، أرقام الهواتف، وساعات العمل** غير متوفرة في الملفات المرفقة.`
+    : `## Verified Clinic Profiles\n\n${blocks}\n\n> **Unavailable Details:** Clinic street **addresses, phone numbers, and operating hours** are not included in the supplied source files.`;
 
-    sources.push({
-      category: catInfo?.nameEn || record.category,
-      title: record.title,
-      type: "knowledge",
-    });
-  }
-
-  const header = arabic
-    ? `تم العثور على **${results.length}** ${results.length === 1 ? "نتيجة" : "نتائج"} موثّقة في قاعدة بيانات الشركة:\n`
-    : `Found **${results.length}** verified match${results.length > 1 ? "es" : ""} in the company knowledge base:\n`;
-
-  const askedPrice = /(?:price|prices|pricing|cost|offer|offers|سعر|اسعار|أسعار|عرض|عروض)/i.test(
-    query
-  );
-  const hasVerifiedPriceInResults = results
-    .slice(0, 4)
-    .some((r) => /\bAED\b|الاسعار|سعر/i.test(r.record.content));
-
-  const priceNote =
-    askedPrice && !hasVerifiedPriceInResults
-      ? arabic
-        ? `\n\n> **ملاحظة حول السعر:** السعر المحدد لهذه الخدمة غير متوفر في قاعدة البيانات الحالية؛ يُرجى مراجعة قائمة الأسعار المعتمدة بالعيادة.`
-        : `\n\n> **Pricing Notice:** Exact pricing or package offers for this item are **not listed** in the supplied Excel knowledge base. Please verify with the clinic price list.`
-      : "";
-
-  const safetyFooter = arabic
-    ? `\n\n> **توجيه طبي:** للملاءمة الطبية الفردية أو موانع الاستخدام الخاصة بحالة العميل، يُرجى التحويل إلى الطبيب أو المختص بالعيادة.`
-    : `\n\n> **Specialist Guidance:** For patient-specific medical suitability, contraindications, or diagnosis, refer the customer to a qualified clinic specialist.`;
-
-  const content =
-    header +
-    "\n" +
-    sections.join("\n\n---\n\n") +
-    priceNote +
-    safetyFooter +
-    `\n\n*Source: Terra Solutions Official Excel Knowledge Base*`;
-
-  return { content, sources };
+  const answer = appendExternalSection(body, request, arabic);
+  return {
+    answer,
+    content: answer,
+    language: request.retrieval.classified.language,
+    intent: "clinic_lookup",
+    confidenceLevel: "strong",
+    requiresClarification: false,
+    warnings: [
+      "Clinic addresses, phone numbers, and working hours are not present in the source files.",
+    ],
+    sources,
+    externalSources: toExternalSources(request),
+    provider: config.name,
+    isMock: true,
+  };
 }
 
 export const mockProvider: AIProvider = {
   config,
 
+  validateConfiguration(): ProviderValidationResult {
+    return { configured: true, providerId: "mock" };
+  },
+
+  normalizeError(err: unknown): string {
+    return toSafeErrorMessage(err);
+  },
+
   async generateResponse(request: AIRequest): Promise<AIResponse> {
-    // Brief delay for visual feedback
-    await new Promise((r) => setTimeout(r, 450));
+    const retrieval = request.retrieval;
+    const { classified, results, confidence } = retrieval;
+    const arabic = classified.language === "ar";
+    const externalSources = toExternalSources(request);
 
-    const query = request.userMessage.trim();
-    const arabic = isArabicQuery(query);
-    const norm = normalizeText(query);
-
-    // 1. Greetings
-    if (/^(hi|hello|hey|مرحبا|اهلا|السلام عليكم|welcome|start|بداية)$/i.test(query)) {
+    if (classified.intent === "greeting") {
       return {
+        answer: WELCOME_MESSAGE,
         content: WELCOME_MESSAGE,
+        language: classified.language,
+        intent: "greeting",
+        confidenceLevel: "strong",
+        requiresClarification: false,
+        warnings: [],
         sources: [],
+        externalSources,
         provider: config.name,
         isMock: true,
       };
     }
 
-    // 2. Generic "this service" agent-script prompt
-    if (
-      /what should i tell a customer asking about this service|ماذا أقول لعميل يسأل عن خدمة محددة/i.test(
-        query
-      )
-    ) {
+    if (classified.intent === "call_script") {
+      const answer = arabic
+        ? `## مساعد نصوص مكالمات الكول سنتر\n\nأي خدمة أو منتج يسأل عنه العميل تحديدًا؟ اكتب اسم الخدمة وسأعرض لك الملخص والموانع والتعليمات.\n\n**أمثلة:**\n- *ماذا أقول لعميل يسأل عن إزالة الشعر بالليزر؟*\n- *ماذا أقول لعميل يسأل عن البوتوكس أو الفيلر؟*\n- *ما هي العلاجات الآمنة أثناء الحمل؟*`
+        : `## Customer Call Script Helper\n\nWhich specific service or treatment is the customer asking about?\n\n**Examples you can ask:**\n- *"What should I tell a customer asking about laser hair removal?"*\n- *"What should I tell a customer asking about Dermal Fillers or Botox?"*\n- *"What treatments are safe during pregnancy or lactation?"*`;
+
       return {
-        content: arabic
-          ? `## نص جاهز لمكالمات الكول سنتر\n\nأي خدمة أو منتج يسأل عنه العميل تحديدًا؟ اكتب اسم الخدمة وسأعرض لك **الملخص السريع للكول سنتر، والموانع، والتعليمات قبل وبعد الجلسة**.\n\n**أمثلة يمكنك طلبها الآن:**\n- *ماذا أقول لعميل يسأل عن إزالة الشعر بالليزر؟*\n- *ماذا أقول لعميل يسأل عن البوتوكس أو الفيلر؟*\n- *ماذا أقول لعميل يسأل عن جلسات الحمل والرضاعة؟*\n- *ماذا أقول لعميل يسأل عن الفينير أو إزالة التاتو؟*`
-          : `## Customer Call Script Helper\n\nWhich specific service or treatment is the customer asking about? Share the service name and I'll retrieve the **call center talking points, pre/post instructions, and contraindications**.\n\n**Try asking:**\n- *"What should I tell a customer asking about laser hair removal?"*\n- *"What should I tell a customer asking about Dermal Fillers or Botox?"*\n- *"What should I tell a customer asking about Hydrafacial or Dermapen?"*\n- *"What treatments are safe during pregnancy or lactation?"*`,
+        answer,
+        content: answer,
+        language: classified.language,
+        intent: "call_script",
+        confidenceLevel: "ambiguous",
+        requiresClarification: true,
+        clarificationQuestion: "Which specific service is the customer asking about?",
+        warnings: [],
         sources: [],
+        externalSources,
         provider: config.name,
         isMock: true,
       };
     }
 
-    // 3. Product/service catalog overview (strict match so specific questions aren't swallowed)
-    if (
-      /(?:what|which|show|list|ما|اعرض|اظهر).*(?:(?:do we|we currently|our|متوفره|نقدم|لدينا).*(?:products?|services?|categories|خدمات|منتجات|اقسام|فئات)|(?:products?|services?|categories|خدمات|منتجات|اقسام|فئات).*(?:do we|we currently|offer|available|متوفره|نقدم|لدينا))|^(?:products|services|categories|المنتجات|الخدمات)$/i.test(
-        norm
-      )
-    ) {
-      const categories = knowledgeEngine.getCategoriesWithCounts();
-      const list = categories
-        .filter((c) => c.recordCount > 0)
+    if (classified.intent === "catalog_overview") {
+      const cats = knowledgeRetriever
+        .getCategoriesWithCounts()
+        .filter((c) => c.recordCount > 0 && c.id !== "clinics");
+      const rows = cats
         .map(
           (c) =>
             `| **${c.nameEn}** | ${c.nameAr} | ${c.description} | ${c.recordCount} |`
         )
         .join("\n");
 
+      const answer = `## Terra Solutions Products & Services\n\n| Category | القسم | Scope | Canonical Records |\n| --- | --- | --- | --- |\n${rows}\n\nAsk about any specific product, device, clinic, or safety question for row-level details.`;
       return {
-        content: `## Our Products & Services\n\nTerra Solutions' knowledge base covers the following verified service categories:\n\n| Category | القسم | Overview | Records |\n| --- | --- | --- | --- |\n${list}\n\n---\nAsk about any specific product, treatment, device, or safety question for full details.\n\n*Source: Terra Solutions Knowledge Base*`,
+        answer,
+        content: answer,
+        language: classified.language,
+        intent: "catalog_overview",
+        confidenceLevel: "strong",
+        requiresClarification: false,
+        warnings: [],
         sources: [],
+        externalSources,
         provider: config.name,
         isMock: true,
       };
     }
 
-    // 4. Devices & specifications intent
+    if (classified.intent === "company_info") {
+      const clinics = knowledgeRetriever.getClinics();
+      const answer = `## About Terra Solutions\n\nTerra Solutions provides Call Center, Chat Support, and BPO services in Egypt, supporting clinical operations across **${clinics.length} partner clinics**: ${clinics.map((c) => `**${c.name}**`).join(", ")}.\n\n> **Note:** Street addresses, phone numbers, and working hours are not provided in the supplied operational spreadsheets.`;
+      return {
+        answer,
+        content: answer,
+        language: classified.language,
+        intent: "company_info",
+        confidenceLevel: "strong",
+        requiresClarification: false,
+        warnings: [],
+        sources: [],
+        externalSources,
+        provider: config.name,
+        isMock: true,
+      };
+    }
+
+    // Ambiguous generic comparison ("Compare these two products")
     if (
-      /(?:device|devices|machine|machines|specifications|specs|اجهزه|مواصفات)/i.test(norm) &&
-      !/(candela|cynosure|deka|quanta|vivace|clear|oxygeneo|campomats|co2|plasmage|opatra|ultrasound|z-lipo|z-wave|hifu|venus|endolift|inbody|roblex|lipozero|cool shaping)/i.test(
-        norm
+      classified.asksComparison &&
+      (/these two|two filler|بين نوعين|منتجين/.test(classified.normalized) ||
+        results.length === 0)
+    ) {
+      const answer = arabic
+        ? `## مقارنة المنتجات أو العلاجات\n\nأي منتجين أو خدمتين تحديدًا ترغب بمقارنتهما؟\n\n**أمثلة جاهزة في قاعدة البيانات:**\n- *قارن بين البوتوكس والفيلر*\n- *قارن بين Dr. CYJ و PRP للشعر*\n- *قارن بين حقن الكولاجين والفيلر*`
+        : `## Product & Service Comparison\n\nWhich two products or services would you like to compare?\n\n**Verified comparisons available:**\n- *Compare Botox vs. Fillers*\n- *Compare Dr. CYJ Hair Filler vs. PRP vs. Stem Cells*\n- *Compare Collagen Stimulators vs. Fillers*\n- *Compare Juvederm Voluma vs. Radiesse*`;
+
+      return {
+        answer,
+        content: answer,
+        language: classified.language,
+        intent: "comparison",
+        confidenceLevel: "ambiguous",
+        requiresClarification: true,
+        clarificationQuestion: "Which two specific products or services should be compared?",
+        warnings: [],
+        sources: [],
+        externalSources,
+        provider: config.name,
+        isMock: true,
+      };
+    }
+
+    // No reliable match / explicit abstention (unknown clinic, medical diagnosis, out-of-domain device)
+    if (confidence === "none" || results.length === 0) {
+      const baseAbstain =
+        retrieval.missingIndicators.length > 0
+          ? `${KNOWLEDGE_NOT_FOUND_RESPONSE}\n\n> **Reason:** ${retrieval.missingIndicators.join(" ")}`
+          : KNOWLEDGE_NOT_FOUND_RESPONSE;
+      const answer = appendExternalSection(baseAbstain, request, arabic);
+      return {
+        answer,
+        content: answer,
+        language: classified.language,
+        intent: classified.intent,
+        confidenceLevel: "none",
+        requiresClarification: false,
+        warnings:
+          retrieval.missingIndicators.length > 0
+            ? retrieval.missingIndicators
+            : ["No reliable match found in the canonical Terra Solutions dataset."],
+        sources: [],
+        externalSources,
+        provider: config.name,
+        isMock: true,
+      };
+    }
+
+    if (classified.intent === "device_specs") {
+      return buildDevicesResponse(request, arabic);
+    }
+
+    if (classified.intent === "price_offer_lookup") {
+      return buildPricingResponse(request, arabic);
+    }
+
+    if (
+      classified.intent === "clinic_lookup" &&
+      !/tattoo|microblading|slimming|z-lipo|hifu|endolift|تاتو|تنحيف/i.test(
+        classified.normalized
       )
     ) {
-      return handleDevicesIntent(arabic);
+      return buildClinicResponse(request, arabic);
     }
 
-    // 5. General offers & package prices intent (only when asking generally, not about an unrelated unknown subject)
+    // Ambiguous match across multiple products -> Ask clarification while showing options
     if (
-      /(?:current offers|package prices|price list|all prices|عروض حاليه|العروض الحاليه|اسعار الباقات|قائمه الاسعار)/i.test(
-        norm
-      ) ||
-      /^(?:offers?|prices?|pricing|الاسعار|العروض)$/i.test(norm)
+      retrieval.requiresClarification &&
+      retrieval.clarificationCandidates.length >= 2
     ) {
-      return handlePricingIntent(arabic);
+      const candidates = retrieval.clarificationCandidates;
+      const list = candidates
+        .map(
+          (c) =>
+            `- **${c.name}** (${CATEGORIES[c.category]?.nameEn || c.category}) — ${c.description.split("\n")[0]} *(Source: \`${c.source.sheet}\` R${c.source.row})*`
+        )
+        .join("\n");
+
+      const clarificationQuestion = arabic
+        ? `وجدت أكثر من منتج/خدمة مطابقة لبحثك. أي واحد تحديدًا تقصد؟`
+        : `Multiple matching options were found. Which specific one are you asking about?`;
+
+      const answer = `## Clarification Needed\n\n${clarificationQuestion}\n\n${list}`;
+      const sources: MessageSource[] = candidates.map((c) => ({
+        category: CATEGORIES[c.category]?.nameEn || c.category,
+        title: c.name,
+        type: "knowledge",
+        file: c.source.file,
+        sheet: c.source.sheet,
+        row: c.source.row,
+        rows: c.source.rows,
+      }));
+
+      return {
+        answer,
+        content: answer,
+        language: classified.language,
+        intent: classified.intent,
+        confidenceLevel: "ambiguous",
+        requiresClarification: true,
+        clarificationQuestion,
+        warnings: retrieval.missingIndicators,
+        sources,
+        externalSources,
+        provider: config.name,
+        isMock: true,
+      };
     }
 
-    // 6. Clinic info intent
-    const clinicResp = handleClinicIntent(query, arabic);
-    if (clinicResp) return clinicResp;
+    // Standard grounded response
+    const topItems = results.slice(0, 4);
+    const sources: MessageSource[] = topItems.map((res) => ({
+      category: CATEGORIES[res.record.category]?.nameEn || res.record.category,
+      title: res.record.name,
+      type: "knowledge",
+      file: res.record.source.file,
+      sheet: res.record.source.sheet,
+      row: res.record.source.row,
+      rows: res.record.source.rows,
+      confidenceScore: res.score,
+      matchReasons: res.matchReasons,
+    }));
 
-    // 7. Comparison intent
-    const compResp = handleComparisonIntent(query, arabic);
-    if (compResp) return compResp;
+    const sections = topItems.map((res) => {
+      const r = res.record;
+      const catLabel = CATEGORIES[r.category]?.nameEn || r.category;
+      const priceNote =
+        r.prices.length > 0
+          ? `\n\n**Verified Price:** ${r.prices.map((p) => p.note).join(" | ")}`
+          : "";
+      const conflictNote =
+        r.conflictNotes && r.conflictNotes.length > 0
+          ? `\n\n> **Source Conflict Notice:** ${r.conflictNotes.join(" ")}`
+          : "";
+      return (
+        `### ${r.name}\n` +
+        `**Category:** ${catLabel} · **Source:** \`${r.source.file}\` → \`${r.source.sheet}\` (Row${r.source.rows.length > 1 ? "s" : ""} ${r.source.rows.join(", ")})\n\n` +
+        `${r.description}${priceNote}${conflictNote}`
+      );
+    });
 
-    // 8. Standard knowledge retrieval
-    const results = knowledgeEngine.search(query, { limit: 4 });
-    const { content, sources } = formatKnowledgeResponse(query, results, arabic);
+    const warnings: string[] = [...retrieval.missingIndicators];
+    for (const cf of retrieval.conflicts) {
+      warnings.push(cf.description);
+    }
+
+    const relatedBlock =
+      retrieval.relatedRecords.length > 0
+        ? "\n\n**Related Records:** " +
+          retrieval.relatedRecords
+            .slice(0, 3)
+            .map((rel) => `*${rel.name}* (\`${rel.source.sheet}\` R${rel.source.row})`)
+            .join(" · ")
+        : "";
+
+    const missingBlock =
+      retrieval.missingIndicators.length > 0
+        ? `\n\n> **Unavailable Information Notice:** ${retrieval.missingIndicators.join(" ")}`
+        : "";
+
+    const safetyNote = arabic
+      ? `\n\n> **توجيه طبي:** للتحقق من ملاءمة الإجراء لحالة العميل الطبية أو الموانع الفردية، يُرجى التحويل إلى الطبيب المختص بالعيادة.`
+      : `\n\n> **Specialist Guidance:** For patient-specific medical suitability, diagnosis, or contraindications, direct the customer to a qualified clinic specialist.`;
+
+    const header = arabic
+      ? `تم استرجاع **${topItems.length}** ${topItems.length === 1 ? "نتيجة موثّقة" : "نتائج موثّقة"} من قاعدة بيانات الشركة:`
+      : `Found **${topItems.length}** verified match${topItems.length > 1 ? "es" : ""} in Terra Solutions' canonical knowledge base:`;
+
+    const rawBody =
+      `${header}\n\n${sections.join("\n\n---\n\n")}${relatedBlock}${missingBlock}${safetyNote}`;
+    const answer = appendExternalSection(rawBody, request, arabic);
 
     return {
-      content,
+      answer,
+      content: answer,
+      language: classified.language,
+      intent: classified.intent,
+      confidenceLevel: confidence,
+      requiresClarification: false,
+      warnings,
       sources,
+      externalSources,
       provider: config.name,
       isMock: true,
     };
+  },
+
+  async *streamResponse(
+    request: AIRequest
+  ): AsyncGenerator<AIStreamChunk, void, unknown> {
+    const full = await this.generateResponse(request);
+    const pieces = full.answer.split(/(\s+)/);
+    let buf = "";
+    for (let i = 0; i < pieces.length; i++) {
+      if (request.signal?.aborted) break;
+      buf += pieces[i];
+      if (i % 10 === 0 || i === pieces.length - 1) {
+        yield { type: "delta", text: buf };
+        buf = "";
+      }
+    }
+    yield { type: "complete", response: full };
   },
 };

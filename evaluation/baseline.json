@@ -1,0 +1,1278 @@
+{
+  "generatedAt": "2026-11-24T21:02:01.025Z",
+  "totalQuestions": 56,
+  "retrievalQuestions": 49,
+  "abstentionQuestions": 5,
+  "clarificationQuestions": 2,
+  "missingIndicatorQuestions": 2,
+  "top1Accuracy": 0.9387755102040817,
+  "recallAt1": 0.9387755102040817,
+  "recallAt3": 1,
+  "recallAt5": 1,
+  "precisionAt3": 0.44217687074829937,
+  "sourceCoverageRate": 1,
+  "ambiguityPassRate": 1,
+  "hallucinationAbstentionRate": 1,
+  "missingDataDisclosureRate": 1,
+  "overallPassRate": 1,
+  "cases": [
+    {
+      "id": "q01",
+      "category": "arabic",
+      "query": "ما هو الفيلر المناسب تحت العين؟",
+      "passed": true,
+      "topIds": [
+        "filler-redensity-2-فلر-تحت-العين-teosyal",
+        "face-prp-treatment",
+        "fillers-overview",
+        "safety-pregnancy-الفيلر",
+        "comparison-botox-vs-fillers"
+      ],
+      "expectedIds": [
+        "filler-redensity-2-فلر-تحت-العين-teosyal",
+        "skin-booster-jalupro-young-eye",
+        "skin-booster-rrs-ha-eyes"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q02",
+      "category": "arabic",
+      "query": "هل البوتوكس مسموح للحامل؟",
+      "passed": true,
+      "topIds": [
+        "safety-pregnancy-البوتوكس",
+        "safety-pregnancy-الليزر-لإزالة-الشعر",
+        "safety-pregnancy-الفيلر",
+        "safety-pregnancy-الخيوط",
+        "safety-pregnancy-prp"
+      ],
+      "expectedIds": [
+        "safety-pregnancy-البوتوكس",
+        "pregnancy-lactation-overview"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q03",
+      "category": "arabic",
+      "query": "سعر خيوط Aptos Cat Eye كام؟",
+      "passed": true,
+      "topIds": [
+        "thread-aptos-cat-eye-threads",
+        "thread-aptos-lifting-threads",
+        "thread-rainbow-mono-thread-1-thread",
+        "thread-pdo-thread-1-thread",
+        "threads-overview"
+      ],
+      "expectedIds": [
+        "thread-aptos-cat-eye-threads"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q04",
+      "category": "arabic",
+      "query": "سعر خيط PDO الواحد",
+      "passed": true,
+      "topIds": [
+        "thread-pdo-thread-1-thread",
+        "thread-aptos-cat-eye-threads",
+        "thread-aptos-lifting-threads",
+        "thread-rainbow-mono-thread-1-thread",
+        "threads-overview"
+      ],
+      "expectedIds": [
+        "thread-pdo-thread-1-thread"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q05",
+      "category": "arabic",
+      "query": "ما هي أنواع فيلر الجسم المتوفرة؟",
+      "passed": true,
+      "topIds": [
+        "body-filler-overview",
+        "filler-radiesse-1-5ml",
+        "safety-pregnancy-الفيلر",
+        "body-filler-goldfill-box-10",
+        "body-filler-jealfil-box-20"
+      ],
+      "expectedIds": [
+        "body-filler-overview",
+        "body-filler-goldfill-box-10",
+        "body-filler-jealfil-box-20",
+        "body-filler-privilege-box-10"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q06",
+      "category": "arabic",
+      "query": "هل يمكن ممارسة العلاقة الجنسية بعد فيلر الجسم؟",
+      "passed": true,
+      "topIds": [
+        "body-filler-overview",
+        "hair-dr-cyj-filler",
+        "safety-pregnancy-الفيلر",
+        "filler-radiesse-1-5ml",
+        "machine-ultra-sound-for-filler-usa-2026-version"
+      ],
+      "expectedIds": [
+        "body-filler-overview"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q07",
+      "category": "arabic",
+      "query": "إزالة المايكروبليدينغ موجودة في أي عيادة؟",
+      "passed": true,
+      "topIds": [
+        "tattoo-permanent-makeup-microblading-policy",
+        "device-cynosure-elite-plus-سايناشور-إيليت-بلس",
+        "safety-pregnancy-الليزر-لإزالة-الشعر",
+        "safety-pregnancy-إزالة-التاتو",
+        "laser-hair-removal-overview"
+      ],
+      "expectedIds": [
+        "tattoo-permanent-makeup-microblading-policy",
+        "clinic-dermadent"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q08",
+      "category": "arabic",
+      "query": "هل الليزر يشتغل على الشعر الأبيض؟",
+      "passed": true,
+      "topIds": [
+        "laser-hair-removal-overview",
+        "safety-pregnancy-الليزر-لإزالة-الشعر",
+        "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+        "device-deka-laser-ديكا",
+        "device-quanta-duo-كوانتا-ديو"
+      ],
+      "expectedIds": [
+        "laser-hair-removal-overview",
+        "device-candela-gentlemax-pro-plus-أحدث-إصدار"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q09",
+      "category": "arabic",
+      "query": "كم مدة التوقف عن دواء الريكوتان قبل الليزر؟",
+      "passed": true,
+      "topIds": [
+        "laser-hair-removal-overview",
+        "machine-clear-brilliant-fractional-laser",
+        "facial-hydrafacial",
+        "safety-pregnancy-الليزر-لإزالة-الشعر",
+        "facial-dermapen"
+      ],
+      "expectedIds": [
+        "laser-hair-removal-overview",
+        "machine-clear-brilliant-fractional-laser"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q10",
+      "category": "arabic",
+      "query": "هل الفينير ممكن يتعمل من غير حف؟",
+      "passed": true,
+      "topIds": [
+        "dental-veneer-removal-policy",
+        "dental-veneers-overview",
+        "filler-radiesse-1-5ml",
+        "device-endolift-french-dermacool-2025-doctors-on",
+        "device-z-wave-acoustic-wave-therapy-well-touch"
+      ],
+      "expectedIds": [
+        "dental-veneers-overview"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 0,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q11",
+      "category": "arabic",
+      "query": "هل يوجد عندكم تقويم أسنان أو زراعة أسنان؟",
+      "passed": true,
+      "topIds": [
+        "dental-therapeutic-services-policy",
+        "dental-veneers-overview",
+        "dental-veneer-6d",
+        "dental-night-guard",
+        "dental-veneer-2d"
+      ],
+      "expectedIds": [
+        "dental-therapeutic-services-policy"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q12",
+      "category": "arabic",
+      "query": "طريقة إزالة الفينير بالليزر متوفرة؟",
+      "passed": true,
+      "topIds": [
+        "dental-veneer-removal-policy",
+        "laser-hair-removal-overview",
+        "safety-pregnancy-الليزر-لإزالة-الشعر",
+        "safety-pregnancy-إزالة-التاتو",
+        "tattoo-device-well-touch"
+      ],
+      "expectedIds": [
+        "dental-veneer-removal-policy"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q13",
+      "category": "arabic",
+      "query": "ما هي إبرة الفلتر أو الإبرة البنفسجية السحرية؟",
+      "passed": true,
+      "topIds": [
+        "skin-booster-exofecta",
+        "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل",
+        "skin-booster-virtue-aura",
+        "skin-booster-my-skin-chemistry-resture",
+        "skin-booster-rrs-trio-blend"
+      ],
+      "expectedIds": [
+        "skin-booster-exofecta"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q14",
+      "category": "arabic",
+      "query": "ما هي ابرة الخمس نقاط؟",
+      "passed": true,
+      "topIds": [
+        "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل",
+        "skin-booster-exofecta",
+        "skin-booster-virtue-aura",
+        "skin-booster-my-skin-chemistry-resture",
+        "skin-booster-rrs-trio-blend"
+      ],
+      "expectedIds": [
+        "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q15",
+      "category": "arabic",
+      "query": "ما هي ابرة المشاهير للشد المائي؟",
+      "passed": true,
+      "topIds": [
+        "skin-booster-virtue-aura",
+        "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل",
+        "skin-booster-exofecta",
+        "skin-booster-my-skin-chemistry-resture",
+        "skin-booster-rrs-trio-blend"
+      ],
+      "expectedIds": [
+        "skin-booster-virtue-aura"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q16",
+      "category": "arabic",
+      "query": "هل يمكن عمل ديرمابن مع البوتوكس بنفس اليوم؟",
+      "passed": true,
+      "topIds": [
+        "facial-dermapen",
+        "machine-vivace-microneedling-radiofrequency-فيفا",
+        "machine-clear-brilliant-fractional-laser",
+        "skin-booster-exofecta",
+        "facial-factor-five"
+      ],
+      "expectedIds": [
+        "facial-dermapen",
+        "machine-vivace-microneedling-radiofrequency-فيفا"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q17",
+      "category": "arabic",
+      "query": "ما هي الجلسة الوحيدة المناسبة للحبوب الملتهبة؟",
+      "passed": true,
+      "topIds": [
+        "facial-factor-five",
+        "facial-peeling",
+        "device-z-wave-acoustic-wave-therapy-well-touch",
+        "device-venus-legacy",
+        "device-deka-slimming"
+      ],
+      "expectedIds": [
+        "facial-factor-five"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q18",
+      "category": "arabic",
+      "query": "حقنة Wegovy مسموحة من عمر كام؟",
+      "passed": true,
+      "topIds": [
+        "slimming-wegovy",
+        "safety-pregnancy-wegovy",
+        "pregnancy-lactation-overview",
+        "device-endolift-french-dermacool-2025-doctors-on",
+        "device-z-lipo-cryolipolysis-well-touch"
+      ],
+      "expectedIds": [
+        "slimming-wegovy"
+      ],
+      "confidence": "partial",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q19",
+      "category": "arabic",
+      "query": "هل ينفع عمل الفيلر أثناء الرضاعة؟",
+      "passed": true,
+      "topIds": [
+        "safety-pregnancy-الفيلر",
+        "pregnancy-lactation-overview",
+        "safety-pregnancy-الليزر-لإزالة-الشعر",
+        "safety-pregnancy-الخيوط",
+        "safety-pregnancy-prp"
+      ],
+      "expectedIds": [
+        "safety-pregnancy-الفيلر",
+        "pregnancy-lactation-overview"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q20",
+      "category": "arabic",
+      "query": "إيه الفرق بين البوتوكس والفيلر؟",
+      "passed": true,
+      "topIds": [
+        "comparison-botox-vs-fillers",
+        "comparison-collagen-vs-filler",
+        "safety-pregnancy-البوتوكس",
+        "botox-overview",
+        "machine-vivace-microneedling-radiofrequency-فيفا"
+      ],
+      "expectedIds": [
+        "comparison-botox-vs-fillers"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q21",
+      "category": "english",
+      "query": "Juvederm Voluma",
+      "passed": true,
+      "topIds": [
+        "filler-juvederm-voluma",
+        "filler-juvederm-ultra-4",
+        "filler-juvederm-ultra-3",
+        "filler-juvederm-volux",
+        "skin-booster-volite-juvederm"
+      ],
+      "expectedIds": [
+        "filler-juvederm-voluma"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q22",
+      "category": "english",
+      "query": "Juvederm Volux uses and country",
+      "passed": true,
+      "topIds": [
+        "filler-juvederm-volux",
+        "filler-juvederm-ultra-4",
+        "filler-juvederm-ultra-3",
+        "filler-juvederm-voluma",
+        "filler-y-bello-volum"
+      ],
+      "expectedIds": [
+        "filler-juvederm-volux"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q23",
+      "category": "english",
+      "query": "Radiesse calcium filler uses",
+      "passed": true,
+      "topIds": [
+        "filler-radiesse-1-5ml",
+        "collagen-radiesse-3-ml",
+        "filler-redensity-2-فلر-تحت-العين-teosyal",
+        "body-filler-overview",
+        "filler-y-bello-deep"
+      ],
+      "expectedIds": [
+        "filler-radiesse-1-5ml",
+        "collagen-radiesse-3-ml"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q24",
+      "category": "english",
+      "query": "Candela GentleMax Pro Plus",
+      "passed": true,
+      "topIds": [
+        "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+        "device-candela-gentlemax-pro-أحدث-إصدار"
+      ],
+      "expectedIds": [
+        "device-candela-gentlemax-pro-plus-أحدث-إصدار"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.5
+    },
+    {
+      "id": "q25",
+      "category": "english",
+      "query": "Cynosure Elite Plus cooling system",
+      "passed": true,
+      "topIds": [
+        "device-cynosure-elite-plus-سايناشور-إيليت-بلس",
+        "machine-oxygeneo-3-in-1-facial-system",
+        "device-deka-laser-ديكا",
+        "device-quanta-duo-كوانتا-ديو"
+      ],
+      "expectedIds": [
+        "device-cynosure-elite-plus-سايناشور-إيليت-بلس"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q26",
+      "category": "english",
+      "query": "Dr. CYJ Hair Filler sessions",
+      "passed": true,
+      "topIds": [
+        "hair-dr-cyj-filler",
+        "safety-pregnancy-hair-filler",
+        "comparison-hair-injections",
+        "treatment-prp-overview",
+        "filler-radiesse-1-5ml"
+      ],
+      "expectedIds": [
+        "hair-dr-cyj-filler"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q27",
+      "category": "english",
+      "query": "Restylane Skinboosters availability",
+      "passed": true,
+      "topIds": [
+        "skin-booster-restylane-skinboosters",
+        "filler-restylane-kysse-1box-1ml"
+      ],
+      "expectedIds": [
+        "skin-booster-restylane-skinboosters"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.5
+    },
+    {
+      "id": "q28",
+      "category": "english",
+      "query": "Sculptra 10 ml active ingredient",
+      "passed": true,
+      "topIds": [
+        "collagen-sculptra-10-ml",
+        "skin-booster-rrs-hyalift-75-pro-active",
+        "collagen-radiesse-3-ml",
+        "collagen-olidia",
+        "collagen-aesthafil"
+      ],
+      "expectedIds": [
+        "collagen-sculptra-10-ml"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q29",
+      "category": "english",
+      "query": "Clear + Brilliant downtime and contraindications",
+      "passed": true,
+      "topIds": [
+        "machine-clear-brilliant-fractional-laser",
+        "machine-vivace-microneedling-radiofrequency-فيفا",
+        "machine-opatra-london-skin-analyser",
+        "machine-ultra-sound-for-filler-usa-2026-version",
+        "machine-oxygeneo-3-in-1-facial-system"
+      ],
+      "expectedIds": [
+        "machine-clear-brilliant-fractional-laser"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q30",
+      "category": "english",
+      "query": "Vivace microneedling RF interval with filler",
+      "passed": true,
+      "topIds": [
+        "machine-vivace-microneedling-radiofrequency-فيفا",
+        "machine-campomats-rf-microneedling",
+        "facial-dermapen",
+        "machine-ultra-sound-for-filler-usa-2026-version",
+        "filler-radiesse-1-5ml"
+      ],
+      "expectedIds": [
+        "machine-vivace-microneedling-radiofrequency-فيفا"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q31",
+      "category": "english",
+      "query": "Opatra London Skin Analyser",
+      "passed": true,
+      "topIds": [
+        "machine-opatra-london-skin-analyser",
+        "filler-my-skin-chemistry-shape",
+        "filler-my-skin-chemistry-lips",
+        "filler-my-skin-chemistry-volume",
+        "filler-my-skin-chemistry-balance"
+      ],
+      "expectedIds": [
+        "machine-opatra-london-skin-analyser"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q32",
+      "category": "english",
+      "query": "Ultra Sound For Filler",
+      "passed": true,
+      "topIds": [
+        "machine-ultra-sound-for-filler-usa-2026-version",
+        "device-hifu-high-intensity-focused-ultrasound-on",
+        "filler-radiesse-1-5ml",
+        "hair-dr-cyj-filler",
+        "safety-pregnancy-hair-filler"
+      ],
+      "expectedIds": [
+        "machine-ultra-sound-for-filler-usa-2026-version"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q33",
+      "category": "english",
+      "query": "Night Guard soft and hard",
+      "passed": true,
+      "topIds": [
+        "dental-night-guard",
+        "filler-y-bello-soft",
+        "tattoo-device-well-touch",
+        "tattoo-device-new-age",
+        "tattoo-device-dermadent"
+      ],
+      "expectedIds": [
+        "dental-night-guard"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q34",
+      "category": "english",
+      "query": "Snap-On Smile removable cosmetic smile",
+      "passed": true,
+      "topIds": [
+        "dental-snap-on-smile",
+        "dental-vip-lounge-smile-custom-100",
+        "dental-diamond-feldspathic-porcelain",
+        "dental-veneer-removal-policy",
+        "dental-veneer-2d"
+      ],
+      "expectedIds": [
+        "dental-snap-on-smile"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q35",
+      "category": "english",
+      "query": "VIP Lounge vs Diamond Feldspathic veneer",
+      "passed": true,
+      "topIds": [
+        "dental-veneers-overview",
+        "dental-diamond-feldspathic-porcelain",
+        "dental-vip-lounge-smile-custom-100",
+        "dental-veneer-7d",
+        "dental-veneer-2d"
+      ],
+      "expectedIds": [
+        "dental-vip-lounge-smile-custom-100",
+        "dental-diamond-feldspathic-porcelain"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 0,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q36",
+      "category": "english",
+      "query": "Endolift clinic availability and doctors",
+      "passed": true,
+      "topIds": [
+        "device-endolift-french-dermacool-2025-doctors-on",
+        "clinic-dermadent",
+        "clinic-one-touch",
+        "clinic-well-touch",
+        "clinic-new-age"
+      ],
+      "expectedIds": [
+        "device-endolift-french-dermacool-2025-doctors-on"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q37",
+      "category": "english",
+      "query": "Z-Lipo and Z-Wave at Well Touch",
+      "passed": true,
+      "topIds": [
+        "device-z-wave-acoustic-wave-therapy-well-touch",
+        "clinic-well-touch",
+        "device-z-lipo-cryolipolysis-well-touch",
+        "tattoo-device-well-touch",
+        "device-lipozero-rf-low-energy-laser-led-one-touc"
+      ],
+      "expectedIds": [
+        "device-z-lipo-cryolipolysis-well-touch",
+        "device-z-wave-acoustic-wave-therapy-well-touch",
+        "clinic-well-touch"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 1
+    },
+    {
+      "id": "q38",
+      "category": "english",
+      "query": "HIFU and Cool Shaping at One Touch",
+      "passed": true,
+      "topIds": [
+        "device-cool-shaping-one-touch",
+        "clinic-one-touch",
+        "device-hifu-high-intensity-focused-ultrasound-on",
+        "device-lipozero-rf-low-energy-laser-led-one-touc",
+        "device-inbody-inbalance-3d-body-analyzer-one-tou"
+      ],
+      "expectedIds": [
+        "device-hifu-high-intensity-focused-ultrasound-on",
+        "device-cool-shaping-one-touch",
+        "clinic-one-touch"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 1
+    },
+    {
+      "id": "q39",
+      "category": "mixed",
+      "query": "مقارنة بين Dr. CYJ و PRP للشعر",
+      "passed": true,
+      "topIds": [
+        "comparison-hair-injections",
+        "hair-dr-cyj-filler",
+        "treatment-prp-overview",
+        "safety-pregnancy-prp",
+        "comparison-botox-vs-fillers"
+      ],
+      "expectedIds": [
+        "comparison-hair-injections"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q40",
+      "category": "mixed",
+      "query": "هل Hydrafacial آمن للحامل؟",
+      "passed": true,
+      "topIds": [
+        "safety-pregnancy-hydrafacial",
+        "pregnancy-lactation-overview",
+        "facial-hydrafacial",
+        "safety-pregnancy-facial-تنظيف-عادي",
+        "safety-pregnancy-تنظيف-بشرة-يدوي"
+      ],
+      "expectedIds": [
+        "safety-pregnancy-hydrafacial",
+        "facial-hydrafacial"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q41",
+      "category": "mixed",
+      "query": "سعر Aptos Lifting كام؟",
+      "passed": true,
+      "topIds": [
+        "thread-aptos-lifting-threads",
+        "thread-aptos-cat-eye-threads",
+        "thread-rainbow-mono-thread-1-thread",
+        "thread-pdo-thread-1-thread",
+        "threads-overview"
+      ],
+      "expectedIds": [
+        "thread-aptos-lifting-threads"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q42",
+      "category": "typo",
+      "query": "juviderm voluma",
+      "passed": true,
+      "topIds": [
+        "filler-juvederm-voluma",
+        "filler-juvederm-ultra-4",
+        "filler-juvederm-ultra-3",
+        "filler-juvederm-volux",
+        "skin-booster-volite-juvederm"
+      ],
+      "expectedIds": [
+        "filler-juvederm-voluma"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q43",
+      "category": "typo",
+      "query": "botoks dysport",
+      "passed": true,
+      "topIds": [
+        "botox-dysport-british-500-unit",
+        "botox-botox-100-unit",
+        "botox-overview",
+        "safety-pregnancy-البوتوكس",
+        "botox-nabota-korean-100-unit"
+      ],
+      "expectedIds": [
+        "botox-dysport-british-500-unit",
+        "botox-botox-100-unit"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q44",
+      "category": "typo",
+      "query": "dermaden microblading",
+      "passed": true,
+      "topIds": [
+        "tattoo-device-dermadent",
+        "tattoo-permanent-makeup-microblading-policy",
+        "clinic-dermadent",
+        "tattoo-device-well-touch",
+        "tattoo-device-new-age"
+      ],
+      "expectedIds": [
+        "tattoo-permanent-makeup-microblading-policy",
+        "clinic-dermadent"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 0,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q45",
+      "category": "typo",
+      "query": "sculptera collagen",
+      "passed": true,
+      "topIds": [
+        "collagen-sculptra-10-ml",
+        "comparison-collagen-vs-filler",
+        "collagen-stimulators-overview",
+        "safety-pregnancy-حقن-collagen-stimulating",
+        "skin-booster-karisma-skin-booster"
+      ],
+      "expectedIds": [
+        "collagen-sculptra-10-ml"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q46",
+      "category": "clinic",
+      "query": "New Age clinic tattoo removal doctor",
+      "passed": true,
+      "topIds": [
+        "tattoo-device-new-age",
+        "clinic-new-age",
+        "tattoo-device-well-touch",
+        "tattoo-device-one-touch",
+        "tattoo-device-dermadent"
+      ],
+      "expectedIds": [
+        "tattoo-device-new-age",
+        "clinic-new-age"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q47",
+      "category": "clinic",
+      "query": "What devices does Dermadent have?",
+      "passed": true,
+      "topIds": [
+        "tattoo-device-dermadent",
+        "clinic-dermadent",
+        "tattoo-permanent-makeup-microblading-policy",
+        "clinic-one-touch",
+        "clinic-well-touch"
+      ],
+      "expectedIds": [
+        "clinic-dermadent",
+        "tattoo-device-dermadent"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": false,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.6666666666666666
+    },
+    {
+      "id": "q48",
+      "category": "ambiguous",
+      "query": "Juvederm",
+      "passed": true,
+      "topIds": [
+        "filler-juvederm-ultra-4",
+        "filler-juvederm-ultra-3",
+        "filler-juvederm-voluma",
+        "filler-juvederm-volux",
+        "skin-booster-volite-juvederm"
+      ],
+      "expectedIds": [
+        "filler-juvederm-ultra-4",
+        "filler-juvederm-ultra-3",
+        "filler-juvederm-voluma",
+        "filler-juvederm-volux"
+      ],
+      "confidence": "ambiguous",
+      "requiresClarification": true,
+      "hasMissingIndicator": false,
+      "recallAt1": 0,
+      "recallAt3": 0,
+      "recallAt5": 1,
+      "precisionAt3": 0
+    },
+    {
+      "id": "q49",
+      "category": "ambiguous",
+      "query": "Compare these two products.",
+      "passed": true,
+      "topIds": [],
+      "expectedIds": [],
+      "confidence": "ambiguous",
+      "requiresClarification": true,
+      "hasMissingIndicator": false,
+      "recallAt1": 0,
+      "recallAt3": 0,
+      "recallAt5": 0,
+      "precisionAt3": 0
+    },
+    {
+      "id": "q50",
+      "category": "abstention_missing_price",
+      "query": "What is the price of Botox 100 unit?",
+      "passed": true,
+      "topIds": [
+        "botox-botox-100-unit",
+        "botox-nabota-korean-100-unit",
+        "botox-dysport-british-500-unit",
+        "safety-pregnancy-البوتوكس",
+        "botox-overview"
+      ],
+      "expectedIds": [
+        "botox-botox-100-unit"
+      ],
+      "confidence": "partial",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q51",
+      "category": "abstention_missing_clinic",
+      "query": "What is the phone number and street address of Well Touch clinic?",
+      "passed": true,
+      "topIds": [
+        "clinic-well-touch",
+        "clinic-one-touch",
+        "clinic-dermadent",
+        "clinic-new-age",
+        "tattoo-device-well-touch"
+      ],
+      "expectedIds": [
+        "clinic-well-touch"
+      ],
+      "confidence": "strong",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 1,
+      "recallAt3": 1,
+      "recallAt5": 1,
+      "precisionAt3": 0.3333333333333333
+    },
+    {
+      "id": "q52",
+      "category": "abstention_missing_offer",
+      "query": "What is the Ramadan 50% discount package offer?",
+      "passed": true,
+      "topIds": [],
+      "expectedIds": [],
+      "confidence": "none",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 0,
+      "recallAt3": 0,
+      "recallAt5": 0,
+      "precisionAt3": 0
+    },
+    {
+      "id": "q53",
+      "category": "abstention_nonexistent_product",
+      "query": "Tell me about Emsculpt Neo Max Pro machine",
+      "passed": true,
+      "topIds": [],
+      "expectedIds": [],
+      "confidence": "none",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 0,
+      "recallAt3": 0,
+      "recallAt5": 0,
+      "precisionAt3": 0
+    },
+    {
+      "id": "q54",
+      "category": "abstention_nonexistent_clinic",
+      "query": "What laser devices are available at Cairo Star Clinic?",
+      "passed": true,
+      "topIds": [],
+      "expectedIds": [],
+      "confidence": "none",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 0,
+      "recallAt3": 0,
+      "recallAt5": 0,
+      "precisionAt3": 0
+    },
+    {
+      "id": "q55",
+      "category": "abstention_out_of_domain",
+      "query": "What is the price of Ferrari sports cars?",
+      "passed": true,
+      "topIds": [],
+      "expectedIds": [],
+      "confidence": "none",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 0,
+      "recallAt3": 0,
+      "recallAt5": 0,
+      "precisionAt3": 0
+    },
+    {
+      "id": "q56",
+      "category": "abstention_unsupported_medical",
+      "query": "Diagnose if a patient with severe rash can take Isotretinoin today",
+      "passed": true,
+      "topIds": [],
+      "expectedIds": [],
+      "confidence": "none",
+      "requiresClarification": false,
+      "hasMissingIndicator": true,
+      "recallAt1": 0,
+      "recallAt3": 0,
+      "recallAt5": 0,
+      "precisionAt3": 0
+    }
+  ]
+}

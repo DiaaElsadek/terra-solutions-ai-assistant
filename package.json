@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "knowledge:build": "python scripts/build-knowledge.py",
+    "eval": "node scripts/run-compiled.cjs eval",
+    "test": "node scripts/run-compiled.cjs test"
   },
   "dependencies": {
     "clsx": "^2.1.1",

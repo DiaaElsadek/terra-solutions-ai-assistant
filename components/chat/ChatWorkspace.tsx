@@ -17,7 +17,7 @@ import { ROUTES } from "@/constants/config";
 
 /**
  * Full AI Chat Workspace orchestrating sidebar history, conversation CRUD,
- * knowledge retrieval, and persistence.
+ * server-side knowledge/LLM retrieval, and localStorage persistence.
  */
 export function ChatWorkspace() {
   const { user, signOut } = useAuth();
@@ -44,7 +44,11 @@ export function ChatWorkspace() {
   const {
     isGenerating,
     storageWarning,
+    providerStatus,
+    includeExternalSearch,
+    setIncludeExternalSearch,
     sendMessage,
+    stopGeneration,
     retryLastResponse,
     clearCurrentConversation,
   } = useChat({
@@ -60,7 +64,6 @@ export function ChatWorkspace() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const consumedQueryRef = useRef<string | null>(null);
 
-  // Handle ?q= query parameter from landing page category cards
   useEffect(() => {
     if (!isHydrated) return;
     const q = searchParams.get("q");
@@ -72,7 +75,6 @@ export function ChatWorkspace() {
     }
   }, [isHydrated, searchParams, createNewChat, router, sendMessage]);
 
-  // Global keyboard shortcuts: / to focus search, Ctrl+N for new chat, Escape closes drawers
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -136,6 +138,7 @@ export function ChatWorkspace() {
           title={activeConversation?.title || "New Conversation"}
           hasMessages={messages.length > 0}
           sidebarCollapsed={sidebarCollapsed}
+          providerStatus={providerStatus}
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
           onExpandDesktopSidebar={() => toggleSidebarCollapsed(false)}
           onClearConversation={() => setClearModalOpen(true)}
@@ -162,7 +165,11 @@ export function ChatWorkspace() {
 
         <ChatInput
           onSend={(text) => void sendMessage(text)}
+          onStop={stopGeneration}
           isGenerating={isGenerating}
+          externalSearchAvailable={providerStatus?.externalSearchAvailable ?? false}
+          includeExternalSearch={includeExternalSearch}
+          onToggleExternalSearch={setIncludeExternalSearch}
         />
       </main>
 

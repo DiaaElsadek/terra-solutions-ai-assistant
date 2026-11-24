@@ -1,8 +1,10 @@
+import type { RetrievalConfidence } from "./knowledge";
+
 /** Role of a message within a conversation. */
 export type MessageRole = "user" | "assistant" | "system";
 
 /** Delivery status of a message. */
-export type MessageStatus = "sending" | "sent" | "error";
+export type MessageStatus = "sending" | "streaming" | "sent" | "error";
 
 /** Source attribution attached to an AI response. */
 export interface MessageSource {
@@ -10,10 +12,25 @@ export interface MessageSource {
   category: string;
   /** Short title or record name. */
   title: string;
-  /** Whether the source is from the internal knowledge base or external. */
+  /** Whether the source is from internal company data or external web search. */
   type: "knowledge" | "external";
-  /** Optional URL for external sources. */
+  /** Original source file (e.g., "Knowlege.xlsx" or "clinics.json"). */
+  file?: string;
+  /** Original Excel worksheet name. */
+  sheet?: string;
+  /** Primary 1-based Excel row number. */
+  row?: number;
+  /** All contributing 1-based Excel rows. */
+  rows?: number[];
+  /** Retrieval relevance score. */
+  confidenceScore?: number;
+  /** Explainable reasons why this record matched. */
+  matchReasons?: string[];
+  /** Optional URL for external web sources. */
   url?: string;
+  /** Optional snippet or publication date for external sources. */
+  snippet?: string;
+  publishedAt?: string;
 }
 
 /** A single message in a conversation. */
@@ -30,7 +47,21 @@ export interface Message {
   status: MessageStatus;
   /** Sources referenced in this response (assistant messages only). */
   sources?: MessageSource[];
+  /** External web search sources (always distinct from official company records). */
+  externalSources?: MessageSource[];
+  /** Classified intent for this turn. */
+  intent?: string;
+  /** Retrieval confidence tier. */
+  confidenceLevel?: RetrievalConfidence;
+  /** Whether the assistant requested clarification from the agent. */
+  requiresClarification?: boolean;
+  clarificationQuestion?: string;
+  /** Warnings (e.g. source conflicts, missing pricing, medical safety reminder). */
+  warnings?: string[];
+  /** Provider name used to generate this message. */
+  provider?: string;
+  /** Whether this message came from deterministic knowledge retrieval mode rather than live LLM synthesis. */
+  isMock?: boolean;
   /** Human-readable error description when status is 'error'. */
   errorMessage?: string;
 }
-

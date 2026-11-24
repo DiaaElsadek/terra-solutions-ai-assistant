@@ -1,11 +1,18 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import type { Conversation, Message } from "@/types";
-import { getAIProvider } from "@/lib/ai/provider";
-import { SYSTEM_PROMPT } from "@/constants/prompts";
+import type { Conversation, Message, MessageSource } from "@/types";
+import type { AIResponse } from "@/lib/ai/types";
 import * as convStore from "@/lib/storage/conversations";
+
+export interface ProviderStatusInfo {
+  activeProvider: "openai" | "gemini" | "mock";
+  providerName: string;
+  isMock: boolean;
+  externalSearchAvailable: boolean;
+  reason?: string;
+}
 
 interface UseChatOptions {
   activeConversation: Conversation | null;
@@ -14,9 +21,40 @@ interface UseChatOptions {
   refreshSummaries: () => void;
 }
 
+interface StreamMetaFrame {
+  type: "meta";
+  provider: string;
+  isMock: boolean;
+  intent: string;
+  confidenceLevel: AIResponse["confidenceLevel"];
+  sources: MessageSource[];
+  externalSources: MessageSource[];
+}
+
+interface StreamDeltaFrame {
+  type: "delta";
+  text: string;
+}
+
+interface StreamDoneFrame {
+  type: "done";
+  payload: AIResponse;
+}
+
+interface StreamErrorFrame {
+  type: "error";
+  error: string;
+}
+
+type StreamFrame =
+  | StreamMetaFrame
+  | StreamDeltaFrame
+  | StreamDoneFrame
+  | StreamErrorFrame;
+
 /**
- * Encapsulates conversational message sending, AI response generation,
- * retries, clearing, and localStorage persistence.
+ * Encapsulates conversational messaging via server-side `/api/chat` NDJSON streaming,
+ * AbortController cancellation, retries, and localStorage persistence.
  */
 export function useChat({
   activeConversation,
@@ -26,13 +64,241 @@ export function useChat({
 }: UseChatOptions) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
+  const [includeExternalSearch, setIncludeExternalSearch] = useState(false);
+  const [providerStatus, setProviderStatus] =
+    useState<ProviderStatusInfo | null>(null);
+
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/chat")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: ProviderStatusInfo | null) => {
+        if (active && data) {
+          setProviderStatus(data);
+        }
+      })
+      .catch(() => {
+        /* Keep default status */
+      });
+    return () => {
+      active = false;
+      abortRef.current?.abort();
+    };
+  }, []);
+
+  const stopGeneration = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+  }, []);
+
+  const executeStreamingTurn = useCallback(
+    async (
+      convId: string,
+      queryText: string,
+      historyBeforeTurn: Message[],
+      baseConv: Conversation
+    ) => {
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setIsGenerating(true);
+
+      const assistantId = uuidv4();
+      const createdTs = new Date().toISOString();
+      let streamedText = "";
+      let metaSources: MessageSource[] = [];
+      let metaExternalSources: MessageSource[] = [];
+      let metaProvider = providerStatus?.providerName || "Terra Knowledge Search";
+      let metaIsMock = providerStatus?.isMock ?? true;
+      let completedPayload: AIResponse | null = null;
+
+      const updateStreamingUI = (partialMsg: Message) => {
+        if (convStore.getActiveConversationId() === convId) {
+          setActiveConversation({
+            ...baseConv,
+            messages: [...historyBeforeTurn, partialMsg],
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      };
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            message: queryText,
+            history: historyBeforeTurn
+              .filter((m) => m.role !== "system" && m.status !== "error")
+              .slice(-12)
+              .map((m) => ({ role: m.role, content: m.content })),
+            includeExternalSearch,
+            stream: true,
+          }),
+        });
+
+        if (!res.ok) {
+          let errMsg = `Request failed (HTTP ${res.status}).`;
+          try {
+            const errBody = (await res.json()) as { error?: string };
+            if (errBody.error) errMsg = errBody.error;
+          } catch {
+            /* ignore */
+          }
+          throw new Error(errMsg);
+        }
+
+        const reader = res.body?.getReader();
+        if (!reader) {
+          throw new Error("Streaming response body is unavailable.");
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            const frame = JSON.parse(trimmed) as StreamFrame;
+
+            if (frame.type === "meta") {
+              metaSources = frame.sources;
+              metaExternalSources = frame.externalSources;
+              metaProvider = frame.provider;
+              metaIsMock = frame.isMock;
+            } else if (frame.type === "delta") {
+              streamedText += frame.text;
+              updateStreamingUI({
+                id: assistantId,
+                role: "assistant",
+                content: streamedText,
+                timestamp: createdTs,
+                status: "streaming",
+                sources: metaSources,
+                externalSources: metaExternalSources,
+                provider: metaProvider,
+                isMock: metaIsMock,
+              });
+            } else if (frame.type === "done") {
+              completedPayload = frame.payload;
+            } else if (frame.type === "error") {
+              throw new Error(frame.error);
+            }
+          }
+        }
+
+        if (completedPayload) {
+          const finalMsg: Message = {
+            id: assistantId,
+            role: "assistant",
+            content: completedPayload.answer,
+            timestamp: createdTs,
+            status: "sent",
+            sources: completedPayload.sources,
+            externalSources: completedPayload.externalSources,
+            intent: completedPayload.intent,
+            confidenceLevel: completedPayload.confidenceLevel,
+            requiresClarification: completedPayload.requiresClarification,
+            clarificationQuestion: completedPayload.clarificationQuestion,
+            warnings: completedPayload.warnings,
+            provider: completedPayload.provider,
+            isMock: completedPayload.isMock,
+          };
+          convStore.addMessage(convId, finalMsg);
+        } else if (streamedText.trim()) {
+          // Preserve partial response safely if stream closed early
+          convStore.addMessage(convId, {
+            id: assistantId,
+            role: "assistant",
+            content: streamedText,
+            timestamp: createdTs,
+            status: "sent",
+            sources: metaSources,
+            externalSources: metaExternalSources,
+            warnings: ["Response stream ended early."],
+            provider: metaProvider,
+            isMock: metaIsMock,
+          });
+        }
+
+        const latest = convStore.getConversation(convId);
+        if (latest && convStore.getActiveConversationId() === convId) {
+          setActiveConversation(latest);
+        }
+        refreshSummaries();
+      } catch (err) {
+        if (controller.signal.aborted) {
+          const partialContent = streamedText.trim();
+          const stoppedMsg: Message = partialContent
+            ? {
+                id: assistantId,
+                role: "assistant",
+                content: partialContent,
+                timestamp: createdTs,
+                status: "sent",
+                sources: metaSources,
+                externalSources: metaExternalSources,
+                warnings: ["Generation stopped by agent."],
+                provider: metaProvider,
+                isMock: metaIsMock,
+              }
+            : {
+                id: assistantId,
+                role: "assistant",
+                content: "",
+                timestamp: createdTs,
+                status: "error",
+                errorMessage: "Generation cancelled.",
+              };
+          convStore.addMessage(convId, stoppedMsg);
+        } else {
+          convStore.addMessage(convId, {
+            id: assistantId,
+            role: "assistant",
+            content: "",
+            timestamp: createdTs,
+            status: "error",
+            errorMessage:
+              err instanceof Error
+                ? err.message
+                : "Failed to retrieve an answer from Terra AI.",
+          });
+        }
+
+        const latest = convStore.getConversation(convId);
+        if (latest && convStore.getActiveConversationId() === convId) {
+          setActiveConversation(latest);
+        }
+        refreshSummaries();
+      } finally {
+        abortRef.current = null;
+        setIsGenerating(false);
+      }
+    },
+    [
+      includeExternalSearch,
+      providerStatus?.isMock,
+      providerStatus?.providerName,
+      refreshSummaries,
+      setActiveConversation,
+    ]
+  );
 
   const sendMessage = useCallback(
     async (rawText: string, overrideConversation?: Conversation) => {
       const text = rawText.trim();
       if (!text || isGenerating) return;
 
-      // Ensure we have an active conversation
       let targetConv = overrideConversation ?? activeConversation;
       if (!targetConv) {
         targetConv = createNewChat();
@@ -49,95 +315,43 @@ export function useChat({
         status: "sent",
       };
 
-      // Auto-generate conversation title from first message
       if (isFirstMessage) {
-        const title = convStore.autoTitle(text);
-        convStore.renameConversation(convId, title);
+        convStore.renameConversation(convId, convStore.autoTitle(text));
       }
 
       const savedUser = convStore.addMessage(convId, userMessage);
-      if (!savedUser) {
-        setStorageWarning(
-          "Browser storage is full. Older conversations may need to be cleared."
-        );
-      } else {
-        setStorageWarning(null);
-      }
+      setStorageWarning(
+        savedUser
+          ? null
+          : "Browser storage is full. Older conversations may need to be cleared."
+      );
 
+      const historyWithUser = [...targetConv.messages, userMessage];
       const updatedAfterUser: Conversation = {
         ...targetConv,
         title: isFirstMessage ? convStore.autoTitle(text) : targetConv.title,
-        messages: [...targetConv.messages, userMessage],
+        messages: historyWithUser,
         updatedAt: new Date().toISOString(),
       };
       setActiveConversation(updatedAfterUser);
       refreshSummaries();
 
-      setIsGenerating(true);
-
-      try {
-        const provider = getAIProvider("mock");
-        const aiResult = await provider.generateResponse({
-          userMessage: text,
-          conversationHistory: updatedAfterUser.messages,
-          systemPrompt: SYSTEM_PROMPT,
-        });
-
-        const assistantMessage: Message = {
-          id: uuidv4(),
-          role: "assistant",
-          content: aiResult.content,
-          timestamp: new Date().toISOString(),
-          status: "sent",
-          sources: aiResult.sources,
-        };
-
-        convStore.addMessage(convId, assistantMessage);
-
-        // Only update state if user is still viewing this conversation
-        const latest = convStore.getConversation(convId);
-        if (latest && convStore.getActiveConversationId() === convId) {
-          setActiveConversation(latest);
-        }
-        refreshSummaries();
-      } catch (err) {
-        const errorMessage: Message = {
-          id: uuidv4(),
-          role: "assistant",
-          content: "",
-          timestamp: new Date().toISOString(),
-          status: "error",
-          errorMessage:
-            err instanceof Error
-              ? err.message
-              : "Failed to retrieve an answer from the knowledge engine.",
-        };
-
-        convStore.addMessage(convId, errorMessage);
-        const latest = convStore.getConversation(convId);
-        if (latest && convStore.getActiveConversationId() === convId) {
-          setActiveConversation(latest);
-        }
-        refreshSummaries();
-      } finally {
-        setIsGenerating(false);
-      }
+      await executeStreamingTurn(convId, text, historyWithUser, updatedAfterUser);
     },
     [
       activeConversation,
       createNewChat,
+      executeStreamingTurn,
       isGenerating,
       refreshSummaries,
       setActiveConversation,
     ]
   );
 
-  /** Retry the failed or last user prompt in the active conversation. */
   const retryLastResponse = useCallback(async () => {
     if (!activeConversation || isGenerating) return;
 
     const msgs = [...activeConversation.messages];
-    // Find the last user message
     let lastUserIndex = -1;
     for (let i = msgs.length - 1; i >= 0; i--) {
       if (msgs[i].role === "user") {
@@ -149,83 +363,48 @@ export function useChat({
 
     const queryText = msgs[lastUserIndex].content;
     const convId = activeConversation.id;
-
-    // Remove trailing assistant error/response message if present
     const trimmedMessages = msgs.slice(0, lastUserIndex + 1);
+
     convStore.clearConversationMessages(convId);
     for (const m of trimmedMessages) {
       convStore.addMessage(convId, m);
     }
 
     const resetConv = convStore.getConversation(convId);
-    if (resetConv) {
-      setActiveConversation(resetConv);
-    }
+    if (!resetConv) return;
+    setActiveConversation(resetConv);
 
-    setIsGenerating(true);
-    try {
-      const provider = getAIProvider("mock");
-      const aiResult = await provider.generateResponse({
-        userMessage: queryText,
-        conversationHistory: trimmedMessages,
-        systemPrompt: SYSTEM_PROMPT,
-      });
+    await executeStreamingTurn(convId, queryText, trimmedMessages, resetConv);
+  }, [
+    activeConversation,
+    executeStreamingTurn,
+    isGenerating,
+    setActiveConversation,
+  ]);
 
-      const assistantMessage: Message = {
-        id: uuidv4(),
-        role: "assistant",
-        content: aiResult.content,
-        timestamp: new Date().toISOString(),
-        status: "sent",
-        sources: aiResult.sources,
-      };
-
-      convStore.addMessage(convId, assistantMessage);
-      const latest = convStore.getConversation(convId);
-      if (latest && convStore.getActiveConversationId() === convId) {
-        setActiveConversation(latest);
-      }
-      refreshSummaries();
-    } catch (err) {
-      const errorMessage: Message = {
-        id: uuidv4(),
-        role: "assistant",
-        content: "",
-        timestamp: new Date().toISOString(),
-        status: "error",
-        errorMessage:
-          err instanceof Error
-            ? err.message
-            : "Retry failed. Please try again.",
-      };
-      convStore.addMessage(convId, errorMessage);
-      const latest = convStore.getConversation(convId);
-      if (latest && convStore.getActiveConversationId() === convId) {
-        setActiveConversation(resetConv ? latest : null);
-      }
-    } finally {
-      setIsGenerating(false);
-    }
+  const clearCurrentConversation = useCallback(() => {
+    if (!activeConversation) return;
+    if (isGenerating) stopGeneration();
+    convStore.clearConversationMessages(activeConversation.id);
+    const updated = convStore.getConversation(activeConversation.id);
+    setActiveConversation(updated);
+    refreshSummaries();
   }, [
     activeConversation,
     isGenerating,
     refreshSummaries,
     setActiveConversation,
+    stopGeneration,
   ]);
-
-  /** Clear all messages in the current conversation. */
-  const clearCurrentConversation = useCallback(() => {
-    if (!activeConversation) return;
-    convStore.clearConversationMessages(activeConversation.id);
-    const updated = convStore.getConversation(activeConversation.id);
-    setActiveConversation(updated);
-    refreshSummaries();
-  }, [activeConversation, refreshSummaries, setActiveConversation]);
 
   return {
     isGenerating,
     storageWarning,
+    providerStatus,
+    includeExternalSearch,
+    setIncludeExternalSearch,
     sendMessage,
+    stopGeneration,
     retryLastResponse,
     clearCurrentConversation,
   };
