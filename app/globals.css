@@ -1,26 +1,189 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ═══════════════════════════════════════════════
+     Terra Solutions — Brand Palette
+     Source: terrasolutions.me design extraction
+     ═══════════════════════════════════════════════ */
+  --terra-gold: #CBB36A;
+  --terra-gold-deep: #9A7E3F;
+  --terra-gold-light: #EAE0C3;
+  --terra-gold-pale: #D8C088;
+  --terra-copper: #A98142;
+  --terra-dark: #0D0B07;
+  --terra-dark-700: #221C10;
+  --terra-dark-800: #161209;
+
+  /* ── Semantic Tokens ── */
+  --background: #0D0B07;
+  --background-secondary: #161209;
+  --background-tertiary: #221C10;
+  --foreground: #FFFFFF;
+  --foreground-muted: #CFC5AE;
+  --foreground-subtle: #9A7E3F;
+
+  --primary: #CBB36A;
+  --primary-hover: #D8C088;
+  --primary-foreground: #161209;
+
+  --accent: #A98142;
+  --accent-hover: #C99F5F;
+  --accent-foreground: #FFFFFF;
+
+  --muted: #221C10;
+  --muted-foreground: #CFC5AE;
+
+  --border: rgba(203, 179, 106, 0.15);
+  --border-hover: rgba(203, 179, 106, 0.3);
+  --input-bg: rgba(203, 179, 106, 0.08);
+  --ring: rgba(203, 179, 106, 0.5);
+
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --success: #16A34A;
+  --success-foreground: #FFFFFF;
+  --warning: #D97706;
+  --warning-foreground: #FFFFFF;
+
+  --card: #161209;
+  --card-hover: #221C10;
+  --card-foreground: #FFFFFF;
+
+  --sidebar: #0D0B07;
+  --sidebar-foreground: #CFC5AE;
+  --sidebar-hover: #161209;
+  --sidebar-active: #221C10;
+
+  --user-bubble: #CBB36A;
+  --user-bubble-foreground: #161209;
+  --ai-bubble: #221C10;
+  --ai-bubble-foreground: #EAE0C3;
 }
 
+/* ═══════════════════════════════════════════════
+   Tailwind v4 — Design Token Registration
+   ═══════════════════════════════════════════════ */
 @theme inline {
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-tertiary: var(--background-tertiary);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-input-bg: var(--input-bg);
+  --color-ring: var(--ring);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+
+  --color-user-bubble: var(--user-bubble);
+  --color-user-bubble-foreground: var(--user-bubble-foreground);
+  --color-ai-bubble: var(--ai-bubble);
+  --color-ai-bubble-foreground: var(--ai-bubble-foreground);
+
+  --color-terra-gold: var(--terra-gold);
+  --color-terra-gold-deep: var(--terra-gold-deep);
+  --color-terra-gold-light: var(--terra-gold-light);
+  --color-terra-gold-pale: var(--terra-gold-pale);
+  --color-terra-copper: var(--terra-copper);
+  --color-terra-dark: var(--terra-dark);
+  --color-terra-dark-700: var(--terra-dark-700);
+  --color-terra-dark-800: var(--terra-dark-800);
+
+  /* Fonts */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ═══════════════════════════════════════════════
+   Base Styles
+   ═══════════════════════════════════════════════ */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Selection */
+::selection {
+  background: rgba(203, 179, 106, 0.3);
+  color: var(--foreground);
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   Utility classes
+   ═══════════════════════════════════════════════ */
+.terra-gradient {
+  background: linear-gradient(135deg, var(--terra-gold-deep) 0%, var(--terra-gold) 50%, var(--terra-gold-pale) 100%);
+}
+
+.terra-gradient-text {
+  background: linear-gradient(135deg, var(--terra-gold) 0%, var(--terra-gold-pale) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.terra-glow {
+  box-shadow: 0 0 20px rgba(203, 179, 106, 0.15), 0 0 60px rgba(203, 179, 106, 0.05);
 }
