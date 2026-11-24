@@ -2,7 +2,8 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { getCanonicalDataset } from "@/lib/knowledge/server-store";
+import { getCanonicalDataset, getSheetRowsContext } from "@/lib/knowledge/server-store";
+import { buildGoogleSheetCellLink, clearSheetGidCache } from "@/lib/knowledge/source-links";
 import { validateCanonicalDataset } from "@/lib/knowledge/validator";
 import { knowledgeRetriever } from "@/lib/knowledge/retriever";
 import { normalizeDigits, normalizeText, detectLanguage, tokenizeQuery } from "@/lib/knowledge/normalize";
@@ -47,6 +48,35 @@ describe("Canonical Knowledge Dataset & Pipeline Integrity", () => {
       assert.ok(r.source.file.length > 0);
       assert.ok(r.source.sheet.length > 0);
       assert.ok(Array.isArray(r.source.rows) && r.source.rows.length > 0);
+      if (r.source.file === "Knowlege.xlsx") {
+        assert.ok(r.source.cell, `Expected primary cell on ${r.id}`);
+        assert.ok(r.source.cellRange, `Expected cellRange on ${r.id}`);
+      }
+    }
+
+    const excerpt = getSheetRowsContext("Laser", 15, 2, "A15", "A15");
+    assert.ok(excerpt);
+    assert.equal(excerpt.rows.some((r) => r.row === 15 && r.isTarget), true);
+    assert.ok(excerpt.sourceUrl?.includes("range=A15"));
+
+    const prevGids = process.env.GOOGLE_SHEETS_GIDS;
+    try {
+      process.env.GOOGLE_SHEETS_GIDS = JSON.stringify({ Laser: "123456789" });
+      clearSheetGidCache();
+      const withGid = buildGoogleSheetCellLink({
+        file: "Knowlege.xlsx",
+        sheet: "Laser",
+        rawSheet: "Laser ",
+        row: 15,
+        cell: "A15",
+        cellRange: "A15",
+      });
+      assert.equal(withGid.hasSheetGid, true);
+      assert.ok(withGid.url?.includes("#gid=123456789&range=A15"));
+    } finally {
+      if (prevGids === undefined) delete process.env.GOOGLE_SHEETS_GIDS;
+      else process.env.GOOGLE_SHEETS_GIDS = prevGids;
+      clearSheetGidCache();
     }
   });
 });

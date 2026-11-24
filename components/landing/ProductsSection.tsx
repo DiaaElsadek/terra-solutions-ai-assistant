@@ -81,7 +81,7 @@ export function ProductsSection() {
           </h2>
           <p className="mt-3 text-base text-foreground-muted leading-relaxed">
             Every category below is indexed directly from Terra Solutions&apos; operational
-            knowledge spreadsheets. Select any category to query the AI assistant directly.
+            knowledge spreadsheets. Select any category to query Terra Solutions Assistant directly.
           </p>
         </div>
 

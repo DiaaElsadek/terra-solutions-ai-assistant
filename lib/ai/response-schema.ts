@@ -9,6 +9,7 @@
 
 import type { MessageSource } from "@/types";
 import type { KnowledgeRecord, RetrievalConfidence } from "@/types/knowledge";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 
 export type SemanticTone =
   | "default"
@@ -39,7 +40,12 @@ export interface VerifiedSourceReference {
   sourceId?: string;
   fileName: string;
   sheetName: string;
+  rawSheet?: string;
   rowNumber: number;
+  cell?: string;
+  cellRange?: string;
+  sourceUrl?: string;
+  hasSheetGid?: boolean;
   title?: string;
 }
 
@@ -84,7 +90,12 @@ export type RichResponseBlock =
         sourceId?: string;
         fileName: string;
         sheetName?: string;
+        rawSheet?: string;
         rowNumber?: number;
+        cell?: string;
+        cellRange?: string;
+        sourceUrl?: string;
+        hasSheetGid?: boolean;
         title?: string;
       }>;
     };
@@ -270,7 +281,12 @@ export function validateSingleBlock(raw: unknown): RichResponseBlock | null {
           sourceId: sanitizePlainText(s.sourceId) || undefined,
           fileName: sanitizePlainText(s.fileName) || "Knowlege.xlsx",
           sheetName: sanitizePlainText(s.sheetName) || undefined,
+          rawSheet: typeof s.rawSheet === "string" ? s.rawSheet : undefined,
           rowNumber: typeof s.rowNumber === "number" ? s.rowNumber : undefined,
+          cell: sanitizePlainText(s.cell) || undefined,
+          cellRange: sanitizePlainText(s.cellRange) || undefined,
+          sourceUrl: typeof s.sourceUrl === "string" && s.sourceUrl.startsWith("https://") ? s.sourceUrl : undefined,
+          hasSheetGid: typeof s.hasSheetGid === "boolean" ? s.hasSheetGid : undefined,
           title: sanitizePlainText(s.title) || undefined,
         }))
         .filter((s) => Boolean(s.fileName));
@@ -299,6 +315,23 @@ export function extractJsonString(raw: string): string {
     return trimmed.slice(first, last + 1);
   }
   return trimmed;
+}
+
+export function toVerifiedSourceReference(rec: KnowledgeRecord): VerifiedSourceReference {
+  const link = buildGoogleSheetCellLink(rec.source);
+  return {
+    recordId: rec.id,
+    sourceId: rec.source.sourceId || "source-001",
+    fileName: rec.source.file,
+    sheetName: rec.source.sheet,
+    rawSheet: rec.source.rawSheet,
+    rowNumber: rec.source.row,
+    cell: rec.source.cell,
+    cellRange: rec.source.cellRange,
+    sourceUrl: link.url,
+    hasSheetGid: link.hasSheetGid,
+    title: rec.name,
+  };
 }
 
 export interface SchemaValidationOutcome {
@@ -372,14 +405,7 @@ export function validateModelRichResponse(
     const matched = rid ? allowedById.get(rid) : undefined;
     if (matched && !seenIds.has(matched.id)) {
       seenIds.add(matched.id);
-      verifiedSources.push({
-        recordId: matched.id,
-        sourceId: matched.source.sourceId || "source-001",
-        fileName: matched.source.file,
-        sheetName: matched.source.sheet,
-        rowNumber: matched.source.row,
-        title: matched.name,
-      });
+      verifiedSources.push(toVerifiedSourceReference(matched));
     }
   }
 
@@ -388,14 +414,7 @@ export function validateModelRichResponse(
     for (const rec of options.retrievedRecords.slice(0, 4)) {
       if (!seenIds.has(rec.id)) {
         seenIds.add(rec.id);
-        verifiedSources.push({
-          recordId: rec.id,
-          sourceId: rec.source.sourceId || "source-001",
-          fileName: rec.source.file,
-          sheetName: rec.source.sheet,
-          rowNumber: rec.source.row,
-          title: rec.name,
-        });
+        verifiedSources.push(toVerifiedSourceReference(rec));
       }
     }
   }
@@ -404,23 +423,16 @@ export function validateModelRichResponse(
   const sanitizedBlocks = validBlocks
     .map((block): RichResponseBlock | null => {
       if (block.type !== "source_list") return block;
-      const checkedItems = block.items.filter((item) =>
-        item.recordId ? allowedById.has(item.recordId) : false
-      );
+      const checkedItems = block.items
+        .filter((item) => (item.recordId ? allowedById.has(item.recordId) : false))
+        .map((item) => toVerifiedSourceReference(allowedById.get(item.recordId!)!));
       if (checkedItems.length > 0) {
         return { ...block, items: checkedItems };
       }
       if (verifiedSources.length > 0) {
         return {
           ...block,
-          items: verifiedSources.map((v) => ({
-            recordId: v.recordId,
-            sourceId: v.sourceId,
-            fileName: v.fileName,
-            sheetName: v.sheetName,
-            rowNumber: v.rowNumber,
-            title: v.title,
-          })),
+          items: verifiedSources,
         };
       }
       return null;
@@ -579,8 +591,13 @@ export function mergeVerifiedMessageSources(
       type: "knowledge",
       file: ref.fileName,
       sheet: ref.sheetName,
+      rawSheet: ref.rawSheet,
       row: ref.rowNumber,
       rows: rec?.source.rows || [ref.rowNumber],
+      cell: ref.cell,
+      cellRange: ref.cellRange,
+      url: ref.sourceUrl,
+      hasSheetGid: ref.hasSheetGid,
     };
   });
 }

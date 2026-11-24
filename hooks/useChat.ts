@@ -7,12 +7,9 @@ import type { AIResponse } from "@/lib/ai/types";
 import * as convStore from "@/lib/storage/conversations";
 
 export interface ProviderStatusInfo {
-  activeProvider: "openai" | "gemini" | "mock" | "local_fallback";
-  providerName: string;
-  model?: string;
-  isMock: boolean;
+  status: string;
+  assistantName?: string;
   externalSearchAvailable: boolean;
-  reason?: string;
 }
 
 interface UseChatOptions {
@@ -110,8 +107,6 @@ export function useChat({
       let streamedText = "";
       let metaSources: MessageSource[] = [];
       let metaExternalSources: MessageSource[] = [];
-      let metaProvider = providerStatus?.providerName || "Terra Knowledge Search";
-      let metaIsMock = providerStatus?.isMock ?? true;
       let completedPayload: AIResponse | null = null;
 
       const updateStreamingUI = (partialMsg: Message) => {
@@ -176,8 +171,6 @@ export function useChat({
             if (frame.type === "meta") {
               metaSources = frame.sources;
               metaExternalSources = frame.externalSources;
-              metaProvider = frame.provider;
-              metaIsMock = frame.isMock;
             } else if (frame.type === "delta") {
               streamedText += frame.text;
               updateStreamingUI({
@@ -188,8 +181,7 @@ export function useChat({
                 status: "streaming",
                 sources: metaSources,
                 externalSources: metaExternalSources,
-                provider: metaProvider,
-                isMock: metaIsMock,
+                provider: "Terra Assistant",
               });
             } else if (frame.type === "done") {
               completedPayload = frame.payload;
@@ -213,10 +205,8 @@ export function useChat({
             requiresClarification: completedPayload.requiresClarification,
             clarificationQuestion: completedPayload.clarificationQuestion,
             warnings: completedPayload.warnings,
-            provider: completedPayload.provider,
-            isMock: completedPayload.isMock,
+            provider: "Terra Assistant",
             structured: completedPayload.structured,
-            errorCategory: completedPayload.errorCategory,
           };
           convStore.addMessage(convId, finalMsg);
         } else if (streamedText.trim()) {
@@ -229,9 +219,8 @@ export function useChat({
             status: "sent",
             sources: metaSources,
             externalSources: metaExternalSources,
-            warnings: ["Response stream ended early."],
-            provider: metaProvider,
-            isMock: metaIsMock,
+            warnings: ["Response interrupted before completion."],
+            provider: "Terra Assistant",
           });
         }
 
@@ -240,7 +229,7 @@ export function useChat({
           setActiveConversation(latest);
         }
         refreshSummaries();
-      } catch (err) {
+      } catch {
         if (controller.signal.aborted) {
           const partialContent = streamedText.trim();
           const stoppedMsg: Message = partialContent
@@ -252,9 +241,8 @@ export function useChat({
                 status: "sent",
                 sources: metaSources,
                 externalSources: metaExternalSources,
-                warnings: ["Generation stopped by agent."],
-                provider: metaProvider,
-                isMock: metaIsMock,
+                warnings: ["Generation stopped by employee."],
+                provider: "Terra Assistant",
               }
             : {
                 id: assistantId,
@@ -273,9 +261,7 @@ export function useChat({
             timestamp: createdTs,
             status: "error",
             errorMessage:
-              err instanceof Error
-                ? err.message
-                : "Failed to retrieve an answer from Terra AI.",
+              "Something went wrong while preparing the response. Please try again. / حصلت مشكلة أثناء تجهيز الإجابة. حاول مرة تانية.",
           });
         }
 
@@ -291,8 +277,6 @@ export function useChat({
     },
     [
       includeExternalSearch,
-      providerStatus?.isMock,
-      providerStatus?.providerName,
       refreshSummaries,
       setActiveConversation,
     ]

@@ -143,7 +143,7 @@ export function SignInForm() {
         <div className="flex flex-col items-center text-center mb-6">
           <BrandLogo href="/" compact size="lg" priority className="mb-4" />
           <h1 className="font-display text-2xl font-bold text-foreground">
-            Sign in to Terra AI
+            Sign in to Terra Solutions Assistant
           </h1>
           <p className="mt-1.5 text-sm text-foreground-muted">
             Access your Call Center Knowledge Workspace
@@ -256,7 +256,7 @@ export function SignInForm() {
       <Modal
         isOpen={forgotOpen}
         onClose={() => setForgotOpen(false)}
-        title="Password Recovery (Local Demo Mode)"
+        title="Password Reset (Local Session)"
         description="This preview uses browser-local storage without a remote email server."
       >
         <div className="space-y-4 text-sm text-foreground-muted">

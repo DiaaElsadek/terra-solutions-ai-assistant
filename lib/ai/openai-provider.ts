@@ -149,7 +149,7 @@ export const openaiProvider: AIProvider = {
             pkg.retrievedRecords
           ),
           externalSources: pkg.externalSources,
-          provider: `${config.name} · ${model}`,
+          provider: "Terra Assistant",
           isMock: false,
         };
       }
@@ -172,7 +172,7 @@ export const openaiProvider: AIProvider = {
         content: structured.answer,
         sources: pkg.sources,
         externalSources: pkg.externalSources,
-        provider: `${config.name} · ${model}`,
+        provider: "Terra Assistant",
         isMock: false,
       };
     } catch (err) {

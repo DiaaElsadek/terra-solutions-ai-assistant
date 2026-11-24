@@ -1,22 +1,20 @@
 "use client";
 
+import Image from "next/image";
 import {
   Menu,
   PanelLeftOpen,
   RotateCcw,
   BookOpen,
-  Database,
-  Sparkles,
+  ShieldCheck,
 } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import type { ProviderStatusInfo } from "@/hooks/useChat";
+import { BRAND } from "@/constants/brand";
 
 interface ChatHeaderProps {
   title: string;
   hasMessages: boolean;
   sidebarCollapsed: boolean;
-  providerStatus: ProviderStatusInfo | null;
   onOpenMobileSidebar: () => void;
   onExpandDesktopSidebar: () => void;
   onClearConversation: () => void;
@@ -24,28 +22,20 @@ interface ChatHeaderProps {
 }
 
 /**
- * Top bar of the chat workspace showing live AI provider status,
- * Knowledge Explorer trigger, sidebar toggle, and Clear action.
+ * Streamlined workspace header presenting Terra Assistant identity,
+ * verified internal knowledge indicator, and quick catalog access.
  */
 export function ChatHeader({
   title,
   hasMessages,
   sidebarCollapsed,
-  providerStatus,
   onOpenMobileSidebar,
   onExpandDesktopSidebar,
   onClearConversation,
   onOpenKnowledgeDrawer,
 }: ChatHeaderProps) {
-  const isMock = providerStatus ? providerStatus.isMock : true;
-  const badgeText = providerStatus
-    ? providerStatus.isMock
-      ? "Local Knowledge Engine"
-      : providerStatus.providerName
-    : "Local Knowledge Engine";
-
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background/95 px-3 sm:px-5">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background/95 px-3 sm:px-6">
       <div className="flex items-center gap-2.5 min-w-0">
         <button
           type="button"
@@ -68,30 +58,49 @@ export function ChatHeader({
           </button>
         )}
 
-        <h1
-          dir="auto"
-          className="font-display text-sm sm:text-base font-semibold text-foreground truncate"
-        >
-          {title}
-        </h1>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-background-tertiary lg:hidden">
+            <Image
+              src="/images/T_logo.svg"
+              alt=""
+              width={11}
+              height={18}
+              unoptimized
+              className="h-4 w-auto object-contain"
+            />
+          </div>
+          {sidebarCollapsed && (
+            <div className="hidden lg:flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-background-tertiary">
+              <Image
+                src="/images/T_logo.svg"
+                alt=""
+                width={11}
+                height={18}
+                unoptimized
+                className="h-4 w-auto object-contain"
+              />
+            </div>
+          )}
+
+          <div className="min-w-0">
+            <h1
+              dir="auto"
+              className="font-display text-sm sm:text-base font-semibold text-foreground truncate"
+            >
+              {title}
+            </h1>
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        <Badge
-          variant={isMock ? "gold" : "success"}
-          className="hidden sm:inline-flex"
-          title={
-            providerStatus?.reason ||
-            "Grounded in Terra Solutions' canonical server knowledge base."
-          }
+        <span
+          title="Answers are grounded strictly in verified Terra Solutions company records."
+          className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-border bg-background-secondary px-2.5 py-1 text-[11px] font-medium text-foreground-muted"
         >
-          {isMock ? (
-            <Database className="h-3 w-3" />
-          ) : (
-            <Sparkles className="h-3 w-3" />
-          )}
-          {badgeText}
-        </Badge>
+          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+          <span>{BRAND.assistant.shortName} · Verified Catalog</span>
+        </span>
 
         <Button
           variant="secondary"
@@ -99,8 +108,8 @@ export function ChatHeader({
           onClick={onOpenKnowledgeDrawer}
           leftIcon={<BookOpen className="h-3.5 w-3.5 text-primary" />}
         >
-          <span className="hidden sm:inline">Browse Knowledge</span>
-          <span className="sm:hidden">KB</span>
+          <span className="hidden sm:inline">Knowledge Catalog</span>
+          <span className="sm:hidden">Catalog</span>
         </Button>
 
         {hasMessages && (
@@ -108,11 +117,11 @@ export function ChatHeader({
             variant="ghost"
             size="sm"
             onClick={onClearConversation}
-            title="Clear current conversation"
-            aria-label="Clear current conversation"
+            aria-label="Clear conversation messages"
+            title="Clear conversation"
             leftIcon={<RotateCcw className="h-3.5 w-3.5" />}
           >
-            <span className="hidden md:inline">Clear</span>
+            <span className="hidden sm:inline">Clear</span>
           </Button>
         )}
       </div>

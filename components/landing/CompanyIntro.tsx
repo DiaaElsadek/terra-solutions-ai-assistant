@@ -34,7 +34,7 @@ export function CompanyIntro() {
             </p>
             <p className="mt-3 text-base text-foreground-muted leading-relaxed">
               Instead of navigating {overview.sheetsCount} separate Excel sheets mid-call,
-              Terra AI Assistant unifies {overview.recordsCount} normalized knowledge entries
+              Terra Solutions Assistant unifies {overview.recordsCount} verified operational entries
               across {overview.clinicsCount} partner clinics into one fast conversational tool —
               helping agents answer inquiries consistently while respecting clinical boundaries.
             </p>
@@ -62,7 +62,7 @@ export function CompanyIntro() {
                   size="lg"
                   rightIcon={<ArrowRight className="h-4 w-4" />}
                 >
-                  Start Using Terra AI
+                  Start Using Terra Solutions Assistant
                 </Button>
               </Link>
             </div>

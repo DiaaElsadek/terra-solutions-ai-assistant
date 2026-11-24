@@ -23,7 +23,7 @@ const SIZE_CLASSES: Record<"sm" | "md" | "lg", string> = {
  */
 export function BrandLogo({
   href = "/",
-  subtitle = "AI Knowledge Assistant",
+  subtitle = "Solutions Assistant",
   compact = false,
   size = "md",
   priority = false,

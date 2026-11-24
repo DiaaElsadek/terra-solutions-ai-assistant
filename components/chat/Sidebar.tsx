@@ -87,8 +87,8 @@ export function Sidebar({
       className="flex h-full w-72 flex-col border-r border-border bg-sidebar"
     >
       {/* Top brand & collapse */}
-      <div className="flex h-14 items-center justify-between gap-2 px-3.5 border-b border-border shrink-0">
-        <BrandLogo href={ROUTES.home} subtitle="Knowledge Workspace" size="sm" priority />
+      <div className="flex h-14 items-center justify-between gap-2 px-3.5 border-b border-border/80 shrink-0">
+        <BrandLogo href={ROUTES.home} subtitle="Solutions Assistant" size="sm" priority />
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -204,8 +204,8 @@ export function Sidebar({
           </button>
         </div>
 
-        <p className="text-[10px] text-foreground-muted/50 text-center">
-          Stored locally in this browser (device-specific)
+        <p className="text-[10px] text-foreground-muted/55 text-center">
+          Terra Solutions · Internal Support Workspace
         </p>
       </div>
     </aside>

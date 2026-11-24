@@ -12,38 +12,91 @@ export const PROMPT_VERSION = TERRA_PROMPT_VERSION;
 export const SYSTEM_PROMPT = TERRA_SYSTEM_PROMPT;
 export { UNAVAILABLE_KNOWLEDGE_MESSAGES };
 
-/** Suggested prompts shown when starting a new conversation. */
-export const SUGGESTED_PROMPTS = [
-  {
-    text: "What products and services do we currently offer?",
-    textAr: "ما هي المنتجات والخدمات المتوفرة لدينا حالياً؟",
-    icon: "Package" as const,
-  },
-  {
-    text: "Show me the available devices and their specifications.",
-    textAr: "أرني الأجهزة المتوفرة ومواصفاتها.",
-    icon: "Cpu" as const,
-  },
-  {
-    text: "What are the current offers and package prices?",
-    textAr: "ما هي العروض والأسعار الحالية؟",
-    icon: "Tag" as const,
-  },
-  {
-    text: "Compare these two products.",
-    textAr: "قارن بين منتجين.",
-    icon: "GitCompareArrows" as const,
-  },
-  {
-    text: "Find information about a specific clinic.",
-    textAr: "ابحث عن معلومات حول عيادة محددة.",
-    icon: "Building2" as const,
-  },
-  {
-    text: "What should I tell a customer asking about this service?",
-    textAr: "ماذا أقول لعميل يسأل عن خدمة محددة؟",
-    icon: "MessageCircle" as const,
-  },
+export interface StarterPromptItem {
+  id: string;
+  category: "services" | "prices" | "devices" | "clinics" | "compare";
+  categoryLabel: string;
+  text: string;
+  textAr: string;
+  query: string;
+  icon:
+    | "Sparkles"
+    | "Tag"
+    | "Cpu"
+    | "Building2"
+    | "GitCompareArrows"
+    | "ShieldAlert";
+}
+
+/** Category filters displayed on the welcome screen. */
+export const WELCOME_PROMPT_CATEGORIES = [
+  { id: "all", label: "All Topics" },
+  { id: "services", label: "Services & Care" },
+  { id: "prices", label: "Prices & Offers" },
+  { id: "devices", label: "Devices & Tech" },
+  { id: "clinics", label: "Clinics" },
+  { id: "compare", label: "Compare & Safety" },
 ] as const;
+
+export type WelcomePromptCategoryId =
+  (typeof WELCOME_PROMPT_CATEGORIES)[number]["id"];
+
+/** Verified starter prompts grounded in Terra Solutions operational records. */
+export const SUGGESTED_PROMPTS: readonly StarterPromptItem[] = [
+  {
+    id: "under-eye-filler",
+    category: "services",
+    categoryLabel: "Services",
+    text: "What filler is suitable for under-eye treatment?",
+    textAr: "ما هو الفيلر المناسب تحت العين؟",
+    query: "ما هو الفيلر المناسب تحت العين؟",
+    icon: "Sparkles",
+  },
+  {
+    id: "aptos-cat-eye-price",
+    category: "prices",
+    categoryLabel: "Prices & Offers",
+    text: "What is the price of Aptos Cat Eye threads?",
+    textAr: "سعر خيوط Aptos Cat Eye كام؟",
+    query: "سعر خيوط Aptos Cat Eye كام؟",
+    icon: "Tag",
+  },
+  {
+    id: "candela-specs",
+    category: "devices",
+    categoryLabel: "Devices",
+    text: "Candela GentleMax Pro Plus specifications",
+    textAr: "مواصفات جهاز Candela GentleMax Pro Plus",
+    query: "Candela GentleMax Pro Plus specifications",
+    icon: "Cpu",
+  },
+  {
+    id: "dermadent-clinic",
+    category: "clinics",
+    categoryLabel: "Clinics",
+    text: "What devices and services are available at Dermadent?",
+    textAr: "ما الخدمات والأجهزة المتوفرة في عيادة Dermadent؟",
+    query: "What devices and services are available at Dermadent?",
+    icon: "Building2",
+  },
+  {
+    id: "compare-botox-filler",
+    category: "compare",
+    categoryLabel: "Compare",
+    text: "Compare Botox and Filler treatments",
+    textAr: "قارن بين البوتوكس والفيلر",
+    query: "قارن بين البوتوكس والفيلر",
+    icon: "GitCompareArrows",
+  },
+  {
+    id: "botox-pregnancy",
+    category: "compare",
+    categoryLabel: "Safety",
+    text: "Is Botox permitted during pregnancy?",
+    textAr: "هل البوتوكس مسموح للحامل؟",
+    query: "هل البوتوكس مسموح للحامل؟",
+    icon: "ShieldAlert",
+  },
+];
 
 export const KNOWLEDGE_NOT_FOUND_RESPONSE = UNAVAILABLE_KNOWLEDGE_MESSAGES.en;

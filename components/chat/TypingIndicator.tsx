@@ -1,27 +1,31 @@
 import { Avatar } from "@/components/ui/Avatar";
 
 /**
- * Animated typing indicator displayed while the knowledge engine processes a query.
+ * Calm branded loading state shown while Terra Assistant prepares an answer.
  */
 export function TypingIndicator() {
   return (
     <div
       role="status"
-      aria-label="Terra AI is searching the knowledge base"
-      className="flex items-start gap-3 max-w-3xl"
+      aria-live="polite"
+      aria-label="Terra Assistant is preparing your answer"
+      className="flex items-start gap-3.5 max-w-3xl terra-animate-in"
     >
       <Avatar variant="assistant" size="md" />
-      <div className="rounded-2xl rounded-tl-sm bg-ai-bubble border border-border px-4 py-3 flex items-center gap-2">
-        <span className="text-xs text-foreground-muted">
-          Searching company knowledge
-        </span>
-        <span className="inline-flex items-center gap-1" aria-hidden="true">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />
-        </span>
+      <div className="flex-1 min-w-0 pt-1 space-y-2 border-s-2 border-primary/30 ps-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-display font-semibold text-foreground">
+            Terra Assistant
+          </span>
+          <span className="text-xs text-foreground-muted">
+            Preparing your answer…
+          </span>
+        </div>
+        <div className="space-y-1.5 max-w-md" aria-hidden="true">
+          <div className="h-2 rounded-full terra-shimmer w-3/4" />
+          <div className="h-2 rounded-full terra-shimmer w-1/2" />
+        </div>
       </div>
     </div>
   );
 }
-

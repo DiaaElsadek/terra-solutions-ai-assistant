@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Copy,
   Check,
@@ -10,12 +10,19 @@ import {
   Globe,
   HelpCircle,
   ExternalLink,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import type { Message, MessageSource } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { BRAND } from "@/constants/brand";
+import {
+  SheetCellPreview,
+  type SheetContextData,
+} from "@/components/knowledge/SheetCellPreview";
 import { AIResponseRenderer } from "./AIResponseRenderer";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
@@ -41,15 +48,15 @@ const CONFIDENCE_LABELS: Record<
   string,
   { label: string; variant: "success" | "gold" | "warning" | "danger" }
 > = {
-  strong: { label: "Strong Match", variant: "success" },
+  strong: { label: "Verified Record", variant: "success" },
   partial: { label: "Partial Match", variant: "warning" },
-  ambiguous: { label: "Clarification Suggested", variant: "gold" },
-  none: { label: "Not Found in KB", variant: "danger" },
+  ambiguous: { label: "Clarification Needed", variant: "gold" },
+  none: { label: "Unavailable in KB", variant: "danger" },
 };
 
 /**
- * Renders either a user message bubble or a structured AI response message
- * with inspectable source provenance, confidence tier, warnings, copy, and retry.
+ * Editorial briefing presentation for Terra Assistant responses and compact right-aligned employee bubbles.
+ * Never displays upstream AI model or provider names.
  */
 export function MessageBubble({
   message,
@@ -58,9 +65,52 @@ export function MessageBubble({
   onRetry,
 }: MessageBubbleProps) {
   const [copied, setCopied] = useState(false);
+  const [sourcesExpanded, setSourcesExpanded] = useState(true);
   const [selectedSource, setSelectedSource] = useState<MessageSource | null>(
     null
   );
+  const [sheetContext, setSheetContext] = useState<SheetContextData | null>(null);
+  const [loadingSheet, setLoadingSheet] = useState(false);
+  const activeFetchIdRef = useRef(0);
+
+  const openSourceInspector = async (src: MessageSource) => {
+    const reqId = ++activeFetchIdRef.current;
+    setSelectedSource(src);
+    setSheetContext(null);
+
+    if (src.type === "external" || !src.sheet || !src.row || src.row <= 0) {
+      setLoadingSheet(false);
+      return;
+    }
+
+    setLoadingSheet(true);
+    try {
+      const params = new URLSearchParams({
+        sheet: src.rawSheet || src.sheet,
+        row: String(src.row),
+      });
+      if (src.cell) params.set("cell", src.cell);
+      if (src.cellRange) params.set("range", src.cellRange);
+
+      const res = await fetch(`/api/knowledge?${params.toString()}`);
+      if (activeFetchIdRef.current !== reqId) return;
+      if (res.ok) {
+        const data = (await res.json()) as { sheetContext?: SheetContextData };
+        setSheetContext(data.sheetContext || null);
+      }
+    } catch {
+      if (activeFetchIdRef.current === reqId) setSheetContext(null);
+    } finally {
+      if (activeFetchIdRef.current === reqId) setLoadingSheet(false);
+    }
+  };
+
+  const closeSourceInspector = () => {
+    activeFetchIdRef.current++;
+    setSelectedSource(null);
+    setSheetContext(null);
+    setLoadingSheet(false);
+  };
 
   const handleCopy = async () => {
     try {
@@ -74,11 +124,11 @@ export function MessageBubble({
 
   if (message.role === "user") {
     return (
-      <div className="flex items-start justify-end gap-3 max-w-3xl ms-auto w-full">
-        <div className="flex flex-col items-end gap-1 max-w-[85%] sm:max-w-[75%]">
+      <div className="flex items-start justify-end gap-3 max-w-3xl ms-auto w-full terra-animate-in">
+        <div className="flex flex-col items-end gap-1 max-w-[85%] sm:max-w-[72%]">
           <div
             dir="auto"
-            className="rounded-2xl rounded-tr-sm bg-user-bubble text-user-bubble-foreground px-4 py-2.5 text-sm font-medium leading-relaxed whitespace-pre-wrap break-words shadow-sm"
+            className="rounded-2xl rounded-te-sm bg-user-bubble text-user-bubble-foreground px-4 py-2.5 text-sm font-medium leading-relaxed whitespace-pre-wrap break-words shadow-sm"
           >
             {message.content}
           </div>
@@ -96,15 +146,16 @@ export function MessageBubble({
 
   if (message.status === "error") {
     return (
-      <div className="flex items-start gap-3 max-w-3xl w-full">
+      <div className="flex items-start gap-3.5 max-w-3xl w-full terra-animate-in">
         <Avatar variant="assistant" size="md" />
-        <div className="rounded-2xl rounded-tl-sm border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200 space-y-3 max-w-[85%]">
-          <div className="flex items-center gap-2 font-medium text-red-300">
+        <div className="flex-1 min-w-0 rounded-xl border border-red-500/35 bg-red-500/[0.08] p-4 text-sm text-red-100 space-y-3">
+          <div className="flex items-center gap-2 font-display font-semibold text-red-300 text-xs sm:text-sm">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>Failed to retrieve response</span>
+            <span>Unable to complete response</span>
           </div>
-          <p className="text-xs text-red-200/80">
-            {message.errorMessage || "An unexpected error occurred."}
+          <p dir="auto" className="text-xs text-red-200/85 leading-relaxed">
+            {message.errorMessage ||
+              "Something went wrong while preparing the response. Please try again. / حصلت مشكلة أثناء تجهيز الإجابة. حاول مرة تانية."}
           </p>
           {onRetry && (
             <Button
@@ -113,7 +164,7 @@ export function MessageBubble({
               onClick={onRetry}
               leftIcon={<RotateCcw className="h-3.5 w-3.5" />}
             >
-              Retry
+              Try Again
             </Button>
           )}
         </div>
@@ -125,40 +176,50 @@ export function MessageBubble({
     ? CONFIDENCE_LABELS[message.confidenceLevel]
     : undefined;
 
-  return (
-    <div className="group flex items-start gap-3 max-w-3xl w-full">
-      <Avatar variant="assistant" size="md" />
-      <div className="flex-1 min-w-0 space-y-2">
-        <div className="rounded-2xl rounded-tl-sm bg-ai-bubble border border-border px-4 py-3.5 sm:px-5 sm:py-4 shadow-sm">
-          {/* Top metadata bar */}
-          {(confMeta || message.provider) && (
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-border/50">
-              <div className="flex flex-wrap items-center gap-1.5">
-                {confMeta && (
-                  <Badge variant={confMeta.variant} className="text-[10px]">
-                    {confMeta.label}
-                  </Badge>
-                )}
-                {message.requiresClarification && (
-                  <Badge variant="gold" className="text-[10px]">
-                    <HelpCircle className="h-3 w-3" />
-                    Clarification
-                  </Badge>
-                )}
-              </div>
-              {message.provider && (
-                <span className="text-[10px] text-foreground-muted/70">
-                  {message.provider}
-                </span>
-              )}
-            </div>
-          )}
+  const hasCompanySources = Boolean(message.sources && message.sources.length > 0);
 
+  return (
+    <div className="group flex items-start gap-3.5 max-w-3xl w-full terra-animate-in">
+      <Avatar variant="assistant" size="md" />
+
+      <div className="flex-1 min-w-0 space-y-3 border-s-2 border-primary/25 ps-4 sm:ps-5">
+        {/* Clean identity + metadata header */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-display text-xs font-semibold text-foreground">
+              {BRAND.assistant.shortName}
+            </span>
+            {confMeta && (
+              <Badge variant={confMeta.variant} className="text-[10px] py-0">
+                {confMeta.label}
+              </Badge>
+            )}
+            {message.requiresClarification && (
+              <Badge variant="gold" className="text-[10px] py-0">
+                <HelpCircle className="h-3 w-3" />
+                Clarification
+              </Badge>
+            )}
+          </div>
+
+          <span
+            suppressHydrationWarning
+            className="text-[11px] text-foreground-muted/60"
+          >
+            {message.status === "streaming"
+              ? "Preparing response…"
+              : formatTime(message.timestamp)}
+          </span>
+        </div>
+
+        {/* Response Body */}
+        <div>
           {message.structured &&
           Array.isArray(message.structured.answer?.blocks) &&
           message.status !== "streaming" ? (
             <AIResponseRenderer
               response={message.structured}
+              hideInlineSources={hasCompanySources}
               onSelectSource={(item) => {
                 const matched = message.sources?.find(
                   (s) =>
@@ -166,16 +227,21 @@ export function MessageBubble({
                     (item.title && s.title === item.title)
                 );
                 if (matched) {
-                  setSelectedSource(matched);
+                  void openSourceInspector(matched);
                 } else {
-                  setSelectedSource({
+                  void openSourceInspector({
                     category: "Knowledge Base",
                     title: item.title || item.fileName,
                     type: "knowledge",
                     file: item.fileName,
                     sheet: item.sheetName,
+                    rawSheet: item.rawSheet,
                     row: item.rowNumber,
                     rows: item.rowNumber ? [item.rowNumber] : undefined,
+                    cell: item.cell,
+                    cellRange: item.cellRange,
+                    url: item.sourceUrl,
+                    hasSheetGid: item.hasSheetGid,
                   });
                 }
               }}
@@ -183,135 +249,167 @@ export function MessageBubble({
           ) : (
             <MarkdownRenderer content={message.content} />
           )}
-
-          {/* Warnings (source conflicts, unavailable data, stopped stream) */}
-          {message.warnings && message.warnings.length > 0 && (
-            <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 space-y-1">
-              {message.warnings.map((w, idx) => (
-                <p
-                  key={idx}
-                  className="text-[11px] text-amber-200 flex items-start gap-1.5"
-                >
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
-                  <span>{w}</span>
-                </p>
-              ))}
-            </div>
-          )}
-
-          {/* Company knowledge source chips (clickable for exact Excel provenance) */}
-          {message.sources && message.sources.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-border/70 flex flex-wrap items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-foreground-muted/80 me-1">
-                <FileSpreadsheet className="h-3 w-3 text-primary" />
-                Company Sources:
-              </span>
-              {message.sources.map((src, idx) => (
-                <button
-                  key={`${src.category}-${src.title}-${idx}`}
-                  type="button"
-                  onClick={() => setSelectedSource(src)}
-                  title="Inspect source file, sheet, row, and match reasons"
-                  className="inline-flex items-center gap-1 rounded-md bg-background-secondary border border-border hover:border-primary/60 px-2 py-0.5 text-[11px] text-terra-gold-pale transition-colors cursor-pointer"
-                >
-                  <span className="text-primary font-medium">{src.category}:</span>
-                  <span className="truncate max-w-[160px]">{src.title}</span>
-                  {src.row !== undefined && src.row > 0 && (
-                    <span className="text-[10px] text-foreground-muted/70">
-                      (R{src.row})
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* External web sources (always separated from official Terra data) */}
-          {message.externalSources && message.externalSources.length > 0 && (
-            <div className="mt-2.5 pt-2.5 border-t border-border/50 flex flex-wrap items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-300 me-1">
-                <Globe className="h-3 w-3" />
-                External Web (Non-Authoritative):
-              </span>
-              {message.externalSources.map((src, idx) => (
-                <button
-                  key={`ext-${idx}`}
-                  type="button"
-                  onClick={() => setSelectedSource(src)}
-                  className="inline-flex items-center gap-1 rounded-md bg-sky-500/10 border border-sky-500/30 hover:border-sky-400 px-2 py-0.5 text-[11px] text-sky-200 transition-colors cursor-pointer"
-                >
-                  <span className="truncate max-w-[180px]">{src.title}</span>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
-        {/* Message footer actions */}
-        <div className="flex items-center justify-between px-1">
-          <span
-            suppressHydrationWarning
-            className="text-[11px] text-foreground-muted/60"
-          >
-            {message.status === "streaming"
-              ? "Streaming…"
-              : formatTime(message.timestamp)}
-          </span>
+        {/* Neutral warnings (source conflicts, unavailable notices, internal KB notice) */}
+        {message.warnings && message.warnings.length > 0 && (
+          <div className="rounded-lg border border-amber-500/25 bg-amber-500/[0.07] px-3 py-2 space-y-1">
+            {message.warnings.map((w, idx) => (
+              <p
+                key={idx}
+                dir="auto"
+                className="text-[11.5px] text-amber-200/90 flex items-start gap-2"
+              >
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <span>{w}</span>
+              </p>
+            ))}
+          </div>
+        )}
 
-          <div className="flex items-center gap-1">
+        {/* Unified Collapsible Company Sources */}
+        {hasCompanySources && message.sources && (
+          <div className="pt-2 border-t border-border/60 space-y-2">
             <button
               type="button"
-              onClick={handleCopy}
-              aria-label="Copy response"
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors"
+              onClick={() => setSourcesExpanded((p) => !p)}
+              aria-expanded={sourcesExpanded}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground-muted hover:text-primary transition-colors cursor-pointer"
             >
-              {copied ? (
-                <>
-                  <Check className="h-3 w-3 text-emerald-400" />
-                  <span className="text-emerald-400">Copied</span>
-                </>
+              <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
+              <span>Sources ({message.sources.length})</span>
+              {sourcesExpanded ? (
+                <ChevronUp className="h-3 w-3" />
               ) : (
-                <>
-                  <Copy className="h-3 w-3" />
-                  <span>Copy</span>
-                </>
+                <ChevronDown className="h-3 w-3" />
               )}
             </button>
 
-            {isLastAssistant && onRetry && message.status !== "streaming" && (
-              <button
-                type="button"
-                onClick={onRetry}
-                aria-label="Regenerate response"
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors"
-              >
-                <RotateCcw className="h-3 w-3" />
-                <span>Retry</span>
-              </button>
+            {sourcesExpanded && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {message.sources.map((src, idx) => {
+                  const cellBadge =
+                    src.cellRange ||
+                    src.cell ||
+                    (src.row !== undefined && src.row > 0 ? `R${src.row}` : undefined);
+                  return (
+                    <div
+                      key={`${src.category}-${src.title}-${idx}`}
+                      className="inline-flex max-w-full items-center rounded-md bg-background-secondary border border-border hover:border-primary/50 transition-colors overflow-hidden"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => void openSourceInspector(src)}
+                        title="Inspect highlighted Excel row, cell, and sheet context"
+                        className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
+                      >
+                        <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
+                          {src.sheet || src.category}
+                        </span>
+                        <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
+                          {src.title}
+                        </span>
+                        {cellBadge && (
+                          <span className="shrink-0 text-[10px] font-mono text-primary/90">
+                            {cellBadge}
+                          </span>
+                        )}
+                      </button>
+                      {src.url && (
+                        <a
+                          href={src.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={`Move to ${cellBadge || "row"} in Google Sheets`}
+                          aria-label={`Open ${src.title} (${cellBadge || "row"}) in Google Sheets`}
+                          className="shrink-0 inline-flex items-center justify-center px-2 py-1 border-s border-border/70 text-primary hover:bg-primary/15 transition-colors"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
+        )}
+
+        {/* Secondary External Web Sources */}
+        {message.externalSources && message.externalSources.length > 0 && (
+          <div className="pt-2 border-t border-border/40 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-300 me-1">
+              <Globe className="h-3 w-3" />
+              External Reference (Non-Policy):
+            </span>
+            {message.externalSources.map((src, idx) => (
+              <button
+                key={`ext-${idx}`}
+                type="button"
+                onClick={() => void openSourceInspector(src)}
+                className="inline-flex items-center gap-1 rounded-md bg-sky-500/10 border border-sky-500/30 hover:border-sky-400 px-2 py-0.5 text-[11px] text-sky-200 transition-colors cursor-pointer"
+              >
+                <span className="truncate max-w-[180px]">{src.title}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Restrained Action Bar */}
+        <div className="flex items-center gap-1 pt-0.5">
+          <button
+            type="button"
+            onClick={handleCopy}
+            aria-label="Copy full answer"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3 w-3 text-emerald-400" />
+                <span className="text-emerald-400">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3 w-3" />
+                <span>Copy response</span>
+              </>
+            )}
+          </button>
+
+          {isLastAssistant && onRetry && message.status !== "streaming" && (
+            <button
+              type="button"
+              onClick={onRetry}
+              aria-label="Regenerate response"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
+            >
+              <RotateCcw className="h-3 w-3" />
+              <span>Retry</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Source Provenance Details Modal */}
+      {/* Source Provenance & Live Spreadsheet Row Modal */}
       <Modal
         isOpen={Boolean(selectedSource)}
-        onClose={() => setSelectedSource(null)}
+        onClose={closeSourceInspector}
+        size="xl"
         title={selectedSource?.title || "Source Details"}
         description={
           selectedSource?.type === "external"
-            ? "External Web Source (Secondary — Not Official Terra Policy)"
-            : "Verified Terra Solutions Company Knowledge Source"
+            ? "External Web Source (Secondary Reference)"
+            : "Verified Terra Solutions Knowledge Record"
         }
       >
         {selectedSource && (
           <div className="space-y-3 text-xs text-foreground-muted">
-            <div className="rounded-lg border border-border bg-background-tertiary p-3 space-y-1.5">
+            <div className="rounded-lg border border-border bg-background-tertiary/70 p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <strong className="text-foreground">Source Type:</strong>{" "}
+                <strong className="text-foreground">Source:</strong>{" "}
                 {selectedSource.type === "external"
-                  ? "External Web Search"
-                  : "Official Internal Knowledge Base"}
+                  ? "External Reference"
+                  : "Approved Internal Knowledge Base"}
               </div>
               {selectedSource.file && (
                 <div>
@@ -327,35 +425,33 @@ export function MessageBubble({
               )}
               {selectedSource.rows && selectedSource.rows.length > 0 && (
                 <div>
-                  <strong className="text-foreground">Excel Row(s):</strong>{" "}
+                  <strong className="text-foreground">Row(s) / Cell:</strong>{" "}
                   {selectedSource.rows.join(", ")}
+                  {(selectedSource.cellRange || selectedSource.cell) && (
+                    <span className="ms-1.5 font-mono text-primary">
+                      ({selectedSource.cellRange || selectedSource.cell})
+                    </span>
+                  )}
                 </div>
               )}
-              {selectedSource.confidenceScore !== undefined && (
-                <div>
-                  <strong className="text-foreground">Retrieval Score:</strong>{" "}
-                  {selectedSource.confidenceScore}
-                </div>
-              )}
-              {selectedSource.matchReasons &&
-                selectedSource.matchReasons.length > 0 && (
-                  <div>
-                    <strong className="text-foreground">Match Reasons:</strong>{" "}
-                    {selectedSource.matchReasons.join("; ")}
-                  </div>
-                )}
               {selectedSource.snippet && (
-                <p className="pt-1 leading-relaxed">{selectedSource.snippet}</p>
-              )}
-              {selectedSource.publishedAt && (
-                <div>
-                  <strong className="text-foreground">Published:</strong>{" "}
-                  {selectedSource.publishedAt}
-                </div>
+                <p className="sm:col-span-2 pt-1 leading-relaxed">{selectedSource.snippet}</p>
               )}
             </div>
 
-            {selectedSource.url && (
+            {selectedSource.type !== "external" && (
+              <SheetCellPreview
+                context={sheetContext}
+                loading={loadingSheet}
+                fallbackUrl={selectedSource.url}
+                fallbackSheet={selectedSource.sheet}
+                fallbackCellRange={selectedSource.cellRange || selectedSource.cell}
+                fallbackRow={selectedSource.row}
+                hasSheetGid={selectedSource.hasSheetGid}
+              />
+            )}
+
+            {selectedSource.type === "external" && selectedSource.url && (
               <a
                 href={selectedSource.url}
                 target="_blank"

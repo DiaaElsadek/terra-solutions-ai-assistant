@@ -34,15 +34,10 @@ import type { Message } from "@/types";
 import type { AIRequest, AIResponse } from "@/lib/ai/types";
 
 export async function GET() {
-  const { provider, fallbackUsed, reason } = resolveServerAIProvider("auto");
   return NextResponse.json({
     status: "ok",
-    activeProvider: provider.config.id,
-    providerName: provider.config.name,
-    model: provider.config.model,
-    isMock: provider.config.isMock,
+    assistantName: "Terra Solutions Assistant",
     externalSearchAvailable: googleSearchProvider.isAvailable(),
-    reason: fallbackUsed ? reason : undefined,
   });
 }
 
@@ -82,8 +77,8 @@ async function generateWithFallback(
     const fallbackResponse = await localFallbackProvider.generateResponse(aiRequest);
     const notice =
       aiRequest.retrieval.classified.language === "ar"
-        ? "تم التبديل تلقائيًا إلى محرك المعرفة المحلي لعدم توفر استجابة Gemini حاليًا — الإجابة التالية مستخرجة مباشرة من ملفات الشركة المعتمدة."
-        : `Automatic local fallback active (${category}): answered deterministically from approved company knowledge files.`;
+        ? "تم إعداد الإجابة بالاعتماد على قاعدة المعرفة الداخلية."
+        : "Response prepared using Terra's internal knowledge base.";
 
     fallbackResponse.warnings = Array.from(
       new Set([notice, ...fallbackResponse.warnings])

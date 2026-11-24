@@ -4,7 +4,7 @@
  */
 
 export const APP_CONFIG = {
-  name: "Terra AI Assistant",
+  name: "Terra Solutions Assistant",
   version: "1.0.0",
   /** Bump this when the localStorage schema changes to trigger migration. */
   storageVersion: 1,

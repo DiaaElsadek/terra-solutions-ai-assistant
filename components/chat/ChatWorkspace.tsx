@@ -138,7 +138,6 @@ export function ChatWorkspace() {
           title={activeConversation?.title || "New Conversation"}
           hasMessages={messages.length > 0}
           sidebarCollapsed={sidebarCollapsed}
-          providerStatus={providerStatus}
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
           onExpandDesktopSidebar={() => toggleSidebarCollapsed(false)}
           onClearConversation={() => setClearModalOpen(true)}

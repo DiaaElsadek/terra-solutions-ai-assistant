@@ -117,8 +117,7 @@ function renderEmojiAsLucide(token: string, key: number): ReactNode {
   }
 }
 
-/** Replace any inline emoji symbols in a string with Lucide React icons. */
-export function renderTextWithLucide(text: string): ReactNode {
+function renderEmojiOnly(text: string, keyPrefix: string): ReactNode {
   const parts = text.split(EMOJI_TOKEN_REGEX);
   if (parts.length === 1) return text;
 
@@ -128,7 +127,29 @@ export function renderTextWithLucide(text: string): ReactNode {
       EMOJI_TOKEN_REGEX.lastIndex = 0;
       return renderEmojiAsLucide(part, idx);
     }
-    return <Fragment key={idx}>{part}</Fragment>;
+    return <Fragment key={`${keyPrefix}-${idx}`}>{part}</Fragment>;
+  });
+}
+
+/** Replace inline markdown **bold** segments and emoji symbols with React nodes + Lucide icons. */
+export function renderTextWithLucide(text: string): ReactNode {
+  if (!text) return text;
+  const boldParts = text.split(/(\*\*[^*\n]+\*\*)/g);
+  if (boldParts.length === 1) {
+    return renderEmojiOnly(text, "e");
+  }
+
+  return boldParts.map((segment, idx) => {
+    if (!segment) return null;
+    if (segment.startsWith("**") && segment.endsWith("**") && segment.length > 4) {
+      const inner = segment.slice(2, -2);
+      return (
+        <strong key={`b-${idx}`} className="font-semibold text-foreground">
+          {renderEmojiOnly(inner, `bi-${idx}`)}
+        </strong>
+      );
+    }
+    return <Fragment key={`t-${idx}`}>{renderEmojiOnly(segment, `ti-${idx}`)}</Fragment>;
   });
 }
 

@@ -5,7 +5,7 @@ import { Spinner } from "@/components/ui/Spinner";
 
 export const metadata: Metadata = {
   title: "Sign In",
-  description: "Sign in to Terra Solutions AI Knowledge Assistant.",
+  description: "Sign in to Terra Solutions Assistant.",
 };
 
 export default function SignInPage() {

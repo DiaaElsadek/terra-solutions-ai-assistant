@@ -17,12 +17,20 @@ export interface MessageSource {
   type: "knowledge" | "external";
   /** Original source file (e.g., "Knowlege.xlsx" or "clinics.json"). */
   file?: string;
-  /** Original Excel worksheet name. */
+  /** Original Excel worksheet name (trimmed). */
   sheet?: string;
+  /** Exact Excel worksheet name including trailing whitespace (used for row lookups). */
+  rawSheet?: string;
   /** Primary 1-based Excel row number. */
   row?: number;
   /** All contributing 1-based Excel rows. */
   rows?: number[];
+  /** Primary A1 cell reference (e.g., "A15"). */
+  cell?: string;
+  /** Full A1 cell range (e.g., "A14:E14"). */
+  cellRange?: string;
+  /** Whether the external Google Sheets URL includes a tab-specific gid. */
+  hasSheetGid?: boolean;
   /** Retrieval relevance score. */
   confidenceScore?: number;
   /** Explainable reasons why this record matched. */

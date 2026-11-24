@@ -1,16 +1,17 @@
 /**
  * Terra Solutions — Brand Constants
- * Derived from the official Terra Solutions website (terrasolutions.me).
+ * Derived from the official Terra Solutions visual identity (terrasolutions.me).
+ * Strict Identity Policy: Never expose upstream AI model/provider details to employees.
  */
 
 export const BRAND = {
   name: "Terra Solutions",
-  tagline: "Advanced Aesthetic & Medical Solutions",
+  tagline: "Advanced Aesthetic & Medical Operations Support",
   assistant: {
-    name: "Terra AI Assistant",
-    shortName: "Terra AI",
+    name: "Terra Solutions Assistant",
+    shortName: "Terra Assistant",
     description:
-      "Internal knowledge assistant for call center agents — access company information, products, services, and device specifications through natural language.",
+      "Internal knowledge assistant for Terra Solutions employees — retrieve verified product details, device specifications, pricing, clinic availability, and safety protocols in seconds.",
   },
   copyright: "© 2026 Terra Solutions. All rights reserved.",
 } as const;
@@ -37,6 +38,6 @@ export const FONTS = {
 
 /** Navigation links for the marketing pages. */
 export const NAV_LINKS = [
-  { label: "Products & Services", href: "/#services" },
-  { label: "About", href: "/#about" },
+  { label: "Knowledge Coverage", href: "/#services" },
+  { label: "Operations & Clinics", href: "/#about" },
 ] as const;

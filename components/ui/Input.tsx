@@ -53,20 +53,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       )}
       <div className="relative flex items-center">
         {leftIcon && (
-          <span className="pointer-events-none absolute left-3 text-foreground-subtle">
+          <span className="pointer-events-none absolute start-3 text-foreground-subtle">
             {leftIcon}
           </span>
         )}
         <input
           ref={ref}
           id={id}
+          dir="auto"
           type={effectiveType}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
           className={clsx(
-            "w-full h-11 rounded-lg bg-input-bg border text-sm text-foreground placeholder:text-foreground-muted/50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-ring",
-            leftIcon ? "pl-10" : "pl-3.5",
-            isPassword ? "pr-10" : "pr-3.5",
+            "w-full h-11 rounded-lg bg-input-bg border text-sm text-foreground placeholder:text-foreground-muted/50 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-ring",
+            leftIcon ? "ps-10" : "ps-3.5",
+            isPassword ? "pe-10" : "pe-3.5",
             error
               ? "border-destructive focus:ring-destructive/40"
               : "border-border hover:border-border-hover focus:border-primary",
@@ -79,7 +80,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? "Hide password" : "Show password"}
-            className="absolute right-3 p-1 text-foreground-muted hover:text-foreground transition-colors rounded focus-visible:outline-2 focus-visible:outline-ring"
+            className="absolute end-3 p-1 text-foreground-muted hover:text-foreground transition-colors rounded focus-visible:outline-2 focus-visible:outline-ring"
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />

@@ -8,8 +8,15 @@ export interface ModalProps {
   onClose: () => void;
   title: string;
   description?: string;
+  size?: "md" | "lg" | "xl";
   children: ReactNode;
 }
+
+const MODAL_SIZES = {
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-2xl",
+} as const;
 
 /**
  * Accessible dialog overlay supporting Escape-key dismissal.
@@ -19,6 +26,7 @@ export function Modal({
   onClose,
   title,
   description,
+  size = "lg",
   children,
 }: ModalProps) {
   useEffect(() => {
@@ -44,7 +52,9 @@ export function Modal({
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative z-10 w-full max-w-md rounded-xl bg-background-secondary border border-border-hover p-6 shadow-2xl">
+      <div
+        className={`relative z-10 w-full ${MODAL_SIZES[size]} rounded-xl bg-background-secondary border border-border-hover p-6 shadow-2xl terra-animate-in`}
+      >
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <h2

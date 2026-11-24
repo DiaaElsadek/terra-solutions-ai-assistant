@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { AuthProvider } from "@/lib/auth/context";
+import { AppEntranceLoader } from "@/components/branding/AppEntranceLoader";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,11 +18,11 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: {
-    default: "Terra AI Assistant | Terra Solutions",
-    template: "%s | Terra Solutions",
+    default: "Terra Solutions Assistant | Terra Solutions",
+    template: "%s | Terra Solutions Assistant",
   },
   description:
-    "Internal knowledge assistant for Terra Solutions. Helping call center agents access company information, products, services, and device specifications through a conversational AI interface.",
+    "Internal knowledge assistant for Terra Solutions Call Center and Support teams. Access verified company products, clinic devices, offers, and safety rules.",
   icons: {
     icon: [{ url: "/images/T_logo.svg", type: "image/svg+xml" }],
     shortcut: "/images/T_logo.svg",
@@ -38,7 +39,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
-        <AuthProvider>{children}</AuthProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(!sessionStorage.getItem('terra_v1_intro_shown')){document.documentElement.dataset.terraIntro='pending'}}catch{}",
+          }}
+        />
+        <AuthProvider>
+          <AppEntranceLoader />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

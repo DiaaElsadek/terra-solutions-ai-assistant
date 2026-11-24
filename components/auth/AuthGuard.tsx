@@ -29,7 +29,9 @@ export function AuthGuard({ children }: { children: ReactNode }) {
         <BrandLogo href="" compact size="lg" priority />
         <Spinner size="lg" className="text-primary" />
         <p className="text-sm text-foreground-muted">
-          {isLoading ? "Loading Terra AI Workspace…" : "Redirecting to sign in…"}
+          {isLoading
+          ? "Loading Terra Solutions Assistant…"
+          : "Redirecting to sign in…"}
         </p>
       </div>
     );

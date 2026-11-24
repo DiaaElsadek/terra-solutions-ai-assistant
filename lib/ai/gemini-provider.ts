@@ -337,7 +337,7 @@ export const geminiProvider: AIProvider = {
       structured: rich,
       sources: verifiedMsgSources,
       externalSources: pkg.externalSources,
-      provider: `Google Gemini · ${model}`,
+      provider: "Terra Assistant",
       isMock: false,
       fallbackUsed: false,
     };

@@ -5,8 +5,8 @@ import { ChatWorkspace } from "@/components/chat/ChatWorkspace";
 import { Spinner } from "@/components/ui/Spinner";
 
 export const metadata: Metadata = {
-  title: "AI Knowledge Workspace",
-  description: "Call center AI knowledge workspace for Terra Solutions.",
+  title: "Assistant Workspace",
+  description: "Call center and customer support knowledge workspace for Terra Solutions.",
 };
 
 export default function ChatPage() {

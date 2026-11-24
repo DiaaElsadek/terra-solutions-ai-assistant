@@ -20,6 +20,10 @@ import type {
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { RichText } from "@/components/ui/RichText";
+import {
+  SheetCellPreview,
+  type SheetContextData,
+} from "./SheetCellPreview";
 
 interface KnowledgeDrawerProps {
   isOpen: boolean;
@@ -56,6 +60,8 @@ export function KnowledgeDrawer({
     null
   );
   const [relatedRecords, setRelatedRecords] = useState<KnowledgeRecord[]>([]);
+  const [detailSheetContext, setDetailSheetContext] =
+    useState<SheetContextData | null>(null);
 
   const fetchList = useCallback(async () => {
     if (!isOpen) return;
@@ -91,9 +97,11 @@ export function KnowledgeDrawer({
         const json = (await res.json()) as {
           record: KnowledgeRecord;
           related: KnowledgeRecord[];
+          sheetContext?: SheetContextData | null;
         };
         setDetailRecord(json.record);
         setRelatedRecords(json.related || []);
+        setDetailSheetContext(json.sheetContext || null);
       }
     } finally {
       setIsLoading(false);
@@ -119,22 +127,22 @@ export function KnowledgeDrawer({
         aria-hidden="true"
       />
 
-      <div className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-border bg-background-secondary shadow-2xl">
+      <div className="terra-drawer-in relative z-10 flex h-full w-full max-w-lg flex-col border-s border-border bg-background-secondary shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
+        <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
           <div>
             <h2 className="font-display text-base font-semibold text-foreground">
-              Knowledge Base Explorer
+              Knowledge Catalog
             </h2>
             <p className="text-xs text-foreground-muted">
-              {data?.totalRecords ?? "…"} canonical records · Server-backed
+              {data?.totalRecords ?? "…"} verified entries · Excel &amp; clinic sheets
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close knowledge explorer"
-            className="p-1.5 rounded-lg text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors"
+            aria-label="Close knowledge catalog"
+            className="p-1.5 rounded-lg text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -158,7 +166,11 @@ export function KnowledgeDrawer({
                 <Badge variant="muted">
                   <FileSpreadsheet className="h-3 w-3" />
                   {detailRecord.source.file} · {detailRecord.source.sheet} (Rows{" "}
-                  {detailRecord.source.rows.join(", ")})
+                  {detailRecord.source.rows.join(", ")}
+                  {detailRecord.source.cellRange
+                    ? ` · ${detailRecord.source.cellRange}`
+                    : ""}
+                  )
                 </Badge>
               </div>
               <h3
@@ -188,6 +200,19 @@ export function KnowledgeDrawer({
                   </div>
                 ))}
               </div>
+            )}
+
+            {(detailRecord.source.url || detailSheetContext) && (
+              <SheetCellPreview
+                context={detailSheetContext}
+                fallbackUrl={detailRecord.source.url}
+                fallbackSheet={detailRecord.source.sheet}
+                fallbackCellRange={
+                  detailRecord.source.cellRange || detailRecord.source.cell
+                }
+                fallbackRow={detailRecord.source.row}
+                hasSheetGid={detailRecord.source.hasSheetGid}
+              />
             )}
 
             {relatedRecords.length > 0 && (
@@ -264,14 +289,14 @@ export function KnowledgeDrawer({
               {tab === "records" && (
                 <>
                   <div className="relative flex items-center">
-                    <Search className="pointer-events-none absolute left-3 h-4 w-4 text-foreground-muted/60" />
+                    <Search className="pointer-events-none absolute start-3 h-4 w-4 text-foreground-muted/60" />
                     <input
                       type="text"
                       dir="auto"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Search records (English or Arabic)…"
-                      className="w-full h-10 rounded-lg bg-input-bg border border-border pl-9 pr-3 text-xs text-foreground placeholder:text-foreground-muted/50 focus:outline-none focus:border-primary"
+                      placeholder="Search entries in English or Arabic…"
+                      className="w-full h-10 rounded-lg bg-input-bg border border-border ps-9 pe-3 text-xs text-foreground placeholder:text-foreground-muted/50 focus:outline-none focus:border-primary"
                     />
                   </div>
 

@@ -3,7 +3,7 @@ import { SignUpForm } from "@/components/auth/SignUpForm";
 
 export const metadata: Metadata = {
   title: "Sign Up",
-  description: "Create an agent account for Terra AI Assistant.",
+  description: "Create an employee account for Terra Solutions Assistant.",
 };
 
 export default function SignUpPage() {

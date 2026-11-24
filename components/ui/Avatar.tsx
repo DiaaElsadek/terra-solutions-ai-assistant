@@ -1,5 +1,5 @@
+import Image from "next/image";
 import { clsx } from "clsx";
-import { Sparkles } from "lucide-react";
 
 export interface AvatarProps {
   name?: string;
@@ -10,7 +10,12 @@ export interface AvatarProps {
 
 function getInitials(name?: string): string {
   if (!name?.trim()) return "TS";
-  const parts = name.trim().split(/\s+/);
+  const cleaned = name.replace(/\([^)]*\)/g, " ").trim() || name.trim();
+  const parts = cleaned
+    .split(/\s+/)
+    .map((p) => p.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
+    .filter(Boolean);
+  if (parts.length === 0) return "TS";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
@@ -28,12 +33,22 @@ export function Avatar({
       <div
         aria-hidden="true"
         className={clsx(
-          "shrink-0 rounded-lg bg-primary/15 border border-primary/40 text-primary flex items-center justify-center",
+          "shrink-0 rounded-lg bg-background-tertiary border border-primary/35 flex items-center justify-center",
           sizeClass,
           className
         )}
       >
-        <Sparkles className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
+        <Image
+          src="/images/T_logo.svg"
+          alt=""
+          width={14}
+          height={24}
+          unoptimized
+          className={clsx(
+            "w-auto object-contain",
+            size === "sm" ? "h-4" : "h-5"
+          )}
+        />
       </div>
     );
   }
@@ -51,4 +66,3 @@ export function Avatar({
     </div>
   );
 }
-

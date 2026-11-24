@@ -74,6 +74,14 @@ export interface KnowledgeSourceRef {
   row: number;
   /** Exact list of 1-based Excel rows contributing to this record. */
   rows: number[];
+  /** Primary A1 cell reference where the item begins (e.g., "A15"). */
+  cell?: string;
+  /** Exact A1 range covered by the record rows/columns (e.g., "A14:E14"). */
+  cellRange?: string;
+  /** Direct deep link to the target cell/range in Google Sheets when applicable. */
+  url?: string;
+  /** Whether the Google Sheets tab `gid` was explicitly resolved for this sheet. */
+  hasSheetGid?: boolean;
 }
 
 /** Structured pricing entry extracted without fabrication. */

@@ -100,7 +100,7 @@ export function ConversationItem({
       className={clsx(
         "group relative flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors",
         isActive
-          ? "bg-sidebar-active text-foreground border border-primary/30"
+          ? "bg-sidebar-active text-foreground border border-primary/25 border-s-2 border-s-primary"
           : "text-sidebar-foreground hover:bg-sidebar-hover hover:text-foreground border border-transparent"
       )}
     >
@@ -123,7 +123,9 @@ export function ConversationItem({
       <div
         className={clsx(
           "flex items-center gap-0.5 shrink-0 transition-opacity",
-          isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"
+          isActive
+            ? "opacity-100"
+            : "opacity-75 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100"
         )}
       >
         <button

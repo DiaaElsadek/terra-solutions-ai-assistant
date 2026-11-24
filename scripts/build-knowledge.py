@@ -45,6 +45,15 @@ def col_to_idx(col_str: str) -> int:
     return idx - 1
 
 
+def idx_to_col(idx: int) -> str:
+    res = ""
+    n = idx + 1
+    while n > 0:
+        n, rem = divmod(n - 1, 26)
+        res = chr(65 + rem) + res
+    return res or "A"
+
+
 def extract_text_from_si(elem: ET.Element) -> str:
     parts = []
     for child in elem:
@@ -121,7 +130,22 @@ def read_excel_with_rows(path: Path) -> tuple[dict[str, list[dict[str, Any]]], i
                 non_ws = sum(1 for c in arr if c.strip() != "")
                 if non_ws > 0:
                     total_non_ws_cells += non_ws
-                    rows.append({"row": rnum, "cells": arr})
+                    col_map = {
+                        idx_to_col(ci): val.strip()
+                        for ci, val in sorted(cells_map.items())
+                        if val.strip() != ""
+                    }
+                    col_indices = sorted(
+                        ci for ci, val in cells_map.items() if val.strip() != ""
+                    )
+                    rows.append(
+                        {
+                            "row": rnum,
+                            "cells": arr,
+                            "colMap": col_map,
+                            "colIndices": col_indices,
+                        }
+                    )
 
             sheets_out[sheet_name] = rows
 
@@ -167,6 +191,9 @@ class PipelineBuilder:
         self.used_ids: set[str] = set()
         self.conflicts: list[dict[str, Any]] = []
         self.clinic_map: dict[str, dict[str, Any]] = {}
+        self.row_lookup: dict[tuple[str, int], dict[str, Any]] = {
+            (sh, r["row"]): r for sh, rlist in excel_sheets.items() for r in rlist
+        }
 
         for cname in clinics_raw:
             cid = slugify(cname)
@@ -240,6 +267,49 @@ class PipelineBuilder:
             self.mark(sheet, rows)
 
         clean_rows = sorted(set(rows))
+        primary_cell: str | None = None
+        cell_range: str | None = None
+        if source_file == "Knowlege.xlsx" and clean_rows:
+            matched_coords: list[tuple[int, int, str]] = []
+            for rnum in clean_rows:
+                row_meta = self.row_lookup.get((sheet, rnum))
+                if not row_meta:
+                    continue
+                for ci in row_meta.get("colIndices", []):
+                    col_letter = idx_to_col(ci)
+                    matched_coords.append((rnum, ci, f"{col_letter}{rnum}"))
+            if matched_coords:
+                min_row = min(c[0] for c in matched_coords)
+                max_row = max(c[0] for c in matched_coords)
+                min_col = min(c[1] for c in matched_coords)
+                max_col = max(c[1] for c in matched_coords)
+                # Prefer a cell on clean_rows[0] containing the record name/alias if available
+                name_probe = (name_en or name or "").split("(")[0].split("—")[0].strip().lower()
+                primary_row_meta = self.row_lookup.get((sheet, clean_rows[0]))
+                if primary_row_meta and name_probe:
+                    for col_letter, val in primary_row_meta.get("colMap", {}).items():
+                        if name_probe[:8] and name_probe[:8] in val.lower():
+                            primary_cell = f"{col_letter}{clean_rows[0]}"
+                            break
+                if not primary_cell:
+                    primary_cell = matched_coords[0][2]
+                start_ref = f"{idx_to_col(min_col)}{min_row}"
+                end_ref = f"{idx_to_col(max_col)}{max_row}"
+                cell_range = start_ref if start_ref == end_ref else f"{start_ref}:{end_ref}"
+
+        source_obj: dict[str, Any] = {
+            "sourceId": "source-002" if source_file == "clinics.json" else "source-001",
+            "file": source_file,
+            "sheet": sheet.strip(),
+            "rawSheet": sheet,
+            "row": clean_rows[0] if clean_rows else 0,
+            "rows": clean_rows,
+        }
+        if primary_cell:
+            source_obj["cell"] = primary_cell
+        if cell_range:
+            source_obj["cellRange"] = cell_range
+
         rec = {
             "id": uid,
             "recordType": record_type,
@@ -258,14 +328,7 @@ class PipelineBuilder:
             "offers": offers or [],
             "clinicIds": sorted(set(clinic_ids or [])),
             "safetyFlags": safety_flags,
-            "source": {
-                "sourceId": "source-002" if source_file == "clinics.json" else "source-001",
-                "file": source_file,
-                "sheet": sheet.strip(),
-                "rawSheet": sheet,
-                "row": clean_rows[0] if clean_rows else 0,
-                "rows": clean_rows,
-            },
+            "source": source_obj,
             "status": "active",
             "sourceType": source_type,
             "confidence": "high",
@@ -1603,6 +1666,21 @@ def main() -> None:
     )
     (CANONICAL_DIR / "unresolved.json").write_text(
         json.dumps(unmapped_rows, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    sheet_rows_export = {
+        sh: [
+            {
+                "row": r["row"],
+                "cells": r.get("colMap", {}),
+            }
+            for r in rows
+        ]
+        for sh, rows in excel_sheets.items()
+    }
+    (CANONICAL_DIR / "sheet-rows.json").write_text(
+        json.dumps(sheet_rows_export, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
 

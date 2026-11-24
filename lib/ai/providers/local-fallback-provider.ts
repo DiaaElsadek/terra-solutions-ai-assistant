@@ -8,18 +8,20 @@
  */
 
 import { knowledgeRetriever } from "@/lib/knowledge/retriever";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 import { CATEGORIES } from "@/lib/knowledge/categories";
 import { UNAVAILABLE_KNOWLEDGE_MESSAGES } from "@/lib/ai/prompts/terra-system-prompt";
 import { toSafeErrorMessage } from "@/lib/security/api-guard";
 import type { KnowledgeRecord, RetrievalConfidence } from "@/types/knowledge";
 import type { MessageSource } from "@/types";
-import type {
-  AIErrorCode,
-  RichAIResponse,
-  RichResponseBlock,
-  VerifiedSourceReference,
+import {
+  richResponseToMarkdown,
+  toVerifiedSourceReference,
+  type AIErrorCode,
+  type RichAIResponse,
+  type RichResponseBlock,
+  type VerifiedSourceReference,
 } from "@/lib/ai/response-schema";
-import { richResponseToMarkdown } from "@/lib/ai/response-schema";
 import type {
   AIProvider,
   AIProviderConfig,
@@ -33,33 +35,34 @@ const MODEL_ID = "terra-deterministic-rag-v2";
 
 const config: AIProviderConfig = {
   id: "local_fallback",
-  name: "Terra Local Knowledge Engine",
+  name: "Terra Assistant",
   isMock: true,
   model: MODEL_ID,
   maxContextChars: 7500,
 };
 
 function toMessageSources(records: KnowledgeRecord[]): MessageSource[] {
-  return records.map((r) => ({
-    category: CATEGORIES[r.category]?.nameEn || r.category,
-    title: r.name,
-    type: "knowledge",
-    file: r.source.file,
-    sheet: r.source.sheet,
-    row: r.source.row,
-    rows: r.source.rows,
-  }));
+  return records.map((r) => {
+    const link = buildGoogleSheetCellLink(r.source);
+    return {
+      category: CATEGORIES[r.category]?.nameEn || r.category,
+      title: r.name,
+      type: "knowledge",
+      file: r.source.file,
+      sheet: r.source.sheet,
+      rawSheet: r.source.rawSheet,
+      row: r.source.row,
+      rows: r.source.rows,
+      cell: r.source.cell,
+      cellRange: r.source.cellRange,
+      url: link.url,
+      hasSheetGid: link.hasSheetGid,
+    };
+  });
 }
 
 function toVerifiedRefs(records: KnowledgeRecord[]): VerifiedSourceReference[] {
-  return records.map((r) => ({
-    recordId: r.id,
-    sourceId: r.source.sourceId || "source-001",
-    fileName: r.source.file,
-    sheetName: r.source.sheet,
-    rowNumber: r.source.row,
-    title: r.name,
-  }));
+  return records.map((r) => toVerifiedSourceReference(r));
 }
 
 function toExternalSources(request: AIRequest): MessageSource[] {
@@ -353,12 +356,15 @@ function buildRichClinicResponse(
         { key: "devices", label: arabic ? "الأجهزة المسجلة" : "Documented Devices" },
         { key: "doctors", label: arabic ? "الأطباء المذكورون" : "Doctors" },
       ],
-      rows: targetClinics.map((c) => ({
-        clinic: c.name,
-        services: c.services.join("، ") || "—",
-        devices: c.devices.map((d) => d.device).join("، ") || "—",
-        doctors: c.doctors.join("، ") || "—",
-      })),
+      rows: targetClinics.map((c) => {
+        const sep = arabic ? "، " : ", ";
+        return {
+          clinic: c.name,
+          services: c.services.join(sep) || "—",
+          devices: c.devices.map((d) => d.device).join(sep) || "—",
+          doctors: c.doctors.join(sep) || "—",
+        };
+      }),
     },
     {
       type: "callout",
@@ -444,8 +450,8 @@ export const localFallbackProvider: AIProvider = {
     // 1. Greeting
     if (classified.intent === "greeting") {
       const summary = arabic
-        ? "أهلًا بك في مساعد تيرا الذكي. اكتب سؤالك عن المنتجات، الأجهزة، الأسعار، العيادات، أو قواعد الأمان."
-        : "Welcome to Terra AI Assistant. Ask about products, aesthetic devices, pricing, clinics, or clinical safety protocols.";
+        ? "أهلًا بيك! أنا مساعد Terra Solutions. أقدر أساعدك في الوصول لمعلومات الخدمات والعروض والأجهزة والعيادات بسرعة."
+        : "Welcome to Terra Solutions Assistant. How can I help you find the information you need today?";
       return withFallbackMeta(
         buildFinalAIResponse({
           rich: {
@@ -455,12 +461,11 @@ export const localFallbackProvider: AIProvider = {
             answer: {
               summary,
               blocks: [
-                { type: "badge", label: "Terra Solutions Internal KB", tone: "accent" },
                 { type: "paragraph", text: summary, tone: "default" },
                 {
                   type: "list",
                   style: "bullet",
-                  title: arabic ? "أمثلة للاستعلام" : "Quick Examples",
+                  title: arabic ? "مجالات أقدر أساعدك فيها حالًا" : "What I Can Help With",
                   items: arabic
                     ? [
                         "ما هو الفيلر المناسب تحت العين؟",
@@ -468,9 +473,9 @@ export const localFallbackProvider: AIProvider = {
                         "مقارنة بين أجهزة الليزر",
                       ]
                     : [
-                        "What are Candela GentleMax Pro Plus specs?",
-                        "What treatments are safe during pregnancy?",
-                        "Show verified prices for Aptos threads",
+                        "Candela GentleMax Pro Plus specifications",
+                        "Pregnancy & lactation treatment safety rules",
+                        "Verified pricing for Aptos threads",
                       ],
                 },
               ],
@@ -823,13 +828,36 @@ export const localFallbackProvider: AIProvider = {
       // Structured attributes table when present
       const attrEntries = Object.entries(r.attributes);
       if (attrEntries.length > 0) {
+        const formatAttrLabel = (rawKey: string): string => {
+          const map: Record<string, { en: string; ar: string }> = {
+            pregnancyStatus: { en: "Allowed During Pregnancy", ar: "الحالة أثناء الحمل" },
+            lactationStatus: { en: "Allowed During Lactation", ar: "الحالة أثناء الرضاعة" },
+            agentNote: { en: "Agent Guidance", ar: "إرشاد الموظف" },
+            targetAreas: { en: "Target Areas", ar: "المناطق المستهدفة" },
+            sessions: { en: "Sessions", ar: "عدد الجلسات" },
+            duration: { en: "Duration", ar: "المدة" },
+            downtime: { en: "Downtime", ar: "فترة النقاهة" },
+            contraindications: { en: "Contraindications", ar: "موانع الاستخدام" },
+          };
+          const mapped = map[rawKey];
+          if (mapped) return arabic ? mapped.ar : mapped.en;
+          return rawKey
+            .replace(/([A-Z])/g, " $1")
+            .replace(/[_-]+/g, " ")
+            .replace(/^\w/, (c) => c.toUpperCase())
+            .trim();
+        };
+
         blocks.push({
           type: "table",
           columns: [
             { key: "field", label: arabic ? "البيان" : "Attribute" },
             { key: "value", label: arabic ? "القيمة الموثقة" : "Verified Value" },
           ],
-          rows: attrEntries.map(([k, v]) => ({ field: k, value: v })),
+          rows: attrEntries.map(([k, v]) => ({
+            field: formatAttrLabel(k),
+            value: v,
+          })),
         });
       }
 

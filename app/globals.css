@@ -3,7 +3,7 @@
 :root {
   /* ═══════════════════════════════════════════════
      Terra Solutions — Brand Palette
-     Source: terrasolutions.me design extraction
+     Source: terrasolutions.me visual identity
      ═══════════════════════════════════════════════ */
   --terra-gold: #CBB36A;
   --terra-gold-deep: #9A7E3F;
@@ -14,7 +14,7 @@
   --terra-dark-700: #221C10;
   --terra-dark-800: #161209;
 
-  /* ── Semantic Tokens ── */
+  /* ── Semantic Surface & Text Tokens ── */
   --background: #0D0B07;
   --background-secondary: #161209;
   --background-tertiary: #221C10;
@@ -33,10 +33,10 @@
   --muted: #221C10;
   --muted-foreground: #CFC5AE;
 
-  --border: rgba(203, 179, 106, 0.15);
-  --border-hover: rgba(203, 179, 106, 0.3);
-  --input-bg: rgba(203, 179, 106, 0.08);
-  --ring: rgba(203, 179, 106, 0.5);
+  --border: rgba(203, 179, 106, 0.14);
+  --border-hover: rgba(203, 179, 106, 0.32);
+  --input-bg: rgba(203, 179, 106, 0.06);
+  --ring: rgba(203, 179, 106, 0.55);
 
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
@@ -49,15 +49,17 @@
   --card-hover: #221C10;
   --card-foreground: #FFFFFF;
 
-  --sidebar: #0D0B07;
+  --sidebar: #0B0905;
   --sidebar-foreground: #CFC5AE;
   --sidebar-hover: #161209;
   --sidebar-active: #221C10;
 
   --user-bubble: #CBB36A;
   --user-bubble-foreground: #161209;
-  --ai-bubble: #221C10;
+  --ai-bubble: #161209;
   --ai-bubble-foreground: #EAE0C3;
+
+  --ease-terra: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ═══════════════════════════════════════════════
@@ -128,6 +130,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  text-rendering: optimizeLegibility;
 }
 
 /* Scrollbar */
@@ -148,7 +151,7 @@ body {
 
 /* Selection */
 ::selection {
-  background: rgba(203, 179, 106, 0.3);
+  background: rgba(203, 179, 106, 0.28);
   color: var(--foreground);
 }
 
@@ -156,6 +159,59 @@ body {
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   Purposeful Motion Primitives
+   ═══════════════════════════════════════════════ */
+@keyframes terra-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes terra-drawer-slide {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes terra-shimmer-line {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.terra-animate-in {
+  animation: terra-fade-up 180ms var(--ease-terra) both;
+}
+
+.terra-drawer-in {
+  animation: terra-drawer-slide 240ms var(--ease-terra) both;
+}
+
+.terra-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(203, 179, 106, 0.12) 0%,
+    rgba(203, 179, 106, 0.48) 50%,
+    rgba(203, 179, 106, 0.12) 100%
+  );
+  background-size: 200% 100%;
+  animation: terra-shimmer-line 1.6s linear infinite;
 }
 
 /* Reduced motion */
@@ -171,7 +227,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
-   Utility classes
+   Utility Classes
    ═══════════════════════════════════════════════ */
 .terra-gradient {
   background: linear-gradient(135deg, var(--terra-gold-deep) 0%, var(--terra-gold) 50%, var(--terra-gold-pale) 100%);
@@ -184,6 +240,192 @@ body {
   background-clip: text;
 }
 
-.terra-glow {
-  box-shadow: 0 0 20px rgba(203, 179, 106, 0.15), 0 0 60px rgba(203, 179, 106, 0.05);
+.terra-subtle-shadow {
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(203, 179, 106, 0.08);
+}
+
+/* ═══════════════════════════════════════════════
+   Signature Animated Logo Loader Choreography
+   ═══════════════════════════════════════════════ */
+html[data-terra-intro="pending"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background-color: #0d0b07;
+  pointer-events: all;
+}
+
+html[data-terra-intro="pending"] body {
+  overflow: hidden;
+}
+
+@keyframes terra-intro-glow-kf {
+  0% {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  28% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.65;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+@keyframes terra-t-stroke-kf {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0.25;
+  }
+  16% {
+    opacity: 1;
+  }
+  74% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes terra-t-fill-opacity-kf {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes terra-t-fill-wipe-kf {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes terra-t-translate-kf {
+  0% {
+    transform: translateX(76.05px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+@keyframes terra-t-scale-kf {
+  0% {
+    transform: scale(1.82);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes terra-glyph-reveal-kf {
+  0% {
+    opacity: 0;
+    transform: translateY(2.8px);
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+@keyframes terra-glyph-wipe-kf {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes terra-logo-sheen-kf {
+  0% {
+    transform: translateX(-95px);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(225px);
+    opacity: 0;
+  }
+}
+
+.terra-intro-glow {
+  animation: terra-intro-glow-kf 2600ms var(--ease-terra) both;
+}
+
+.terra-t-stroke {
+  animation-name: terra-t-stroke-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
+}
+
+.terra-t-fill {
+  animation-name: terra-t-fill-opacity-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
+}
+
+.terra-t-fill-wipe {
+  transform-box: fill-box;
+  transform-origin: center top;
+  animation-name: terra-t-fill-wipe-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
+}
+
+.terra-t-translate {
+  animation-name: terra-t-translate-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
+}
+
+.terra-t-scale {
+  transform-origin: 0px 0px;
+  animation-name: terra-t-scale-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
+}
+
+.terra-glyph-reveal {
+  animation-name: terra-glyph-reveal-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
+}
+
+.terra-glyph-wipe {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation-name: terra-glyph-wipe-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
+}
+
+.terra-logo-sheen {
+  animation-name: terra-logo-sheen-kf;
+  animation-timing-function: var(--ease-terra);
+  animation-fill-mode: both;
 }

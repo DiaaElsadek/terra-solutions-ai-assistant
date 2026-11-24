@@ -116,7 +116,7 @@ export function SignUpForm() {
             Create Agent Account
           </h1>
           <p className="mt-1.5 text-sm text-foreground-muted">
-            Register locally to use Terra AI Assistant
+            Register to access Terra Solutions Assistant
           </p>
         </div>
 
@@ -126,7 +126,7 @@ export function SignUpForm() {
         >
           <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
           <span>
-            <strong className="text-terra-gold-light">Local Demo Storage:</strong>{" "}
+            <strong className="text-terra-gold-light">Local Browser Session:</strong>{" "}
             Account data is hashed (SHA-256) and stored on this device only. Plaintext passwords are never saved.
           </span>
         </div>

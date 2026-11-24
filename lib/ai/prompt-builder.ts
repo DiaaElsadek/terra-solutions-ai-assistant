@@ -7,6 +7,7 @@
 import type { Message, MessageSource } from "@/types";
 import type { KnowledgeRecord } from "@/types/knowledge";
 import type { RetrievalOutput } from "@/lib/knowledge/retriever";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 import type { ExternalSearchResult } from "@/lib/search/types";
 import { SYSTEM_PROMPT } from "@/constants/prompts";
 
@@ -70,8 +71,10 @@ export function buildContextPackage(
         r.clinicIds.length > 0
           ? `  - Linked Clinics: ${r.clinicIds.join(", ")}`
           : "";
+      const cellLink = buildGoogleSheetCellLink(r.source);
+      const cellInfo = r.source.cellRange ? ` | Cells: ${r.source.cellRange}` : "";
       const block = [
-        `[SourceId: ${r.source.sourceId || "source-001"} | File: ${r.source.file} | Sheet: ${r.source.sheet} | Rows: ${r.source.rows.join(", ")}]`,
+        `[SourceId: ${r.source.sourceId || "source-001"} | File: ${r.source.file} | Sheet: ${r.source.sheet} | Rows: ${r.source.rows.join(", ")}${cellInfo}]`,
         `recordId: ${r.id} | Type: ${r.recordType} | Category: ${r.category} | Score: ${item.score}`,
         `Name: ${r.name}`,
         attrLines,
@@ -96,8 +99,13 @@ export function buildContextPackage(
         type: "knowledge",
         file: r.source.file,
         sheet: r.source.sheet,
+        rawSheet: r.source.rawSheet,
         row: r.source.row,
         rows: r.source.rows,
+        cell: r.source.cell,
+        cellRange: r.source.cellRange,
+        url: cellLink.url,
+        hasSheetGid: cellLink.hasSheetGid,
         confidenceScore: item.score,
         matchReasons: item.matchReasons,
       });
