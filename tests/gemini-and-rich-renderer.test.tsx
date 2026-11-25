@@ -338,6 +338,9 @@ describe("AIResponseRenderer Safe UI & RTL/LTR Presentation", () => {
     assert.ok(html.includes('dir="rtl"'));
     assert.ok(html.includes("5000 AED"));
     assert.ok(html.includes("Knowlege.xlsx"));
+    assert.ok(html.includes("https://docs.google.com/spreadsheets/d/1hRfpnI6eU50BjdVu9lxB8vnNYGeH6MHE/edit"));
+    assert.ok(html.includes("gid=192726685"));
+    assert.ok(html.includes("#gid=192726685&amp;range=A1"));
     assert.ok(html.includes("—"), "Empty cell should display clean placeholder dash");
     assert.equal(html.includes("<script>"), false, "Must strip script tags cleanly");
     assert.ok(html.includes("bg-emerald-500/10"));

@@ -10,10 +10,12 @@ import {
   Globe,
   HelpCircle,
   ExternalLink,
+  Eye,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import type { Message, MessageSource } from "@/types";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -74,11 +76,17 @@ export function MessageBubble({
   const activeFetchIdRef = useRef(0);
 
   const openSourceInspector = async (src: MessageSource) => {
+    const freshLink =
+      src.type !== "external" ? buildGoogleSheetCellLink(src) : { url: undefined, hasSheetGid: false };
+    const enrichedSrc: MessageSource =
+      freshLink.url
+        ? { ...src, url: freshLink.url, hasSheetGid: freshLink.hasSheetGid }
+        : src;
     const reqId = ++activeFetchIdRef.current;
-    setSelectedSource(src);
+    setSelectedSource(enrichedSrc);
     setSheetContext(null);
 
-    if (src.type === "external" || !src.sheet || !src.row || src.row <= 0) {
+    if (enrichedSrc.type === "external" || !enrichedSrc.sheet || !enrichedSrc.row || enrichedSrc.row <= 0) {
       setLoadingSheet(false);
       return;
     }
@@ -86,11 +94,11 @@ export function MessageBubble({
     setLoadingSheet(true);
     try {
       const params = new URLSearchParams({
-        sheet: src.rawSheet || src.sheet,
-        row: String(src.row),
+        sheet: enrichedSrc.rawSheet || enrichedSrc.sheet,
+        row: String(enrichedSrc.row),
       });
-      if (src.cell) params.set("cell", src.cell);
-      if (src.cellRange) params.set("range", src.cellRange);
+      if (enrichedSrc.cell) params.set("cell", enrichedSrc.cell);
+      if (enrichedSrc.cellRange) params.set("range", enrichedSrc.cellRange);
 
       const res = await fetch(`/api/knowledge?${params.toString()}`);
       if (activeFetchIdRef.current !== reqId) return;
@@ -292,40 +300,68 @@ export function MessageBubble({
                     src.cellRange ||
                     src.cell ||
                     (src.row !== undefined && src.row > 0 ? `R${src.row}` : undefined);
+                  const freshLink =
+                    src.type !== "external"
+                      ? buildGoogleSheetCellLink(src)
+                      : { url: src.url, hasSheetGid: false };
+                  const targetUrl = freshLink.url || src.url;
                   return (
                     <div
                       key={`${src.category}-${src.title}-${idx}`}
-                      className="inline-flex max-w-full items-center rounded-md bg-background-secondary border border-border hover:border-primary/50 transition-colors overflow-hidden"
+                      className="inline-flex max-w-full items-center rounded-md bg-background-secondary border border-border hover:border-primary/60 transition-colors overflow-hidden"
                     >
-                      <button
-                        type="button"
-                        onClick={() => void openSourceInspector(src)}
-                        title="Inspect highlighted Excel row, cell, and sheet context"
-                        className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
-                      >
-                        <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
-                          {src.sheet || src.category}
-                        </span>
-                        <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
-                          {src.title}
-                        </span>
-                        {cellBadge && (
-                          <span className="shrink-0 text-[10px] font-mono text-primary/90">
-                            {cellBadge}
-                          </span>
-                        )}
-                      </button>
-                      {src.url && (
+                      {targetUrl ? (
                         <a
-                          href={src.url}
+                          href={targetUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          title={`Move to ${cellBadge || "row"} in Google Sheets`}
+                          title={`Open ${src.sheet || src.category} at ${cellBadge || "row"} in Google Sheets`}
                           aria-label={`Open ${src.title} (${cellBadge || "row"}) in Google Sheets`}
-                          className="shrink-0 inline-flex items-center justify-center px-2 py-1 border-s border-border/70 text-primary hover:bg-primary/15 transition-colors"
+                          className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors"
                         >
-                          <ExternalLink className="h-3 w-3" />
+                          <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
+                            {src.sheet || src.category}
+                          </span>
+                          <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
+                            {src.title}
+                          </span>
+                          {cellBadge && (
+                            <span className="shrink-0 text-[10px] font-mono text-primary/90">
+                              {cellBadge}
+                            </span>
+                          )}
+                          <ExternalLink className="h-3 w-3 shrink-0 text-primary/80" />
                         </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void openSourceInspector(src)}
+                          title="Inspect source record details"
+                          className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
+                        >
+                          <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
+                            {src.sheet || src.category}
+                          </span>
+                          <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
+                            {src.title}
+                          </span>
+                          {cellBadge && (
+                            <span className="shrink-0 text-[10px] font-mono text-primary/90">
+                              {cellBadge}
+                            </span>
+                          )}
+                        </button>
+                      )}
+                      {src.type !== "external" && src.row !== undefined && src.row > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => void openSourceInspector(src)}
+                          title="Preview highlighted Excel row inside Terra Assistant"
+                          aria-label={`Preview ${src.title} (${cellBadge || "row"})`}
+                          className="shrink-0 inline-flex items-center justify-center px-2 py-1 border-s border-border/70 text-foreground-muted hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                        >
+                          <Eye className="h-3 w-3" />
+                        </button>
                       )}
                     </div>
                   );
