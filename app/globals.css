@@ -48,6 +48,9 @@
   --card: #161209;
   --card-hover: #221C10;
   --card-foreground: #FFFFFF;
+  --surface-elevated: #141009;
+  --surface-inset: #100D07;
+  --border-subtle: rgba(203, 179, 106, 0.1);
 
   --sidebar: #0B0905;
   --sidebar-foreground: #CFC5AE;
@@ -243,6 +246,18 @@ body {
 
 .terra-subtle-shadow {
   box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(203, 179, 106, 0.08);
+}
+
+.terra-panel {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border);
+  box-shadow:
+    inset 0 1px 0 rgba(234, 224, 195, 0.045),
+    0 12px 32px -14px rgba(0, 0, 0, 0.65);
+}
+
+.terra-tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ═══════════════════════════════════════════════

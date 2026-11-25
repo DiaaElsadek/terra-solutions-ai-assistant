@@ -13,6 +13,13 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { sanitizeRichText, type InlineSemanticTag } from "@/lib/ai/response-schema";
+import {
+  detectTextDirection,
+  dirAlignClass,
+  splitBilingualLines,
+  splitInlineBidiRuns,
+  type TextDirection,
+} from "@/lib/i18n/bidi";
 
 const EMOJI_TOKEN_REGEX =
   /(✅|❌|✔️|✔|⚠️|⚠|🔸|🔹|✨|📍|⏳|⏰|📋|📂|💡)/g;
@@ -132,9 +139,35 @@ function renderEmojiAsLucide(token: string, key: string | number): ReactNode {
   }
 }
 
-function renderEmojiOnly(text: string, keyPrefix: string): ReactNode {
+function renderPlainWithBidi(
+  text: string,
+  keyPrefix: string,
+  parentDir: TextDirection
+): ReactNode {
+  if (parentDir !== "rtl") return text;
+  const runs = splitInlineBidiRuns(text, parentDir);
+  if (runs.length === 1 && !runs[0].isolateLtr) return text;
+
+  return runs.map((run, rIdx) =>
+    run.isolateLtr ? (
+      <bdi key={`${keyPrefix}-bdi-${rIdx}`} dir="ltr">
+        {run.text}
+      </bdi>
+    ) : (
+      <Fragment key={`${keyPrefix}-txt-${rIdx}`}>{run.text}</Fragment>
+    )
+  );
+}
+
+function renderEmojiOnly(
+  text: string,
+  keyPrefix: string,
+  parentDir: TextDirection = "ltr"
+): ReactNode {
   const parts = text.split(EMOJI_TOKEN_REGEX);
-  if (parts.length === 1) return text;
+  if (parts.length === 1) {
+    return renderPlainWithBidi(text, keyPrefix, parentDir);
+  }
 
   return parts.map((part, idx) => {
     if (!part) return null;
@@ -142,30 +175,43 @@ function renderEmojiOnly(text: string, keyPrefix: string): ReactNode {
       EMOJI_TOKEN_REGEX.lastIndex = 0;
       return renderEmojiAsLucide(part, `${keyPrefix}-${idx}`);
     }
-    return <Fragment key={`${keyPrefix}-${idx}`}>{part}</Fragment>;
+    return (
+      <Fragment key={`${keyPrefix}-${idx}`}>
+        {renderPlainWithBidi(part, `${keyPrefix}-b-${idx}`, parentDir)}
+      </Fragment>
+    );
   });
 }
 
-function renderBoldAndEmojis(text: string, keyPrefix: string): ReactNode {
+function renderBoldAndEmojis(
+  text: string,
+  keyPrefix: string,
+  parentDir: TextDirection = "ltr"
+): ReactNode {
   if (!text) return text;
   const boldParts = text.split(/(\*\*[^*\n]+\*\*)/g);
   if (boldParts.length === 1) {
-    return renderEmojiOnly(text, `${keyPrefix}-e`);
+    return renderEmojiOnly(text, `${keyPrefix}-e`, parentDir);
   }
 
   return boldParts.map((segment, idx) => {
     if (!segment) return null;
     if (segment.startsWith("**") && segment.endsWith("**") && segment.length > 4) {
       const inner = segment.slice(2, -2);
+      const innerDir = detectTextDirection(inner, parentDir);
       return (
-        <strong key={`${keyPrefix}-b-${idx}`} className="font-semibold text-foreground">
-          {renderEmojiOnly(inner, `${keyPrefix}-bi-${idx}`)}
+        <strong
+          key={`${keyPrefix}-b-${idx}`}
+          dir={innerDir}
+          className="font-semibold text-foreground"
+        >
+          {renderEmojiOnly(inner, `${keyPrefix}-bi-${idx}`, innerDir)}
         </strong>
       );
     }
     return (
       <Fragment key={`${keyPrefix}-t-${idx}`}>
-        {renderEmojiOnly(segment, `${keyPrefix}-ti-${idx}`)}
+        {renderEmojiOnly(segment, `${keyPrefix}-ti-${idx}`, parentDir)}
       </Fragment>
     );
   });
@@ -179,15 +225,19 @@ const INLINE_SEMANTIC_EXACT_RE =
 /**
  * Safely transforms whitelisted semantic highlight tags (`<important>`, `<warning>`,
  * `<success>`, `<danger>`, `<info>`, `<muted>`), `**bold**` runs, and dataset emojis
- * into controlled React nodes. Unknown/malformed tags degrade cleanly to plain text.
+ * into controlled React nodes with bidirectional isolation for mixed Arabic/English runs.
  */
-export function renderTextWithLucide(text: string): ReactNode {
+export function renderTextWithLucide(
+  text: string,
+  parentDir?: TextDirection
+): ReactNode {
   if (!text) return text;
   const safeText = text.includes("<") ? sanitizeRichText(text) : text;
+  const resolvedDir = parentDir ?? detectTextDirection(safeText, "ltr");
   const parts = safeText.split(INLINE_SEMANTIC_SPLIT_RE);
 
   if (parts.length === 1) {
-    return renderBoldAndEmojis(safeText, "p");
+    return renderBoldAndEmojis(safeText, "p", resolvedDir);
   }
 
   return parts.map((part, idx) => {
@@ -196,34 +246,71 @@ export function renderTextWithLucide(text: string): ReactNode {
     if (match) {
       const tag = match[1].toLowerCase() as InlineSemanticTag;
       const inner = match[2];
+      const innerDir = detectTextDirection(inner, resolvedDir);
       return (
-        <span key={`sem-${idx}`} className={SEMANTIC_SPAN_STYLES[tag]}>
-          {renderBoldAndEmojis(inner, `semi-${idx}`)}
+        <span key={`sem-${idx}`} dir={innerDir} className={SEMANTIC_SPAN_STYLES[tag]}>
+          {renderBoldAndEmojis(inner, `semi-${idx}`, innerDir)}
         </span>
       );
     }
     return (
       <Fragment key={`seg-${idx}`}>
-        {renderBoldAndEmojis(part, `seg-${idx}`)}
+        {renderBoldAndEmojis(part, `seg-${idx}`, resolvedDir)}
       </Fragment>
     );
   });
 }
 
-/** Recursively transform React children so string nodes render Lucide icons and semantic tags. */
-export function renderNodesWithLucide(children: ReactNode): ReactNode {
+/** Recursively transform React children so string nodes render Lucide icons, semantic tags, and bidi runs. */
+export function renderNodesWithLucide(
+  children: ReactNode,
+  parentDir: TextDirection = "ltr"
+): ReactNode {
   return Children.map(children, (child) => {
     if (typeof child === "string") {
-      return renderTextWithLucide(child);
+      return renderTextWithLucide(child, parentDir);
     }
     if (isValidElement<{ children?: ReactNode }>(child) && child.props.children) {
       return cloneElement(child, {
         ...child.props,
-        children: renderNodesWithLucide(child.props.children),
+        children: renderNodesWithLucide(child.props.children, parentDir),
       });
     }
     return child;
   });
+}
+
+/**
+ * Renders multi-line or bilingual strings with explicit per-line direction and alignment
+ * (`dir="rtl" text-right` for Arabic lines, `dir="ltr" text-left` for English lines).
+ */
+export function BidiText({
+  text,
+  fallbackDir = "ltr",
+  lineClassName,
+}: {
+  text: string;
+  fallbackDir?: TextDirection;
+  lineClassName?: string;
+}) {
+  const lines = splitBilingualLines(text, fallbackDir);
+  if (lines.length === 0) return null;
+
+  return (
+    <>
+      {lines.map((line, idx) => (
+        <span
+          key={idx}
+          dir={line.dir}
+          className={["block", dirAlignClass(line.dir), lineClassName]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {renderTextWithLucide(line.text, line.dir)}
+        </span>
+      ))}
+    </>
+  );
 }
 
 /** Renders rich sanitized text cleanly using inline React nodes and Lucide icons. */

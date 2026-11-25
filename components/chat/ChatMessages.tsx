@@ -16,8 +16,8 @@ interface ChatMessagesProps {
 }
 
 /**
- * Scrollable conversation area with automatic scroll-to-bottom
- * and empty-state prompt suggestions.
+ * Scrollable conversation area with viewport-safe centering (`my-auto`),
+ * smooth scroll-to-bottom updates, and branded welcome experience.
  */
 export function ChatMessages({
   messages,
@@ -32,7 +32,6 @@ export function ChatMessages({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length, isGenerating]);
 
-  // Find index of the last assistant message for retry action
   let lastAssistantIdx = -1;
   for (let i = messages.length - 1; i >= 0; i--) {
     if (messages[i].role === "assistant") {
@@ -43,29 +42,29 @@ export function ChatMessages({
 
   if (messages.length === 0 && !isGenerating) {
     return (
-      <div className="flex-1 overflow-y-auto px-4 py-8 sm:px-6 flex flex-col items-center justify-center">
-        <div className="w-full max-w-3xl flex flex-col items-center text-center terra-animate-in">
-          <TerraMark size="lg" variant="tile" className="mb-4" />
+      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 flex flex-col">
+        <div className="my-auto mx-auto w-full max-w-3xl flex flex-col items-center text-center terra-animate-in">
+          <TerraMark size="lg" variant="tile" className="mb-3.5" />
 
           <span className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/8 px-3 py-0.5 text-[11px] font-medium text-primary">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-            Terra Solutions Assistant
+            Terra Solutions Assistant · Internal Knowledge Hub
           </span>
 
           <h2
             dir="rtl"
-            className="font-display text-2xl sm:text-[28px] font-bold text-foreground tracking-tight leading-snug"
+            className="font-display text-xl sm:text-[26px] font-bold text-foreground tracking-tight leading-snug"
           >
-            أهلًا بيك، إزاي أقدر أساعدك النهارده؟
+            أهلًا بيك، اسأل عن أي خدمة أو جهاز أو سعر
           </h2>
           <p
             dir="rtl"
-            className="mt-2 text-sm text-terra-gold-light/90 max-w-xl leading-relaxed"
+            className="mt-1.5 text-[13.5px] sm:text-sm text-terra-gold-light/90 max-w-xl leading-relaxed"
           >
-            اسأل عن الخدمات والأسعار والعروض والأجهزة والعيادات، وهساعدك توصل للمعلومات المتاحة بسرعة.
+            استرجاع فوري للأسعار الموثقة، العروض، مواصفات الأجهزة، وقواعد الحمل والرضاعة أثناء المكالمة.
           </p>
-          <p className="mt-1.5 mb-7 text-xs text-foreground-muted/85 max-w-lg leading-relaxed">
-            Ask in Arabic or English for verified operational details, safety guidance, and comparisons.
+          <p className="mt-1 mb-6 text-xs text-foreground-muted/85 max-w-lg leading-relaxed">
+            Ask naturally in Arabic or English — every answer traces back to Terra&apos;s verified sheets.
           </p>
 
           <SuggestedPrompts onSelect={onSelectPrompt} disabled={isGenerating} />
@@ -81,7 +80,7 @@ export function ChatMessages({
       aria-live="polite"
       aria-label="Conversation messages"
     >
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-6 pb-2">
         {messages.map((msg, idx) => (
           <MessageBubble
             key={msg.id}
@@ -97,4 +96,3 @@ export function ChatMessages({
     </div>
   );
 }
-

@@ -8,6 +8,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { stripSemanticTags } from "@/lib/ai/response-schema";
+import { detectTextDirection, dirAlignClass } from "@/lib/i18n/bidi";
+import { BidiText } from "@/components/ui/RichText";
 import {
   SheetCellPreview,
   type SheetContextData,
@@ -117,14 +119,19 @@ export function MessageBubble({
   };
 
   if (message.role === "user") {
+    const userDir = detectTextDirection(message.content, "ltr");
     return (
       <div className="flex items-start justify-end gap-3 max-w-3xl ms-auto w-full terra-animate-in">
         <div className="flex flex-col items-end gap-1 max-w-[85%] sm:max-w-[74%]">
           <div
-            dir="auto"
-            className="rounded-2xl rounded-te-sm border border-primary/25 bg-[#231B0E] text-terra-gold-light px-4 py-2.5 text-sm font-medium leading-relaxed whitespace-pre-wrap break-words terra-subtle-shadow"
+            dir={userDir}
+            className={`rounded-2xl rounded-te-sm border border-primary/25 bg-[#231B0E] text-terra-gold-light px-4 py-2.5 text-sm font-medium leading-relaxed whitespace-pre-wrap break-words terra-subtle-shadow ${dirAlignClass(userDir)}`}
           >
-            {message.content}
+            {message.content.includes("\n") ? (
+              <BidiText text={message.content} fallbackDir={userDir} />
+            ) : (
+              message.content
+            )}
           </div>
           <span
             suppressHydrationWarning
@@ -139,6 +146,9 @@ export function MessageBubble({
   }
 
   if (message.status === "error") {
+    const errorText =
+      message.errorMessage ||
+      "Something went wrong while preparing the response. Please try again. / حصلت مشكلة أثناء تجهيز الإجابة. حاول مرة تانية.";
     return (
       <div className="flex items-start gap-3.5 max-w-3xl w-full terra-animate-in">
         <Avatar variant="assistant" size="md" />
@@ -147,10 +157,9 @@ export function MessageBubble({
             <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>Unable to complete response</span>
           </div>
-          <p dir="auto" className="text-xs text-red-200/85 leading-relaxed">
-            {message.errorMessage ||
-              "Something went wrong while preparing the response. Please try again. / حصلت مشكلة أثناء تجهيز الإجابة. حاول مرة تانية."}
-          </p>
+          <div className="text-xs text-red-200/85 leading-relaxed space-y-1">
+            <BidiText text={errorText} fallbackDir="ltr" />
+          </div>
           {onRetry && (
             <Button
               variant="outline"
@@ -182,6 +191,10 @@ export function MessageBubble({
         <MessageHeader
           confidenceLevel={message.confidenceLevel}
           requiresClarification={message.requiresClarification}
+          isFallbackActive={Boolean(
+            message.structured?.meta?.provider === "local_fallback" &&
+              message.structured?.meta?.fallbackReason
+          )}
           isStreaming={message.status === "streaming"}
           formattedTime={formatTime(message.timestamp)}
           hideBadgeOnPlain={isSimpleConversational}
@@ -228,16 +241,17 @@ export function MessageBubble({
 
         {/* Neutral advisories (source conflicts, unavailability notices) */}
         {message.warnings && message.warnings.length > 0 && (
-          <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.07] px-3.5 py-2.5 space-y-1">
+          <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.07] px-3.5 py-2.5 space-y-1.5">
             {message.warnings.map((w, idx) => (
-              <p
+              <div
                 key={idx}
-                dir="auto"
                 className="text-[11.5px] text-amber-200/90 flex items-start gap-2 leading-relaxed"
               >
                 <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
-                <span>{w}</span>
-              </p>
+                <div className="flex-1 min-w-0 space-y-0.5">
+                  <BidiText text={w} fallbackDir="ltr" />
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -249,8 +263,7 @@ export function MessageBubble({
           onInspectSource={(src) => void openSourceInspector(src)}
         />
 
-<<<<<<< HEAD
-        {/* Subtle Utility Actions */}
+        {/* Restrained Action Bar */}
         <MessageActions
           onCopyResponse={() => void handleCopy()}
           copied={copied}
@@ -259,139 +272,6 @@ export function MessageBubble({
           isStreaming={message.status === "streaming"}
           onRetry={onRetry}
         />
-=======
-            {sourcesExpanded && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                {message.sources.map((src, idx) => {
-                  const cellBadge =
-                    src.cellRange ||
-                    src.cell ||
-                    (src.row !== undefined && src.row > 0 ? `R${src.row}` : undefined);
-                  const freshLink =
-                    src.type !== "external"
-                      ? buildGoogleSheetCellLink(src)
-                      : { url: src.url, hasSheetGid: false };
-                  const targetUrl = freshLink.url || src.url;
-                  return (
-                    <div
-                      key={`${src.category}-${src.title}-${idx}`}
-                      className="inline-flex max-w-full items-center rounded-md bg-background-secondary border border-border hover:border-primary/60 transition-colors overflow-hidden"
-                    >
-                      {targetUrl ? (
-                        <a
-                          href={targetUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title={`Open ${src.sheet || src.category} at ${cellBadge || "row"} in Google Sheets`}
-                          aria-label={`Open ${src.title} (${cellBadge || "row"}) in Google Sheets`}
-                          className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors"
-                        >
-                          <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
-                            {src.sheet || src.category}
-                          </span>
-                          <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
-                            {src.title}
-                          </span>
-                          {cellBadge && (
-                            <span className="shrink-0 text-[10px] font-mono text-primary/90">
-                              {cellBadge}
-                            </span>
-                          )}
-                          <ExternalLink className="h-3 w-3 shrink-0 text-primary/80" />
-                        </a>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => void openSourceInspector(src)}
-                          title="Inspect source record details"
-                          className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
-                        >
-                          <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
-                            {src.sheet || src.category}
-                          </span>
-                          <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
-                            {src.title}
-                          </span>
-                          {cellBadge && (
-                            <span className="shrink-0 text-[10px] font-mono text-primary/90">
-                              {cellBadge}
-                            </span>
-                          )}
-                        </button>
-                      )}
-                      {src.type !== "external" && src.row !== undefined && src.row > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => void openSourceInspector(src)}
-                          title="Preview highlighted Excel row inside Terra Assistant"
-                          aria-label={`Preview ${src.title} (${cellBadge || "row"})`}
-                          className="shrink-0 inline-flex items-center justify-center px-2 py-1 border-s border-border/70 text-foreground-muted hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
-                        >
-                          <Eye className="h-3 w-3" />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Secondary External Web Sources */}
-        {message.externalSources && message.externalSources.length > 0 && (
-          <div className="pt-2 border-t border-border/40 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-300 me-1">
-              <Globe className="h-3 w-3" />
-              External Reference (Non-Policy):
-            </span>
-            {message.externalSources.map((src, idx) => (
-              <button
-                key={`ext-${idx}`}
-                type="button"
-                onClick={() => void openSourceInspector(src)}
-                className="inline-flex items-center gap-1 rounded-md bg-sky-500/10 border border-sky-500/30 hover:border-sky-400 px-2 py-0.5 text-[11px] text-sky-200 transition-colors cursor-pointer"
-              >
-                <span className="truncate max-w-[180px]">{src.title}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Restrained Action Bar */}
-        <div className="flex items-center gap-1 pt-0.5">
-          <button
-            type="button"
-            onClick={handleCopy}
-            aria-label="Copy full answer"
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
-          >
-            {copied ? (
-              <>
-                <Check className="h-3 w-3 text-emerald-400" />
-                <span className="text-emerald-400">Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="h-3 w-3" />
-                <span>Copy response</span>
-              </>
-            )}
-          </button>
-
-          {isLastAssistant && onRetry && message.status !== "streaming" && (
-            <button
-              type="button"
-              onClick={onRetry}
-              aria-label="Regenerate response"
-              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
-            >
-              <RotateCcw className="h-3 w-3" />
-              <span>Retry</span>
-            </button>
-          )}
-        </div>
->>>>>>> features
       </div>
 
       {/* Source Provenance & Live Spreadsheet Row Modal */}

@@ -10,8 +10,13 @@ import {
 } from "@/lib/ai/response-schema";
 import { knowledgeRetriever } from "@/lib/knowledge/retriever";
 import { AIResponseRenderer } from "@/components/chat/AIResponseRenderer";
+import { MarkdownRenderer } from "@/components/chat/MarkdownRenderer";
+import { InformationCard } from "@/components/chat/response/InformationCard";
+import { ResponseTable } from "@/components/chat/response/ResponseTable";
+import { ResponseMetricGroup } from "@/components/chat/response/ResponseMetric";
 import { TerraMark } from "@/components/branding/TerraMark";
 import { TERRA_T_FULL_PATH } from "@/components/branding/terra-logo-geometry";
+import { detectTextDirection, splitBilingualLines } from "@/lib/i18n/bidi";
 
 describe("TerraMark Brand Identity Component", () => {
   it("renders exact original Terra T SVG path across sizes and container variants", () => {
@@ -108,5 +113,171 @@ describe("Safe Semantic Inline Tokens & XSS Guard", () => {
     assert.ok(html.includes("sm:grid-cols-2"));
     assert.ok(html.includes("border-s-primary"));
     assert.ok(html.includes("Copy table"));
+  });
+
+  it("renders attribute specifications as InformationCard grids and sanitizes Markdown links safely", () => {
+    const richBrief: RichAIResponse = {
+      schemaVersion: "1.0",
+      language: "en",
+      status: "success",
+      answer: {
+        summary: "Verified service briefing",
+        blocks: [
+          { type: "badge", label: "Verified Record", tone: "success" },
+          {
+            type: "table",
+            title: "Clinical & Service Profile",
+            columns: [
+              { key: "field", label: "Attribute" },
+              { key: "value", label: "Verified Value" },
+            ],
+            rows: [
+              { field: "Allowed During Pregnancy", value: "Not allowed during pregnancy" },
+              { field: "Verified Price", value: "5000 AED" },
+            ],
+          },
+        ],
+      },
+      sources: [],
+      meta: { provider: "local_fallback", model: "terra", grounded: true },
+    };
+
+    const cardHtml = renderToStaticMarkup(
+      React.createElement(AIResponseRenderer, { response: richBrief })
+    );
+    assert.ok(cardHtml.includes("<dl"));
+    assert.ok(cardHtml.includes("text-red-300"));
+    assert.ok(cardHtml.includes("text-emerald-300"));
+
+    const mdHtml = renderToStaticMarkup(
+      React.createElement(MarkdownRenderer, {
+        content:
+          "See [Verified Sheet](https://docs.google.com/spreadsheets/d/1hRfpnI6eU50BjdVu9lxB8vnNYGeH6MHE/edit) or [Unsafe](javascript:alert(1)).",
+      })
+    );
+    assert.ok(mdHtml.includes("https://docs.google.com/spreadsheets/d/1hRfpnI6eU50BjdVu9lxB8vnNYGeH6MHE/edit"));
+    assert.equal(mdHtml.includes("javascript:"), false);
+  });
+
+  it("aligns Arabic blocks right (RTL) and English blocks left (LTR) in mixed bilingual responses", () => {
+    assert.equal(
+      detectTextDirection("Candela GentleMax Pro Plus جهاز ليزر لإزالة الشعر"),
+      "rtl"
+    );
+    assert.equal(
+      detectTextDirection("Allergan Botox 100 unit: يستخدم لتقليل التجاعيد"),
+      "rtl"
+    );
+    assert.equal(
+      detectTextDirection("Candela dual-wavelength laser hair removal device"),
+      "ltr"
+    );
+    assert.equal(
+      detectTextDirection("Laser hair removal (إزالة الشعر بالليزر)"),
+      "ltr"
+    );
+
+    const dualLines = splitBilingualLines(
+      "السعر غير متوفر حاليًا في ملفات المعرفة. / Exact pricing is not listed currently."
+    );
+    assert.equal(dualLines.length, 2);
+    assert.equal(dualLines[0].dir, "rtl");
+    assert.equal(dualLines[1].dir, "ltr");
+
+    const mixedRich: RichAIResponse = {
+      schemaVersion: "1.0",
+      language: "mixed",
+      status: "success",
+      answer: {
+        summary: "تفاصيل الخدمة بالعربي\nService summary in English",
+        blocks: [
+          { type: "heading", level: 2, text: "تفاصيل جهاز Candela GentleMax Pro Plus" },
+          {
+            type: "paragraph",
+            text: "Candela GentleMax Pro Plus جهاز ليزر متطور لإزالة الشعر.\nAvailable across verified Terra branches.",
+          },
+          {
+            type: "list",
+            style: "bullet",
+            items: [
+              "مناسب للبشرة الحساسة وتقدر تتصل بالفرع للتأكيد.",
+              "Sessions are scheduled based on skin assessment.",
+            ],
+          },
+        ],
+      },
+      sources: [],
+      meta: { provider: "gemini", model: "terra", grounded: true },
+    };
+
+    const richHtml = renderToStaticMarkup(
+      React.createElement(AIResponseRenderer, { response: mixedRich })
+    );
+    assert.ok(richHtml.includes('dir="rtl"'));
+    assert.ok(richHtml.includes('text-right'));
+    assert.ok(richHtml.includes('dir="ltr"'));
+    assert.ok(richHtml.includes('text-left'));
+    assert.ok(richHtml.includes('<bdi dir="ltr">Candela GentleMax Pro Plus</bdi>'));
+
+    const cardHtml = renderToStaticMarkup(
+      React.createElement(InformationCard, {
+        title: "Service Profile / ملف الخدمة",
+        rows: [
+          { field: "Duration", value: "من ٣٠ إلى ٤٥ دقيقة تقريبًا" },
+          { field: "الملاحظات", value: "Consult physician before booking" },
+        ],
+      })
+    );
+    assert.ok(cardHtml.includes('dir="ltr"'));
+    assert.ok(cardHtml.includes('dir="rtl"'));
+    assert.ok(cardHtml.includes('text-right'));
+    assert.ok(cardHtml.includes('text-left'));
+
+    const tableHtml = renderToStaticMarkup(
+      React.createElement(ResponseTable, {
+        cols: [
+          { key: "name", label: "Service" },
+          { key: "notes", label: "الملاحظات" },
+        ],
+        rows: [
+          {
+            name: "Aptos Cat Eye",
+            notes: "مناسب لرفع الحاجب بدون جراحة",
+          },
+        ],
+      })
+    );
+    assert.ok(tableHtml.includes('<th dir="ltr"'));
+    assert.ok(tableHtml.includes('<th dir="rtl"'));
+    assert.ok(tableHtml.includes('<td dir="ltr"'));
+    assert.ok(tableHtml.includes('<td dir="rtl"'));
+
+    const metricHtml = renderToStaticMarkup(
+      React.createElement(ResponseMetricGroup, {
+        items: [{ label: "سعر الجلسة الواحدة", value: "5000 AED" }],
+      })
+    );
+    assert.ok(metricHtml.includes('dir="rtl"'));
+    assert.ok(metricHtml.includes('<bdi dir="ltr"'));
+
+    const mdMixedHtml = renderToStaticMarkup(
+      React.createElement(MarkdownRenderer, {
+        content: [
+          "### Candela GentleMax Pro Plus للعيادات",
+          "",
+          "يستخدم جهاز Candela GentleMax Pro Plus لإزالة الشعر بأمان.",
+          "",
+          "Clinical consultation is required before the first session.",
+          "",
+          "- الجلسة تستغرق ٣٠ دقيقة",
+          "- Suitable for approved treatment areas",
+        ].join("\n"),
+      })
+    );
+    assert.ok(mdMixedHtml.includes('dir="rtl"'));
+    assert.ok(mdMixedHtml.includes('text-right'));
+    assert.ok(mdMixedHtml.includes('dir="ltr"'));
+    assert.ok(mdMixedHtml.includes('text-left'));
+    assert.ok(mdMixedHtml.includes('<bdi dir="ltr">Candela GentleMax Pro Plus</bdi>'));
   });
 });

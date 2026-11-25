@@ -1,6 +1,6 @@
 # Terra Solutions AI Knowledge Evaluation Report
 
-**Generated:** 2026-11-25T21:17:44.801Z
+**Generated:** 2026-11-25T21:58:54.855Z
 **Evaluation Set:** `evaluation/questions.json` (118 bilingual, typo, comparison, follow-up, and abstention cases)
 
 ## Summary Metrics

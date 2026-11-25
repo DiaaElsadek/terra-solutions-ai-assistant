@@ -82,7 +82,7 @@ export function FeaturesSection() {
             return (
               <div
                 key={cap.title}
-                className="rounded-xl border border-border/80 bg-background-secondary/75 p-5 space-y-3 hover:border-border-hover transition-colors terra-subtle-shadow"
+                className="terra-panel rounded-xl p-5 space-y-3 hover:border-border-hover transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">

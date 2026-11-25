@@ -71,6 +71,7 @@ describe("Canonical Knowledge Dataset & Pipeline Integrity", () => {
         );
         assert.ok(direct.url?.includes("#gid="));
         assert.ok(direct.url?.includes("&range="));
+        assert.equal(direct.url?.includes("%3A"), false, `Expected unencoded range colon on ${r.id}`);
       }
 
       process.env.GOOGLE_SHEETS_GIDS = JSON.stringify({ Laser: "123456789" });

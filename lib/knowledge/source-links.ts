@@ -128,20 +128,23 @@ export function buildGoogleSheetCellLink(source: {
     };
   }
 
-  const encodedRange = encodeURIComponent(range);
+  const safeRange = range.replace(/[^A-Za-z0-9:]/g, "");
+  if (!safeRange) {
+    return { url: undefined, hasSheetGid: false };
+  }
 
   if (gid) {
     const encodedGid = encodeURIComponent(gid);
     return {
-      url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?${baseQuery}&gid=${encodedGid}&range=${encodedRange}#gid=${encodedGid}&range=${encodedRange}`,
+      url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?${baseQuery}&gid=${encodedGid}&range=${safeRange}#gid=${encodedGid}&range=${safeRange}`,
       hasSheetGid: true,
-      range,
+      range: safeRange,
     };
   }
 
   return {
-    url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?${baseQuery}&range=${encodedRange}#range=${encodedRange}`,
+    url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?${baseQuery}&range=${safeRange}#range=${safeRange}`,
     hasSheetGid: false,
-    range,
+    range: safeRange,
   };
 }

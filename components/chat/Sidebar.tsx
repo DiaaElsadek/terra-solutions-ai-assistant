@@ -8,6 +8,7 @@ import {
   LogOut,
   Trash2,
   PanelLeftClose,
+  PanelLeftOpen,
   Home,
 } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +16,7 @@ import { clsx } from "clsx";
 import type { AuthUser } from "@/types";
 import type { DateGroupedConversations } from "@/hooks/useConversations";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { TerraMark } from "@/components/branding/TerraMark";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { Modal } from "@/components/ui/Modal";
@@ -214,14 +216,77 @@ export function Sidebar({
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar (expanded full drawer or slim architectural rail when collapsed) */}
       <div
         className={clsx(
-          "hidden lg:block h-full shrink-0 transition-all duration-200 overflow-hidden",
-          isCollapsed ? "w-0" : "w-72"
+          "hidden lg:block h-full shrink-0 transition-[width] duration-200 ease-out overflow-hidden",
+          isCollapsed ? "w-14" : "w-72"
         )}
       >
-        {!isCollapsed && sidebarContent}
+        {isCollapsed ? (
+          <aside
+            aria-label="Collapsed workspace navigation"
+            className="flex h-full w-14 flex-col items-center justify-between border-r border-border bg-sidebar py-3"
+          >
+            <div className="flex flex-col items-center gap-2.5">
+              <Link
+                href={ROUTES.home}
+                title="Terra Solutions Home"
+                className="rounded-lg focus-visible:outline-2 focus-visible:outline-ring"
+              >
+                <TerraMark size="xs" variant="badge" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={onToggleCollapse}
+                aria-label="Expand sidebar"
+                title="Expand sidebar"
+                className="p-2 rounded-lg text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
+              >
+                <PanelLeftOpen className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleNewChat}
+                aria-label="New conversation"
+                title="New Chat (Ctrl+N)"
+                className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary-hover transition-colors shadow-sm cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onToggleCollapse();
+                  setTimeout(() => effectiveSearchRef.current?.focus(), 60);
+                }}
+                aria-label="Search conversations"
+                title="Search chats (/)"
+                className="p-2 rounded-lg text-foreground-muted hover:text-primary hover:bg-background-tertiary transition-colors cursor-pointer"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={onSignOut}
+                aria-label="Sign out"
+                title="Sign out"
+                className="p-2 rounded-lg text-foreground-muted hover:text-primary hover:bg-background-tertiary transition-colors cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+              <Avatar name={user?.fullName || "Agent"} variant="user" size="sm" />
+            </div>
+          </aside>
+        ) : (
+          sidebarContent
+        )}
       </div>
 
       {/* Mobile / Tablet slide-over drawer */}
@@ -232,7 +297,7 @@ export function Sidebar({
             onClick={onCloseMobile}
             aria-hidden="true"
           />
-          <div className="relative z-10 h-full">{sidebarContent}</div>
+          <div className="relative z-10 h-full max-w-[85vw]">{sidebarContent}</div>
         </div>
       )}
 

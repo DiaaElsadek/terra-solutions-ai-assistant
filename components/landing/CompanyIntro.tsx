@@ -69,7 +69,7 @@ export function CompanyIntro() {
           </div>
 
           {/* Right column: Verified clinics consolidated from clinics.json + Excel */}
-          <div className="rounded-2xl border border-border bg-background-secondary p-6 sm:p-8">
+          <div className="terra-panel rounded-2xl p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 border border-primary/30 text-primary">
                 <Building2 className="h-5 w-5" />

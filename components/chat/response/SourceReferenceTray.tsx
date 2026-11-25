@@ -5,10 +5,12 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Eye,
   FileSpreadsheet,
   Globe,
 } from "lucide-react";
 import type { MessageSource } from "@/types";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 
 interface SourceReferenceTrayProps {
   sources?: MessageSource[];
@@ -25,7 +27,9 @@ export function SourceReferenceTray({
   externalSources,
   onInspectSource,
 }: SourceReferenceTrayProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(
+    Boolean(sources && sources.length > 0 && sources.length <= 3)
+  );
 
   const hasCompany = Boolean(sources && sources.length > 0);
   const hasExternal = Boolean(externalSources && externalSources.length > 0);
@@ -71,41 +75,69 @@ export function SourceReferenceTray({
                   src.cellRange ||
                   src.cell ||
                   (src.row !== undefined && src.row > 0 ? `R${src.row}` : undefined);
+                const freshLink =
+                  src.type !== "external"
+                    ? buildGoogleSheetCellLink(src)
+                    : { url: src.url, hasSheetGid: false };
+                const targetUrl = freshLink.url || src.url;
 
                 return (
                   <div
                     key={`${src.category}-${src.title}-${idx}`}
-                    className="inline-flex max-w-full items-center rounded-lg bg-background-secondary border border-border hover:border-primary/50 transition-colors overflow-hidden"
+                    className="inline-flex max-w-full items-center rounded-lg bg-background-secondary border border-border hover:border-primary/60 transition-colors overflow-hidden"
                   >
-                    <button
-                      type="button"
-                      onClick={() => onInspectSource(src)}
-                      title="Inspect spreadsheet row, cell, and sheet context"
-                      className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
-                    >
-                      <span className="text-primary font-medium truncate max-w-[105px] sm:max-w-[135px]">
-                        {src.sheet || src.category}
-                      </span>
-                      <span className="truncate min-w-0 max-w-[130px] sm:max-w-[175px] text-foreground-muted">
-                        {src.title}
-                      </span>
-                      {cellBadge && (
-                        <span className="shrink-0 rounded bg-primary/10 px-1 py-px text-[10px] font-mono text-primary">
-                          {cellBadge}
-                        </span>
-                      )}
-                    </button>
-                    {src.url && (
+                    {targetUrl ? (
                       <a
-                        href={src.url}
+                        href={targetUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title={`Move to ${cellBadge || "row"} in Google Sheets`}
+                        title={`Move to ${src.sheet || src.category} ${cellBadge || "row"} in Google Sheets`}
                         aria-label={`Open ${src.title} (${cellBadge || "row"}) in Google Sheets`}
-                        className="shrink-0 inline-flex items-center justify-center px-2 py-1 border-s border-border/70 text-primary hover:bg-primary/15 transition-colors"
+                        className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors"
                       >
-                        <ExternalLink className="h-3 w-3" />
+                        <span className="text-primary font-medium truncate max-w-[105px] sm:max-w-[135px]">
+                          {src.sheet || src.category}
+                        </span>
+                        <span className="truncate min-w-0 max-w-[130px] sm:max-w-[175px] text-foreground-muted">
+                          {src.title}
+                        </span>
+                        {cellBadge && (
+                          <span className="shrink-0 rounded bg-primary/10 px-1 py-px text-[10px] font-mono text-primary">
+                            {cellBadge}
+                          </span>
+                        )}
+                        <ExternalLink className="h-3 w-3 shrink-0 text-primary/80" />
                       </a>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onInspectSource(src)}
+                        title="Inspect source record details"
+                        className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
+                      >
+                        <span className="text-primary font-medium truncate max-w-[105px] sm:max-w-[135px]">
+                          {src.sheet || src.category}
+                        </span>
+                        <span className="truncate min-w-0 max-w-[130px] sm:max-w-[175px] text-foreground-muted">
+                          {src.title}
+                        </span>
+                        {cellBadge && (
+                          <span className="shrink-0 rounded bg-primary/10 px-1 py-px text-[10px] font-mono text-primary">
+                            {cellBadge}
+                          </span>
+                        )}
+                      </button>
+                    )}
+                    {src.type !== "external" && src.row !== undefined && src.row > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => onInspectSource(src)}
+                        title="Preview highlighted Excel row inside Terra Assistant"
+                        aria-label={`Preview ${src.title} (${cellBadge || "row"})`}
+                        className="shrink-0 inline-flex items-center justify-center px-2 py-1 border-s border-border/70 text-foreground-muted hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                      >
+                        <Eye className="h-3 w-3" />
+                      </button>
                     )}
                   </div>
                 );

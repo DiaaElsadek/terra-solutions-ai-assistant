@@ -140,6 +140,7 @@ export function ChatWorkspace() {
           sidebarCollapsed={sidebarCollapsed}
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
           onExpandDesktopSidebar={() => toggleSidebarCollapsed(false)}
+          onNewChat={() => createNewChat()}
           onClearConversation={() => setClearModalOpen(true)}
           onOpenKnowledgeDrawer={() => setKnowledgeOpen(true)}
         />
