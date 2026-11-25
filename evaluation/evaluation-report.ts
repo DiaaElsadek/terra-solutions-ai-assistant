@@ -1,6 +1,7 @@
 /**
- * CLI Entrypoint to execute the 56-question evaluation suite,
- * save `evaluation/baseline.json`, and generate `reports/knowledge-evaluation.md`.
+ * CLI Entrypoint to execute the full 118+ question evaluation suite,
+ * save `evaluation/report.json` & `evaluation/baseline.json`, and generate
+ * `evaluation/report.md` & `reports/knowledge-evaluation.md`.
  */
 
 import fs from "node:fs";
@@ -16,6 +17,7 @@ async function main() {
   const root = process.cwd();
 
   const baselinePath = path.join(root, "evaluation", "baseline.json");
+  const reportJsonPath = path.join(root, "evaluation", "report.json");
   let previousBaseline: { overallPassRate?: number; recallAt3?: number } | null = null;
   if (fs.existsSync(baselinePath)) {
     try {
@@ -25,8 +27,7 @@ async function main() {
     }
   }
 
-  fs.writeFileSync(
-    baselinePath,
+  const serializedPayload =
     JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
@@ -34,17 +35,18 @@ async function main() {
       },
       null,
       2
-    ) + "\n",
-    "utf8"
-  );
+    ) + "\n";
+
+  fs.writeFileSync(baselinePath, serializedPayload, "utf8");
+  fs.writeFileSync(reportJsonPath, serializedPayload, "utf8");
 
   const failedCases = summary.cases.filter((c) => !c.passed);
 
   const lines: string[] = [
-    "# Terra AI Knowledge Evaluation Report",
+    "# Terra Solutions AI Knowledge Evaluation Report",
     "",
     `**Generated:** ${new Date().toISOString()}`,
-    `**Evaluation Set:** \`evaluation/questions.json\` (${summary.totalQuestions} grounded questions)`,
+    `**Evaluation Set:** \`evaluation/questions.json\` (${summary.totalQuestions} bilingual, typo, comparison, follow-up, and abstention cases)`,
     "",
     "## Summary Metrics",
     "",
@@ -56,10 +58,16 @@ async function main() {
     `| Recall@3 (Hit@3) | **${pct(summary.recallAt3)}** | ${summary.retrievalQuestions} retrieval cases |`,
     `| Recall@5 (Hit@5) | **${pct(summary.recallAt5)}** | ${summary.retrievalQuestions} retrieval cases |`,
     `| Precision@3 | **${pct(summary.precisionAt3)}** | ${summary.retrievalQuestions} retrieval cases |`,
+    `| Entity / Synonym Resolution Accuracy | **${pct(summary.entityResolutionAccuracy)}** | ${summary.entityResolutionQuestions} transliteration/mixed/English cases |`,
+    `| Typo Correction Accuracy | **${pct(summary.typoCorrectionAccuracy)}** | ${summary.typoQuestions} typo cases |`,
+    `| Follow-Up Context Resolution Rate | **${pct(summary.followupContextResolutionRate)}** | ${summary.followupQuestions} multi-turn follow-up cases |`,
+    `| Intent Classification Accuracy | **${pct(summary.intentClassificationAccuracy)}** | ${summary.intentEvaluatedQuestions} intent-annotated cases |`,
     `| Source Provenance Coverage | **${pct(summary.sourceCoverageRate)}** | File + sheet + row present |`,
     `| Ambiguity Clarification Rate | **${pct(summary.ambiguityPassRate)}** | ${summary.clarificationQuestions} ambiguous cases |`,
     `| Missing-Data Disclosure Rate | **${pct(summary.missingDataDisclosureRate)}** | ${summary.missingIndicatorQuestions} partial-info cases |`,
-    `| Hallucination Abstention Rate | **${pct(summary.hallucinationAbstentionRate)}** | ${summary.abstentionQuestions} negative/out-of-domain cases |`,
+    `| Abstention Accuracy | **${pct(summary.hallucinationAbstentionRate)}** | ${summary.abstentionQuestions} unsupported/out-of-domain cases |`,
+    `| Unsupported-Answer Rate | **${pct(summary.unsupportedAnswerRate)}** | ${summary.abstentionQuestions} negative/unsupported cases |`,
+    `| False-Positive Retrieval Rate | **${pct(summary.falsePositiveRetrievalRate)}** | ${summary.abstentionQuestions} negative/unsupported cases |`,
     "",
   ];
 
@@ -75,10 +83,10 @@ async function main() {
   lines.push(
     "## Metric Definitions & Limitations",
     "",
-    "- **Hit@K / Recall@K:** Measures whether at least one expected canonical record ID appears in the top *K* retrieved candidates. Note: multi-item queries where several valid records could answer the question are evaluated leniently by checking membership in `expectedRecordIds`.",
-    "- **Precision@3:** Fraction of the top-3 returned records belonging to `expectedRecordIds`. Because some single-product queries only have 1 canonical expected record, the maximum possible Precision@3 for a 1-target query returning 3 context items is `33.3%` even when Top-1 is `100%` exact.",
-    "- **Abstention & Hallucination Prevention:** Evaluates whether queries with missing prices, nonexistent devices/clinics, unavailable offers, or unsupported medical diagnosis requests cleanly abstain (`confidenceLevel: none`) or trigger missing-data warnings rather than fabricating answers.",
-    "- **Deterministic vs. Live LLM:** This evaluation benchmarks the canonical retrieval pipeline and deterministic response builder (`mockProvider`). Live OpenAI/Gemini synthesis depends on external API configuration and introduces non-deterministic phrasing variations.",
+    "- **Hit@K / Recall@K:** Measures whether at least one expected canonical record ID appears in the top *K* retrieved candidates. Multi-turn follow-up cases resolve context first via `resolveContextualQuery`.",
+    "- **Precision@3:** Fraction of the top-3 returned records belonging to `expectedRecordIds`. Single-target queries returning 3 context items peak at `33.3%` even at `100%` Top-1 accuracy.",
+    "- **Abstention & Unsupported-Answer Rate:** Evaluates whether unsupported compounds (e.g., `بوتوكس الشعر`), short-word typo traps, nonexistent clinics/devices, unavailable offers, and diagnosis requests cleanly abstain (`confidenceLevel: none`).",
+    "- **Deterministic vs. Live LLM:** Benchmarks the canonical hybrid retrieval + deterministic grounded fallback layer (`local_fallback`). Live Gemini phrasing introduces natural language generation over these verified context packets.",
     ""
   );
 
@@ -91,27 +99,35 @@ async function main() {
     }
     lines.push("");
   } else {
-    lines.push("## Failed Cases", "", "None — all 56 evaluation cases passed.", "");
+    lines.push(
+      "## Failed Cases",
+      "",
+      `None — all ${summary.totalQuestions} evaluation cases passed.`,
+      ""
+    );
   }
 
   lines.push(
     "## Case-by-Case Log",
     "",
-    "| ID | Category | Query | Passed | Confidence | Top Match |",
-    "| --- | --- | --- | --- | --- | --- |"
+    "| ID | Category | Query | Passed | Intent | Confidence | Top Match |",
+    "| --- | --- | --- | --- | --- | --- | --- |"
   );
   for (const c of summary.cases) {
     lines.push(
-      `| ${c.id} | ${c.category} | ${c.query.replace(/\|/g, "\\|")} | ${c.passed ? "PASS" : "FAIL"} | ${c.confidence} | \`${c.topIds[0] || "none"}\` |`
+      `| ${c.id} | ${c.category} | ${c.query.replace(/\|/g, "\\|")} | ${c.passed ? "PASS" : "FAIL"} | \`${c.intent}\` | ${c.confidence} | \`${c.topIds[0] || "none"}\` |`
     );
   }
 
-  const reportPath = path.join(root, "reports", "knowledge-evaluation.md");
-  fs.writeFileSync(reportPath, lines.join("\n") + "\n", "utf8");
+  const markdownOut = lines.join("\n") + "\n";
+  fs.writeFileSync(path.join(root, "evaluation", "report.md"), markdownOut, "utf8");
+  fs.writeFileSync(path.join(root, "reports", "knowledge-evaluation.md"), markdownOut, "utf8");
 
   console.log(
     `Evaluation complete: pass=${pct(summary.overallPassRate)} (${summary.cases.filter((c) => c.passed).length}/${summary.totalQuestions}), ` +
-      `Top1=${pct(summary.top1Accuracy)}, Recall@3=${pct(summary.recallAt3)}, Abstention=${pct(summary.hallucinationAbstentionRate)}`
+      `Top1=${pct(summary.top1Accuracy)}, Recall@3=${pct(summary.recallAt3)}, Recall@5=${pct(summary.recallAt5)}, ` +
+      `Entity=${pct(summary.entityResolutionAccuracy)}, Typo=${pct(summary.typoCorrectionAccuracy)}, ` +
+      `FollowUp=${pct(summary.followupContextResolutionRate)}, Abstention=${pct(summary.hallucinationAbstentionRate)}`
   );
 
   if (failedCases.length > 0) {

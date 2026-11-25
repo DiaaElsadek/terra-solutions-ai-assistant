@@ -1,59 +1,663 @@
 [
-  { "id": "q01", "category": "arabic", "query": "ما هو الفيلر المناسب تحت العين؟" },
-  { "id": "q02", "category": "arabic", "query": "هل البوتوكس مسموح للحامل؟" },
-  { "id": "q03", "category": "arabic", "query": "سعر خيوط Aptos Cat Eye كام؟" },
-  { "id": "q04", "category": "arabic", "query": "سعر خيط PDO الواحد" },
-  { "id": "q05", "category": "arabic", "query": "ما هي أنواع فيلر الجسم المتوفرة؟" },
-  { "id": "q06", "category": "arabic", "query": "هل يمكن ممارسة العلاقة الجنسية بعد فيلر الجسم؟" },
-  { "id": "q07", "category": "arabic", "query": "إزالة المايكروبليدينغ موجودة في أي عيادة؟" },
-  { "id": "q08", "category": "arabic", "query": "هل الليزر يشتغل على الشعر الأبيض؟" },
-  { "id": "q09", "category": "arabic", "query": "كم مدة التوقف عن دواء الريكوتان قبل الليزر؟" },
-  { "id": "q10", "category": "arabic", "query": "هل الفينير ممكن يتعمل من غير حف؟" },
-  { "id": "q11", "category": "arabic", "query": "هل يوجد عندكم تقويم أسنان أو زراعة أسنان؟" },
-  { "id": "q12", "category": "arabic", "query": "طريقة إزالة الفينير بالليزر متوفرة؟" },
-  { "id": "q13", "category": "arabic", "query": "ما هي إبرة الفلتر أو الإبرة البنفسجية السحرية؟" },
-  { "id": "q14", "category": "arabic", "query": "ما هي ابرة الخمس نقاط؟" },
-  { "id": "q15", "category": "arabic", "query": "ما هي ابرة المشاهير للشد المائي؟" },
-  { "id": "q16", "category": "arabic", "query": "هل يمكن عمل ديرمابن مع البوتوكس بنفس اليوم؟" },
-  { "id": "q17", "category": "arabic", "query": "ما هي الجلسة الوحيدة المناسبة للحبوب الملتهبة؟" },
-  { "id": "q18", "category": "arabic", "query": "حقنة Wegovy مسموحة من عمر كام؟" },
-  { "id": "q19", "category": "arabic", "query": "هل ينفع عمل الفيلر أثناء الرضاعة؟" },
-  { "id": "q20", "category": "arabic", "query": "إيه الفرق بين البوتوكس والفيلر؟" },
-  { "id": "q21", "category": "english", "query": "Juvederm Voluma" },
-  { "id": "q22", "category": "english", "query": "Juvederm Volux uses and country" },
-  { "id": "q23", "category": "english", "query": "Radiesse calcium filler uses" },
-  { "id": "q24", "category": "english", "query": "Candela GentleMax Pro Plus" },
-  { "id": "q25", "category": "english", "query": "Cynosure Elite Plus cooling system" },
-  { "id": "q26", "category": "english", "query": "Dr. CYJ Hair Filler sessions" },
-  { "id": "q27", "category": "english", "query": "Restylane Skinboosters availability" },
-  { "id": "q28", "category": "english", "query": "Sculptra 10 ml active ingredient" },
-  { "id": "q29", "category": "english", "query": "Clear + Brilliant downtime and contraindications" },
-  { "id": "q30", "category": "english", "query": "Vivace microneedling RF interval with filler" },
-  { "id": "q31", "category": "english", "query": "Opatra London Skin Analyser" },
-  { "id": "q32", "category": "english", "query": "Ultra Sound For Filler" },
-  { "id": "q33", "category": "english", "query": "Night Guard soft and hard" },
-  { "id": "q34", "category": "english", "query": "Snap-On Smile removable cosmetic smile" },
-  { "id": "q35", "category": "english", "query": "VIP Lounge vs Diamond Feldspathic veneer" },
-  { "id": "q36", "category": "english", "query": "Endolift clinic availability and doctors" },
-  { "id": "q37", "category": "english", "query": "Z-Lipo and Z-Wave at Well Touch" },
-  { "id": "q38", "category": "english", "query": "HIFU and Cool Shaping at One Touch" },
-  { "id": "q39", "category": "mixed", "query": "مقارنة بين Dr. CYJ و PRP للشعر" },
-  { "id": "q40", "category": "mixed", "query": "هل Hydrafacial آمن للحامل؟" },
-  { "id": "q41", "category": "mixed", "query": "سعر Aptos Lifting كام؟" },
-  { "id": "q42", "category": "typo", "query": "juviderm voluma" },
-  { "id": "q43", "category": "typo", "query": "botoks dysport" },
-  { "id": "q44", "category": "typo", "query": "dermaden microblading" },
-  { "id": "q45", "category": "typo", "query": "sculptera collagen" },
-  { "id": "q46", "category": "clinic", "query": "New Age clinic tattoo removal doctor" },
-  { "id": "q47", "category": "clinic", "query": "What devices does Dermadent have?" },
-  { "id": "q48", "category": "ambiguous", "query": "Juvederm" },
-  { "id": "q49", "category": "ambiguous", "query": "Compare these two products." },
-  { "id": "q50", "category": "abstention_missing_price", "query": "What is the price of Botox 100 unit?" },
-  { "id": "q51", "category": "abstention_missing_clinic", "query": "What is the phone number and street address of Well Touch clinic?" },
-  { "id": "q52", "category": "abstention_missing_offer", "query": "What is the Ramadan 50% discount package offer?" },
-  { "id": "q53", "category": "abstention_nonexistent_product", "query": "Tell me about Emsculpt Neo Max Pro machine" },
-  { "id": "q54", "category": "abstention_nonexistent_clinic", "query": "What laser devices are available at Cairo Star Clinic?" },
-  { "id": "q55", "category": "abstention_out_of_domain", "query": "What is the price of Ferrari sports cars?" },
-  { "id": "q56", "category": "abstention_unsupported_medical", "query": "Diagnose if a patient with severe rash can take Isotretinoin today" }
+  {
+    "id": "q01",
+    "category": "arabic",
+    "query": "ما هو الفيلر المناسب تحت العين؟"
+  },
+  {
+    "id": "q02",
+    "category": "arabic",
+    "query": "هل البوتوكس مسموح للحامل؟"
+  },
+  {
+    "id": "q03",
+    "category": "arabic",
+    "query": "سعر خيوط Aptos Cat Eye كام؟"
+  },
+  {
+    "id": "q04",
+    "category": "arabic",
+    "query": "سعر خيط PDO الواحد"
+  },
+  {
+    "id": "q05",
+    "category": "arabic",
+    "query": "ما هي أنواع فيلر الجسم المتوفرة؟"
+  },
+  {
+    "id": "q06",
+    "category": "arabic",
+    "query": "هل يمكن ممارسة العلاقة الجنسية بعد فيلر الجسم؟"
+  },
+  {
+    "id": "q07",
+    "category": "arabic",
+    "query": "إزالة المايكروبليدينغ موجودة في أي عيادة؟"
+  },
+  {
+    "id": "q08",
+    "category": "arabic",
+    "query": "هل الليزر يشتغل على الشعر الأبيض؟"
+  },
+  {
+    "id": "q09",
+    "category": "arabic",
+    "query": "كم مدة التوقف عن دواء الريكوتان قبل الليزر؟"
+  },
+  {
+    "id": "q10",
+    "category": "arabic",
+    "query": "هل الفينير ممكن يتعمل من غير حف؟"
+  },
+  {
+    "id": "q11",
+    "category": "arabic",
+    "query": "هل يوجد عندكم تقويم أسنان أو زراعة أسنان؟"
+  },
+  {
+    "id": "q12",
+    "category": "arabic",
+    "query": "طريقة إزالة الفينير بالليزر متوفرة؟"
+  },
+  {
+    "id": "q13",
+    "category": "arabic",
+    "query": "ما هي إبرة الفلتر أو الإبرة البنفسجية السحرية؟"
+  },
+  {
+    "id": "q14",
+    "category": "arabic",
+    "query": "ما هي ابرة الخمس نقاط؟"
+  },
+  {
+    "id": "q15",
+    "category": "arabic",
+    "query": "ما هي ابرة المشاهير للشد المائي؟"
+  },
+  {
+    "id": "q16",
+    "category": "arabic",
+    "query": "هل يمكن عمل ديرمابن مع البوتوكس بنفس اليوم؟"
+  },
+  {
+    "id": "q17",
+    "category": "arabic",
+    "query": "ما هي الجلسة الوحيدة المناسبة للحبوب الملتهبة؟"
+  },
+  {
+    "id": "q18",
+    "category": "arabic",
+    "query": "حقنة Wegovy مسموحة من عمر كام؟"
+  },
+  {
+    "id": "q19",
+    "category": "arabic",
+    "query": "هل ينفع عمل الفيلر أثناء الرضاعة؟"
+  },
+  {
+    "id": "q20",
+    "category": "arabic",
+    "query": "إيه الفرق بين البوتوكس والفيلر؟"
+  },
+  {
+    "id": "q21",
+    "category": "english",
+    "query": "Juvederm Voluma"
+  },
+  {
+    "id": "q22",
+    "category": "english",
+    "query": "Juvederm Volux uses and country"
+  },
+  {
+    "id": "q23",
+    "category": "english",
+    "query": "Radiesse calcium filler uses"
+  },
+  {
+    "id": "q24",
+    "category": "english",
+    "query": "Candela GentleMax Pro Plus"
+  },
+  {
+    "id": "q25",
+    "category": "english",
+    "query": "Cynosure Elite Plus cooling system"
+  },
+  {
+    "id": "q26",
+    "category": "english",
+    "query": "Dr. CYJ Hair Filler sessions"
+  },
+  {
+    "id": "q27",
+    "category": "english",
+    "query": "Restylane Skinboosters availability"
+  },
+  {
+    "id": "q28",
+    "category": "english",
+    "query": "Sculptra 10 ml active ingredient"
+  },
+  {
+    "id": "q29",
+    "category": "english",
+    "query": "Clear + Brilliant downtime and contraindications"
+  },
+  {
+    "id": "q30",
+    "category": "english",
+    "query": "Vivace microneedling RF interval with filler"
+  },
+  {
+    "id": "q31",
+    "category": "english",
+    "query": "Opatra London Skin Analyser"
+  },
+  {
+    "id": "q32",
+    "category": "english",
+    "query": "Ultra Sound For Filler"
+  },
+  {
+    "id": "q33",
+    "category": "english",
+    "query": "Night Guard soft and hard"
+  },
+  {
+    "id": "q34",
+    "category": "english",
+    "query": "Snap-On Smile removable cosmetic smile"
+  },
+  {
+    "id": "q35",
+    "category": "english",
+    "query": "VIP Lounge vs Diamond Feldspathic veneer"
+  },
+  {
+    "id": "q36",
+    "category": "english",
+    "query": "Endolift clinic availability and doctors"
+  },
+  {
+    "id": "q37",
+    "category": "english",
+    "query": "Z-Lipo and Z-Wave at Well Touch"
+  },
+  {
+    "id": "q38",
+    "category": "english",
+    "query": "HIFU and Cool Shaping at One Touch"
+  },
+  {
+    "id": "q39",
+    "category": "mixed",
+    "query": "مقارنة بين Dr. CYJ و PRP للشعر"
+  },
+  {
+    "id": "q40",
+    "category": "mixed",
+    "query": "هل Hydrafacial آمن للحامل؟"
+  },
+  {
+    "id": "q41",
+    "category": "mixed",
+    "query": "سعر Aptos Lifting كام؟"
+  },
+  {
+    "id": "q42",
+    "category": "typo",
+    "query": "juviderm voluma"
+  },
+  {
+    "id": "q43",
+    "category": "typo",
+    "query": "botoks dysport"
+  },
+  {
+    "id": "q44",
+    "category": "typo",
+    "query": "dermaden microblading"
+  },
+  {
+    "id": "q45",
+    "category": "typo",
+    "query": "sculptera collagen"
+  },
+  {
+    "id": "q46",
+    "category": "clinic",
+    "query": "New Age clinic tattoo removal doctor"
+  },
+  {
+    "id": "q47",
+    "category": "clinic",
+    "query": "What devices does Dermadent have?"
+  },
+  {
+    "id": "q48",
+    "category": "ambiguous",
+    "query": "Juvederm"
+  },
+  {
+    "id": "q49",
+    "category": "ambiguous",
+    "query": "Compare these two products."
+  },
+  {
+    "id": "q50",
+    "category": "abstention_missing_price",
+    "query": "What is the price of Botox 100 unit?"
+  },
+  {
+    "id": "q51",
+    "category": "abstention_missing_clinic",
+    "query": "What is the phone number and street address of Well Touch clinic?"
+  },
+  {
+    "id": "q52",
+    "category": "abstention_missing_offer",
+    "query": "What is the Ramadan 50% discount package offer?"
+  },
+  {
+    "id": "q53",
+    "category": "abstention_nonexistent_product",
+    "query": "Tell me about Emsculpt Neo Max Pro machine"
+  },
+  {
+    "id": "q54",
+    "category": "abstention_nonexistent_clinic",
+    "query": "What laser devices are available at Cairo Star Clinic?"
+  },
+  {
+    "id": "q55",
+    "category": "abstention_out_of_domain",
+    "query": "What is the price of Ferrari sports cars?"
+  },
+  {
+    "id": "q56",
+    "category": "abstention_unsupported_medical",
+    "query": "Diagnose if a patient with severe rash can take Isotretinoin today"
+  },
+  {
+    "id": "q57",
+    "category": "transliteration_ar",
+    "query": "ايه هو الفيشيال؟"
+  },
+  {
+    "id": "q58",
+    "category": "transliteration_ar",
+    "query": "يعني ايه فيشيال؟"
+  },
+  {
+    "id": "q59",
+    "category": "transliteration_ar",
+    "query": "تفاصيل فيشيل"
+  },
+  {
+    "id": "q60",
+    "category": "transliteration_ar",
+    "query": "عايز اعرف الفيشيول"
+  },
+  {
+    "id": "q61",
+    "category": "transliteration_ar",
+    "query": "فشيال بيتعمل ازاي؟"
+  },
+  {
+    "id": "q62",
+    "category": "transliteration_ar",
+    "query": "الفيشل"
+  },
+  {
+    "id": "q63",
+    "category": "transliteration_ar",
+    "query": "يعني ايه ديرمابن؟"
+  },
+  {
+    "id": "q64",
+    "category": "transliteration_ar",
+    "query": "ايه هو سكين بوستر؟"
+  },
+  {
+    "id": "q65",
+    "category": "transliteration_ar",
+    "query": "ايه هو البروفايلو؟"
+  },
+  {
+    "id": "q66",
+    "category": "transliteration_ar",
+    "query": "ايه هو البوتكس؟"
+  },
+  {
+    "id": "q67",
+    "category": "transliteration_ar",
+    "query": "ايه هي حقن الفيلرز؟"
+  },
+  {
+    "id": "q68",
+    "category": "transliteration_ar",
+    "query": "معلومات عن اللازر لازالة الشعر"
+  },
+  {
+    "id": "q69",
+    "category": "transliteration_ar",
+    "query": "ممكن تفاصيل عن بادي كونتورنج؟"
+  },
+  {
+    "id": "q70",
+    "category": "transliteration_ar",
+    "query": "عايزة تفاصيل الفينيرز"
+  },
+  {
+    "id": "q71",
+    "category": "english_variant",
+    "query": "What is Facial?"
+  },
+  {
+    "id": "q72",
+    "category": "english_variant",
+    "query": "Facial Treatment details"
+  },
+  {
+    "id": "q73",
+    "category": "english_variant",
+    "query": "Face Treatment session overview"
+  },
+  {
+    "id": "q74",
+    "category": "english_variant",
+    "query": "Facial Cleansing protocol"
+  },
+  {
+    "id": "q75",
+    "category": "english_variant",
+    "query": "Skin Booster injections"
+  },
+  {
+    "id": "q76",
+    "category": "mixed_ar_en",
+    "query": "ايه هو Facial؟"
+  },
+  {
+    "id": "q77",
+    "category": "mixed_ar_en",
+    "query": "تفاصيل الـ Facial."
+  },
+  {
+    "id": "q78",
+    "category": "mixed_ar_en",
+    "query": "الفيشال عبارة عن ايه؟"
+  },
+  {
+    "id": "q79",
+    "category": "mixed_ar_en",
+    "query": "عايزة اعرف Facial."
+  },
+  {
+    "id": "q80",
+    "category": "mixed_ar_en",
+    "query": "ممكن تفاصيل عن Body Contouring؟"
+  },
+  {
+    "id": "q81",
+    "category": "mixed_ar_en",
+    "query": "عايزة Skin Booster للوش"
+  },
+  {
+    "id": "q82",
+    "category": "mixed_ar_en",
+    "query": "ايه عروض Laser Hair Removal؟"
+  },
+  {
+    "id": "q83",
+    "category": "mixed_ar_en",
+    "query": "Candela ولا Cynosure احسن لازالة الشعر؟"
+  },
+  {
+    "id": "q84",
+    "category": "mixed_ar_en",
+    "query": "الفيشيال مسموح للحامل؟"
+  },
+  {
+    "id": "q85",
+    "category": "typo_variants",
+    "query": "What is facail?"
+  },
+  {
+    "id": "q86",
+    "category": "typo_variants",
+    "query": "faciel treatment"
+  },
+  {
+    "id": "q87",
+    "category": "typo_variants",
+    "query": "fillar for lips"
+  },
+  {
+    "id": "q88",
+    "category": "typo_variants",
+    "query": "botx injection"
+  },
+  {
+    "id": "q89",
+    "category": "typo_variants",
+    "query": "lazer hair removal"
+  },
+  {
+    "id": "q90",
+    "category": "typo_variants",
+    "query": "tatoo removal price"
+  },
+  {
+    "id": "q91",
+    "category": "typo_variants",
+    "query": "تفاصيل بروفايلوا"
+  },
+  {
+    "id": "q92",
+    "category": "typo_variants",
+    "query": "ايه سعر cart؟"
+  },
+  {
+    "id": "q93",
+    "category": "broad_category",
+    "query": "ايه خدمات البشرة عندكم؟"
+  },
+  {
+    "id": "q94",
+    "category": "broad_category",
+    "query": "عندكم ايه للوجه؟"
+  },
+  {
+    "id": "q95",
+    "category": "broad_category",
+    "query": "ايه خدمات الليزر؟"
+  },
+  {
+    "id": "q96",
+    "category": "broad_category",
+    "query": "ايه أجهزة العيادات؟"
+  },
+  {
+    "id": "q97",
+    "category": "broad_category",
+    "query": "ايه خدمات التخسيس عندكم؟"
+  },
+  {
+    "id": "q98",
+    "category": "missing_price",
+    "query": "الفيشيال بكام؟"
+  },
+  {
+    "id": "q99",
+    "category": "missing_price",
+    "query": "Facial بكام؟"
+  },
+  {
+    "id": "q100",
+    "category": "missing_price",
+    "query": "سعر البوتوكس كام؟"
+  },
+  {
+    "id": "q101",
+    "category": "comparison",
+    "query": "ايه الفرق بين Facial و Skin Booster؟"
+  },
+  {
+    "id": "q102",
+    "category": "comparison",
+    "query": "Compare Botox vs Filler"
+  },
+  {
+    "id": "q103",
+    "category": "comparison",
+    "query": "ايه الفرق بين Sculptra و Filler؟"
+  },
+  {
+    "id": "q104",
+    "category": "comparison",
+    "query": "الفرق بين الفيلر والبوتكس ايه؟"
+  },
+  {
+    "id": "q105",
+    "category": "followup_context",
+    "query": "ايه هو الفيشيال؟",
+    "conversationHistory": []
+  },
+  {
+    "id": "q106",
+    "category": "followup_context",
+    "query": "طب سعره كام؟",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "ايه هو الفيشيال؟"
+      },
+      {
+        "role": "assistant",
+        "content": "Hydrafacial (Basic, Deep, Korean Facial)..."
+      }
+    ]
+  },
+  {
+    "id": "q107",
+    "category": "followup_context",
+    "query": "وفيه أنواع تانية؟",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "ايه هو الفيشيال؟"
+      },
+      {
+        "role": "assistant",
+        "content": "Hydrafacial..."
+      }
+    ]
+  },
+  {
+    "id": "q108",
+    "category": "followup_context",
+    "query": "طب ايه هو السكين بوستر؟",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "ايه هو الفيشيال؟"
+      },
+      {
+        "role": "assistant",
+        "content": "Hydrafacial..."
+      }
+    ]
+  },
+  {
+    "id": "q109",
+    "category": "followup_context",
+    "query": "طب مسموح للحامل؟",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "ايه هو البوتوكس؟"
+      },
+      {
+        "role": "assistant",
+        "content": "Botox Overview..."
+      }
+    ]
+  },
+  {
+    "id": "q110",
+    "category": "followup_context",
+    "query": "موجودة فيها أجهزة تاتو؟",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "ممكن معلومات عن عيادة Dermadent؟"
+      },
+      {
+        "role": "assistant",
+        "content": "Dermadent Clinic Profile..."
+      }
+    ]
+  },
+  {
+    "id": "q111",
+    "category": "followup_context",
+    "query": "طب ايه الفرق بينهم؟",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "الفرق بين Botox و Filler؟"
+      },
+      {
+        "role": "assistant",
+        "content": "Botox vs. Fillers comparison..."
+      }
+    ]
+  },
+  {
+    "id": "q112",
+    "category": "followup_context",
+    "query": "وكام سعر الجلسة؟",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "تفاصيل Dr. CYJ Hair Filler"
+      },
+      {
+        "role": "assistant",
+        "content": "Dr. CYJ Hair Filler..."
+      }
+    ]
+  },
+  {
+    "id": "q113",
+    "category": "ambiguous",
+    "query": "عايز اعرف الجلسة."
+  },
+  {
+    "id": "q114",
+    "category": "abstention_unsupported_compound",
+    "query": "هل عندكم بوتوكس الشعر؟"
+  },
+  {
+    "id": "q115",
+    "category": "abstention_unsupported_compound",
+    "query": "Hair Botox price?"
+  },
+  {
+    "id": "q116",
+    "category": "abstention_unsupported_compound",
+    "query": "ايه أسعار حقن بوتوكس للشعر؟"
+  },
+  {
+    "id": "q117",
+    "category": "abstention_nonexistent_clinic",
+    "query": "في عيادة التجمع الخامس عندكم؟"
+  },
+  {
+    "id": "q118",
+    "category": "abstention_unsupported_medical",
+    "query": "اكتبلي روشتة علاج لحب الشباب من الصيدلية"
+  }
 ]
-

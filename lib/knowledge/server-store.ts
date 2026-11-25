@@ -1,7 +1,11 @@
 /**
- * Server-only canonical knowledge store & raw worksheet row-context loader.
+ * Server-only canonical knowledge store, metadata cache, & raw worksheet row-context loader.
  *
- * SECURITY: Must never be imported into client components or exposed via public/.
+ * Performance & Architecture:
+ * - Never parses `Knowlege.xlsx` during incoming chat requests.
+ * - Validates and caches `knowledge.canonical.json` and `sheet-rows.json` in memory once per worker.
+ * - Exposes index rebuild/invalidation hooks cleanly for future document ingestion runs.
+ * - SECURITY: Must never be imported into client components or exposed via public/.
  */
 
 import fs from "node:fs";
@@ -14,6 +18,7 @@ import type {
 } from "@/types/knowledge";
 import { validateCanonicalDataset } from "./validator";
 import { buildGoogleSheetCellLink } from "./source-links";
+import { getCanonicalSynonymEntries } from "./synonyms";
 import canonicalData from "@/data/canonical/knowledge.canonical.json";
 
 export interface SheetContextRow {
@@ -34,6 +39,18 @@ export interface SheetContextExcerpt {
   rows: SheetContextRow[];
 }
 
+export interface KnowledgeCacheMetadata {
+  schemaVersion: string;
+  generatedAt: string;
+  loadedAt: string;
+  indexBuildCount: number;
+  totalRecords: number;
+  synonymEntries: number;
+  clinicsCount: number;
+  conflictsCount: number;
+  excelParsedPerRequest: false;
+}
+
 type RawSheetRowsIndex = Record<
   string,
   Array<{ row: number; cells: Record<string, string> }>
@@ -41,6 +58,9 @@ type RawSheetRowsIndex = Record<
 
 let cachedDataset: CanonicalKnowledgeDataset | null = null;
 let cachedSheetRows: RawSheetRowsIndex | null = null;
+let cacheLoadedAt: string | null = null;
+let indexBuildCount = 0;
+const rebuildListeners = new Set<() => void>();
 
 function assertServerContext(): void {
   if (typeof window !== "undefined") {
@@ -48,6 +68,17 @@ function assertServerContext(): void {
       "[Terra Security] Canonical knowledge store must only be accessed on the server."
     );
   }
+}
+
+export function registerKnowledgeRebuildListener(fn: () => void): () => void {
+  rebuildListeners.add(fn);
+  return () => {
+    rebuildListeners.delete(fn);
+  };
+}
+
+export function incrementKnowledgeIndexBuildCount(): void {
+  indexBuildCount += 1;
 }
 
 /** Load and validate the canonical dataset once per server worker. */
@@ -68,7 +99,38 @@ export function getCanonicalDataset(): CanonicalKnowledgeDataset {
   }
 
   cachedDataset = dataset;
+  cacheLoadedAt = new Date().toISOString();
   return cachedDataset;
+}
+
+/**
+ * Trigger an explicit index rebuild across listeners (e.g. after ingesting new sources
+ * or modifying synonym dictionaries) without restarting the server process.
+ */
+export function triggerKnowledgeIndexRebuild(): KnowledgeCacheMetadata {
+  assertServerContext();
+  cachedDataset = null;
+  cachedSheetRows = null;
+  getCanonicalDataset();
+  for (const fn of rebuildListeners) {
+    fn();
+  }
+  return getKnowledgeCacheMetadata();
+}
+
+export function getKnowledgeCacheMetadata(): KnowledgeCacheMetadata {
+  const ds = getCanonicalDataset();
+  return {
+    schemaVersion: String(ds.schemaVersion || "1.0"),
+    generatedAt: String(ds.generatedAt || ""),
+    loadedAt: cacheLoadedAt || new Date().toISOString(),
+    indexBuildCount,
+    totalRecords: ds.records.length,
+    synonymEntries: getCanonicalSynonymEntries().length,
+    clinicsCount: ds.clinics.length,
+    conflictsCount: ds.conflicts.length,
+    excelParsedPerRequest: false,
+  };
 }
 
 function getSheetRowsIndex(): RawSheetRowsIndex {

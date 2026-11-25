@@ -1,9 +1,10 @@
 /**
- * Pre-indexed bilingual knowledge retrieval engine.
+ * Pre-indexed bilingual hybrid knowledge retrieval engine.
  *
- * Implements:
- *   Query -> Normalization -> Language Detection -> Intent Recognition
- *   -> Synonym Expansion -> Candidate Retrieval -> Multi-Signal Scoring
+ * Pipeline:
+ *   Query -> QueryExpander (Normalization, Arabic Prefix/Phonetic Transliteration, Controlled Typo Recovery)
+ *   -> Unsupported Compound Guard -> Candidate Scoring (BM25 IDF + Canonical Entity Hints + Field Weights)
+ *   -> Multi-Entity Comparison Coverage & Broad Category Balance
  *   -> Confidence & Ambiguity Assessment -> Related Record Expansion
  */
 
@@ -18,10 +19,16 @@ import type {
   SearchResult,
 } from "@/types/knowledge";
 import { CATEGORIES } from "./categories";
-import { getCanonicalDataset } from "./server-store";
+import {
+  getCanonicalDataset,
+  incrementKnowledgeIndexBuildCount,
+  registerKnowledgeRebuildListener,
+} from "./server-store";
 import { normalizeText, tokenizeQuery, type QueryLanguage } from "./normalize";
-import { expandSynonyms, getTokenSynonyms } from "./synonyms";
-import { classifyQuery, type ClassifiedQuery } from "./intent";
+import { getTokenSynonyms, type EntityMatchHint } from "./synonyms";
+import { type ClassifiedQuery } from "./intent";
+import { buildExpandedQueryPlan, type ExpandedQueryPlan } from "./query-expander";
+import { findControlledTypoMatch } from "./transliteration";
 
 interface IndexedRecord {
   record: KnowledgeRecord;
@@ -33,13 +40,15 @@ interface IndexedRecord {
   attrsNorm: string;
   descNorm: string;
   catNorm: string;
-  latinWords: string[];
+  allTokensSet: Set<string>;
+  vocabWords: string[];
 }
 
 export interface RetrievalOutput {
   classified: ClassifiedQuery;
   primaryTokens: string[];
   expandedTokens: string[];
+  entityHints: EntityMatchHint[];
   results: SearchResult[];
   confidence: RetrievalConfidence;
   requiresClarification: boolean;
@@ -53,8 +62,10 @@ const GENERIC_MODIFIER_TOKENS = new Set([
   "pro", "max", "plus", "ultra", "neo", "mini", "new", "day", "one", "old",
   "version", "edition", "original", "classic", "vip", "100", "200", "500", "10",
   "machine", "machines", "device", "devices", "clinic", "clinics", "treatment",
-  "treatments", "session", "sessions", "patient", "today", "take", "severe",
-  "احدث", "اصدار", "جهاز", "اجهزه", "عياده", "عيادات",
+  "treatments", "session", "sessions", "overview", "protocol", "injection",
+  "injections", "patient", "today", "take", "severe",
+  "احدث", "اصدار", "جهاز", "اجهزه", "عياده", "عيادات", "جلسه", "جلسات",
+  "علاج", "علاجات", "خدمات", "خدمه", "حقن", "انواع", "نوع",
 ]);
 
 function escapeRegExp(str: string): string {
@@ -71,53 +82,34 @@ function matchesToken(text: string, token: string): boolean {
   return text.includes(token);
 }
 
-/** Standard Levenshtein edit distance for controlled typo recovery. */
-function levenshtein(a: string, b: string): number {
-  if (a === b) return 0;
-  const m = a.length;
-  const n = b.length;
-  if (Math.abs(m - n) > 2) return 3;
-  const dp: number[] = Array.from({ length: n + 1 }, (_, j) => j);
-  for (let i = 1; i <= m; i++) {
-    let prev = dp[0];
-    dp[0] = i;
-    for (let j = 1; j <= n; j++) {
-      const temp = dp[j];
-      if (a[i - 1] === b[j - 1]) {
-        dp[j] = prev;
-      } else {
-        dp[j] = 1 + Math.min(prev, dp[j], dp[j - 1]);
-      }
-      prev = temp;
-    }
-  }
-  return dp[n];
-}
-
-function isFuzzyTokenMatch(token: string, words: string[]): boolean {
-  if (token.length < 5 || !/^[a-z]+$/.test(token)) return false;
-  const maxDist = token.length >= 8 ? 2 : 1;
-  for (const w of words) {
-    if (Math.abs(w.length - token.length) > maxDist) continue;
-    if (levenshtein(token, w) <= maxDist) return true;
-  }
-  return false;
-}
-
 export class KnowledgeRetriever {
   private index: IndexedRecord[] = [];
   private recordById = new Map<string, KnowledgeRecord>();
+  private termIdf = new Map<string, number>();
   private clinics: CanonicalClinic[] = [];
   private conflicts: KnowledgeConflict[] = [];
   private initialized = false;
 
-  private ensureInit(): void {
-    if (this.initialized) return;
-    const dataset = getCanonicalDataset();
-    this.clinics = dataset.clinics;
-    this.conflicts = dataset.conflicts;
+  constructor() {
+    registerKnowledgeRebuildListener(() => {
+      this.initialized = false;
+      this.ensureInit();
+    });
+  }
 
-    this.index = dataset.records.map((record) => {
+  private buildIndexFromRecords(
+    records: KnowledgeRecord[],
+    clinics: CanonicalClinic[],
+    conflicts: KnowledgeConflict[]
+  ): void {
+    this.clinics = clinics;
+    this.conflicts = conflicts;
+    this.recordById.clear();
+    this.termIdf.clear();
+
+    const docFreq = new Map<string, number>();
+
+    this.index = records.map((record) => {
       const catInfo = CATEGORIES[record.category];
       const nameNorm = normalizeText(record.name);
       const nameEnNorm = record.nameEn ? normalizeText(record.nameEn) : "";
@@ -129,8 +121,18 @@ export class KnowledgeRetriever {
       const catNorm = catInfo
         ? normalizeText(`${catInfo.nameAr} ${catInfo.nameEn} ${catInfo.description}`)
         : "";
-      const latinPool = `${nameNorm} ${aliasesNorm.join(" ")} ${tagsNorm.join(" ")}`;
-      const latinWords = Array.from(new Set(latinPool.match(/[a-z]{5,}/g) || []));
+
+      const vocabPool = `${nameNorm} ${aliasesNorm.join(" ")} ${tagsNorm.join(" ")}`;
+      const latinWords = vocabPool.match(/[a-z]{4,}/g) || [];
+      const arabicWords = vocabPool.match(/[\u0600-\u06FF]{4,}/g) || [];
+      const vocabWords = Array.from(new Set([...latinWords, ...arabicWords]));
+
+      const docTokens = new Set<string>(
+        tokenizeQuery(`${record.name} ${record.aliases.join(" ")} ${record.tags.join(" ")} ${record.description}`)
+      );
+      for (const dt of docTokens) {
+        docFreq.set(dt, (docFreq.get(dt) || 0) + 1);
+      }
 
       this.recordById.set(record.id, record);
 
@@ -144,11 +146,35 @@ export class KnowledgeRetriever {
         attrsNorm,
         descNorm,
         catNorm,
-        latinWords,
+        allTokensSet: docTokens,
+        vocabWords,
       };
     });
 
+    const N = Math.max(1, this.index.length);
+    for (const [term, df] of docFreq.entries()) {
+      const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+      this.termIdf.set(term, Math.min(2.6, Math.max(0.75, idf / 2 + 0.65)));
+    }
+
+    incrementKnowledgeIndexBuildCount();
     this.initialized = true;
+  }
+
+  private ensureInit(): void {
+    if (this.initialized) return;
+    const dataset = getCanonicalDataset();
+    this.buildIndexFromRecords(dataset.records, dataset.clinics, dataset.conflicts);
+  }
+
+  /** Rebuild index in memory when dynamic sources or synonyms update. */
+  rebuildIndex(customRecords?: KnowledgeRecord[]): void {
+    const dataset = getCanonicalDataset();
+    this.buildIndexFromRecords(
+      customRecords || dataset.records,
+      dataset.clinics,
+      dataset.conflicts
+    );
   }
 
   getAllRecords(): KnowledgeRecord[] {
@@ -190,20 +216,38 @@ export class KnowledgeRetriever {
     }));
   }
 
-  /** Score a single indexed record and produce explainable match reasons. */
+  /** Score a single indexed record with BM25 IDF weights, canonical entity hints, and explainable match reasons. */
   private scoreItem(
     item: IndexedRecord,
     primaryTokens: string[],
-    expandedTokens: string[],
-    classified: ClassifiedQuery
+    plan: ExpandedQueryPlan,
+    hintMap: Map<string, EntityMatchHint>
   ): SearchResult | null {
     let score = 0;
     const matchedFields = new Set<string>();
     const matchReasons: string[] = [];
     const matchedTokens = new Set<string>();
-    const rawNorm = classified.normalized;
+    const rawNorm = plan.normalizedQuery;
+    const classified = plan.classified;
 
-    // 1. Exact full name or exact alias match (highest precision)
+    // 1. Canonical Entity Resolution signal (Exact Alias / Transliteration / Phonetic Skeleton)
+    const entityHint = hintMap.get(item.record.id);
+    if (entityHint && entityHint.relationshipType !== "parent_category") {
+      const entityBoost =
+        entityHint.via === "exact_alias" || entityHint.via === "phrase"
+          ? 16
+          : entityHint.via === "phonetic_transliteration"
+          ? 14
+          : 11;
+      score += entityBoost * entityHint.confidence;
+      matchedFields.add(`entity-${entityHint.via}`);
+      matchReasons.push(`Canonical entity match (${entityHint.matchedTerm} via ${entityHint.via})`);
+    } else if (entityHint && entityHint.relationshipType === "parent_category") {
+      score += 7;
+      matchedFields.add("entity-category");
+    }
+
+    // 2. Exact full name or exact alias match (highest precision)
     if (
       rawNorm.length >= 2 &&
       (item.nameNorm === rawNorm ||
@@ -225,9 +269,9 @@ export class KnowledgeRetriever {
       matchReasons.push("Phrase match in title or alias");
     }
 
-    // 2. Primary query token & per-concept synonym matches (never double-count synonyms of the same token)
+    // 3. Token-level BM25-weighted field matching & bilingual synonym bridge
     let matchedSpecificEntityTokens = 0;
-    let synonymNameHit = false;
+    let synonymNameHit = Boolean(entityHint);
     const totalSpecificEntityTokens = primaryTokens.filter(
       (t) => !GENERIC_MODIFIER_TOKENS.has(t)
     ).length;
@@ -238,7 +282,8 @@ export class KnowledgeRetriever {
       let hitNameThisToken = false;
       let hitAliasThisToken = false;
       const isModifier = GENERIC_MODIFIER_TOKENS.has(token);
-      const weightScale = isModifier ? 0.25 : 1;
+      const idfWeight = this.termIdf.get(token) ?? 1.0;
+      const weightScale = (isModifier ? 0.25 : 1) * idfWeight;
 
       const recordFieldHit = (fieldWeight: number, fieldName: string) => {
         const w = fieldWeight * weightScale;
@@ -280,21 +325,24 @@ export class KnowledgeRetriever {
       let tokenScore =
         bestDirectScore + Math.min(4.5, directExtraHits * 1.5 * weightScale);
 
-      // Apply best single synonym bridge ONLY when this token did not already hit title/alias directly
+      // Synonym & Arabic transliteration bridge
       let bestSynScore = 0;
       let bestSynReason = "";
       let bestSynField = "";
       if (!isModifier) {
         for (const syn of getTokenSynonyms(token)) {
+          const synIdf = this.termIdf.get(syn) ?? 1.0;
           if (matchesToken(item.nameNorm, syn) || matchesToken(item.nameEnNorm, syn)) {
-            if (!hitNameThisToken && 12 > bestSynScore) {
-              bestSynScore = 12;
+            const val = 11.5 * Math.min(1.4, synIdf);
+            if (!hitNameThisToken && val > bestSynScore) {
+              bestSynScore = val;
               bestSynField = "synonym-name";
               bestSynReason = `Synonym match ("${syn}") in title`;
             }
           } else if (item.aliasesNorm.some((a) => matchesToken(a, syn))) {
-            if (!hitAliasThisToken && 8 > bestSynScore) {
-              bestSynScore = 8;
+            const val = 8.5 * Math.min(1.4, synIdf);
+            if (!hitAliasThisToken && val > bestSynScore) {
+              bestSynScore = val;
               bestSynField = "synonym-alias";
               bestSynReason = `Synonym match ("${syn}") in alias`;
             }
@@ -319,10 +367,13 @@ export class KnowledgeRetriever {
           synonymNameHit = true;
           if (bestSynReason) matchReasons.push(bestSynReason);
         }
-      } else if (tokenScore === 0 && !isModifier && isFuzzyTokenMatch(token, item.latinWords)) {
-        tokenScore += 4.5;
-        matchedFields.add("fuzzy");
-        matchReasons.push(`Fuzzy match for "${token}"`);
+      } else if (tokenScore === 0 && !isModifier) {
+        const fuzzyTarget = findControlledTypoMatch(token, item.vocabWords);
+        if (fuzzyTarget) {
+          tokenScore += 5.0;
+          matchedFields.add("fuzzy");
+          matchReasons.push(`Typo recovery ("${token}" -> "${fuzzyTarget}")`);
+        }
       }
 
       if (tokenScore > 0) {
@@ -332,21 +383,52 @@ export class KnowledgeRetriever {
       }
     }
 
-    // Reject records that matched ONLY generic modifiers (e.g. "pro", "max", "machine")
-    // when the user explicitly queried specific non-modifier terms that had zero match.
+    // 4. Broad category match when user explicitly asked for category inventory (e.g., "ايه خدمات البشرة؟")
+    if (
+      classified.broadCategoryHints.length > 0 &&
+      classified.broadCategoryHints.includes(item.record.category) &&
+      item.record.recordType !== "policy"
+    ) {
+      const asksDevicesBroadly = /(?:اجهزه|device|machine)/i.test(classified.normalized);
+      score +=
+        asksDevicesBroadly && item.record.recordType === "device"
+          ? 16
+          : item.record.recordType === "overview"
+          ? 12
+          : 9;
+      matchedFields.add("broad-category");
+      matchReasons.push(`Matches requested category "${item.record.category}"`);
+    }
+
+    // Reject records that matched ONLY generic modifiers, or 1 stray fuzzy hit when multiple out-of-domain terms missed
     if (
       totalSpecificEntityTokens > 0 &&
       matchedSpecificEntityTokens === 0 &&
       !synonymNameHit &&
       !matchedFields.has("exact-name") &&
-      !matchedFields.has("phrase-name")
+      !matchedFields.has("phrase-name") &&
+      !matchedFields.has("broad-category")
+    ) {
+      return null;
+    }
+
+    if (
+      totalSpecificEntityTokens >= 3 &&
+      matchedSpecificEntityTokens <= 1 &&
+      !synonymNameHit &&
+      !matchedFields.has("exact-name") &&
+      !matchedFields.has("phrase-name") &&
+      !matchedFields.has("name") &&
+      !matchedFields.has("alias") &&
+      !matchedFields.has("broad-category") &&
+      matchedFields.has("fuzzy")
     ) {
       return null;
     }
 
     if (score <= 0) return null;
 
-    // 4. Query token coverage bonus (multi-term queries prefer records covering all terms)
+    // 5. Query token coverage bonus
     if (primaryTokens.length >= 2) {
       const coverage = matchedTokens.size / primaryTokens.length;
       if (coverage >= 1) {
@@ -357,14 +439,54 @@ export class KnowledgeRetriever {
       }
     }
 
-    // 5. Intent-aware relevance boosts
+    // 6. Intent-aware relevance boosts
     const rec = item.record;
-    if (
-      classified.intent === "safety_pregnancy" &&
-      rec.category === "pregnancy-safety"
-    ) {
+    if (classified.intent === "safety_pregnancy" && rec.category === "pregnancy-safety") {
       score += 5;
       matchReasons.push("Matches pregnancy & lactation safety intent");
+      if (rec.recordType === "safety-rule") {
+        const safetyStopTokens = new Set([
+          "حمل",
+          "حامل",
+          "الحمل",
+          "للحامل",
+          "رضاعة",
+          "الرضاعة",
+          "مرضع",
+          "بترضع",
+          "pregnant",
+          "pregnancy",
+          "lactation",
+          "breastfeeding",
+          "safe",
+          "safety",
+          "allowed",
+          "مسموح",
+          "ممنوع",
+          "امن",
+          "آمن",
+        ]);
+        const nonSafetyTokens = primaryTokens.filter((t) => !safetyStopTokens.has(t));
+        const matchesSpecificService = nonSafetyTokens.some((tok) => {
+          if (
+            matchesToken(item.nameNorm, tok) ||
+            matchesToken(item.nameEnNorm, tok) ||
+            item.aliasesNorm.some((a) => matchesToken(a, tok))
+          ) {
+            return true;
+          }
+          return getTokenSynonyms(tok).some(
+            (syn) =>
+              matchesToken(item.nameNorm, syn) ||
+              matchesToken(item.nameEnNorm, syn) ||
+              item.aliasesNorm.some((a) => matchesToken(a, syn))
+          );
+        });
+        if (matchesSpecificService) {
+          score += 14;
+          matchReasons.push("Matches specific treatment pregnancy safety rule");
+        }
+      }
     }
 
     if (classified.clinicHints.length > 0) {
@@ -391,17 +513,26 @@ export class KnowledgeRetriever {
     if (
       rec.recordType === "product" ||
       rec.recordType === "device" ||
-      rec.recordType === "safety-rule"
+      rec.recordType === "service" ||
+      (rec.recordType === "safety-rule" &&
+        (classified.asksSafety || classified.intent === "safety_pregnancy"))
     ) {
       score += synonymNameHit || matchedFields.has("name") ? 7 : 2;
     } else if (rec.recordType === "overview") {
-      score -= 4;
+      score -= 2;
+    }
+
+    if (
+      rec.category === "pregnancy-safety" &&
+      !classified.asksSafety &&
+      classified.intent !== "safety_pregnancy"
+    ) {
+      // Keep pregnancy/lactation restriction rows secondary unless the user asked about safety
+      score -= 18;
     }
 
     if (matchReasons.length === 0) {
-      matchReasons.push(
-        `Matched fields: ${Array.from(matchedFields).join(", ")}`
-      );
+      matchReasons.push(`Matched fields: ${Array.from(matchedFields).join(", ")}`);
     }
 
     return {
@@ -412,17 +543,118 @@ export class KnowledgeRetriever {
     };
   }
 
+  /** Score a candidate list cleanly given a query plan. */
+  private scoreCandidates(
+    candidates: IndexedRecord[],
+    plan: ExpandedQueryPlan
+  ): SearchResult[] {
+    const hintMap = new Map<string, EntityMatchHint>();
+    for (const h of plan.entityHints) {
+      if (!hintMap.has(h.canonicalId)) {
+        hintMap.set(h.canonicalId, h);
+      }
+    }
+
+    const scored: SearchResult[] = [];
+    for (const item of candidates) {
+      const res = this.scoreItem(item, plan.primaryTokens, plan, hintMap);
+      if (res) scored.push(res);
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored;
+  }
+
+  /** Ensure comparison queries return top matches for BOTH compared options instead of omitting one. */
+  private mergeComparisonEntities(
+    baseResults: SearchResult[],
+    candidates: IndexedRecord[],
+    clauses: [string, string],
+    limit: number
+  ): SearchResult[] {
+    const planLeft = buildExpandedQueryPlan(clauses[0]);
+    const planRight = buildExpandedQueryPlan(clauses[1]);
+    const leftTop = this.scoreCandidates(candidates, planLeft)[0];
+    const rightTop = this.scoreCandidates(candidates, planRight)[0];
+
+    const merged: SearchResult[] = [];
+    const seen = new Set<string>();
+
+    const pushUnique = (item?: SearchResult) => {
+      if (!item || seen.has(item.record.id)) return;
+      seen.add(item.record.id);
+      merged.push(item);
+    };
+
+    // Promote curated comparison tables ONLY when both compared targets actually match that table
+    const leftTokens = planLeft.primaryTokens.filter((t) => !GENERIC_MODIFIER_TOKENS.has(t));
+    const rightTokens = planRight.primaryTokens.filter((t) => !GENERIC_MODIFIER_TOKENS.has(t));
+    const matchesBothSides = (rec: KnowledgeRecord): boolean => {
+      const hay = normalizeText(
+        `${rec.name} ${rec.aliases.join(" ")} ${rec.tags.join(" ")} ${rec.description}`
+      );
+      const hitsSide = (toks: string[]) =>
+        toks.some(
+          (tok) =>
+            matchesToken(hay, tok) ||
+            getTokenSynonyms(tok).some((syn) => matchesToken(hay, syn))
+        );
+      return leftTokens.length > 0 && rightTokens.length > 0 && hitsSide(leftTokens) && hitsSide(rightTokens);
+    };
+
+    for (const r of baseResults) {
+      if (r.record.recordType === "comparison" && matchesBothSides(r.record)) {
+        pushUnique(r);
+      }
+    }
+    pushUnique(leftTop);
+    pushUnique(rightTop);
+    for (const r of baseResults) {
+      if (r.record.recordType !== "comparison" || matchesBothSides(r.record)) {
+        pushUnique(r);
+      }
+      if (merged.length >= limit) break;
+    }
+
+    return merged.slice(0, limit);
+  }
+
+  /** Ensure broad multi-category inquiries (e.g. skin treatments) represent each matched department. */
+  private balanceBroadCategoryResults(
+    baseResults: SearchResult[],
+    categories: KnowledgeCategory[],
+    limit: number
+  ): SearchResult[] {
+    const out: SearchResult[] = [];
+    const seen = new Set<string>();
+    for (const cat of categories) {
+      const catBest = baseResults.filter((r) => r.record.category === cat).slice(0, 2);
+      for (const item of catBest) {
+        if (!seen.has(item.record.id)) {
+          seen.add(item.record.id);
+          out.push(item);
+        }
+      }
+    }
+    for (const item of baseResults) {
+      if (!seen.has(item.record.id)) {
+        seen.add(item.record.id);
+        out.push(item);
+      }
+      if (out.length >= limit) break;
+    }
+    return out.slice(0, limit);
+  }
+
   /** Simple search signature kept compatible with KnowledgeDrawer and tests. */
   search(query: string, options: SearchOptions = {}): SearchResult[] {
     return this.retrieve(query, options).results;
   }
 
-  /** Full modular retrieval pipeline returning scored results, confidence, related items, and conflicts. */
+  /** Full hybrid retrieval pipeline returning scored results, confidence, related items, and conflicts. */
   retrieve(query: string, options: SearchOptions = {}): RetrievalOutput {
     this.ensureInit();
-    const classified = classifyQuery(query);
-    const primaryTokens = tokenizeQuery(query);
-    const expandedTokens = expandSynonyms(primaryTokens);
+    const plan = buildExpandedQueryPlan(query);
+    const { classified, primaryTokens, expandedTokens, entityHints, unsupportedCompound } = plan;
 
     const {
       category,
@@ -433,16 +665,67 @@ export class KnowledgeRetriever {
       includeInactive = false,
     } = options;
 
+    // Early guard: unsupported compound service (e.g. "بوتوكس الشعر" must NOT return injectable Botox)
+    if (unsupportedCompound) {
+      const msg =
+        classified.language === "ar"
+          ? unsupportedCompound.reasonAr
+          : unsupportedCompound.reasonEn;
+      return {
+        classified,
+        primaryTokens,
+        expandedTokens,
+        entityHints: [],
+        results: [],
+        confidence: "none",
+        requiresClarification: false,
+        clarificationCandidates: [],
+        relatedRecords: [],
+        conflicts: [],
+        missingIndicators: [msg],
+      };
+    }
+
+    // Early guard: ambiguous generic query ("عايز اعرف الجلسة.")
+    if (classified.isAmbiguousGeneric) {
+      const starterIds = [
+        "facial-hydrafacial",
+        "fillers-overview",
+        "botox-overview",
+        "laser-hair-removal-overview",
+        "skin-booster-overview",
+      ];
+      const candidates = starterIds
+        .map((id) => this.recordById.get(id))
+        .filter((r): r is KnowledgeRecord => Boolean(r));
+      return {
+        classified,
+        primaryTokens,
+        expandedTokens,
+        entityHints: [],
+        results: [],
+        confidence: "ambiguous",
+        requiresClarification: true,
+        clarificationCandidates: candidates,
+        relatedRecords: [],
+        conflicts: [],
+        missingIndicators: [],
+      };
+    }
+
     if (
       classified.intent === "greeting" ||
       classified.intent === "medical_diagnosis" ||
       classified.unknownClinicRequested ||
-      (primaryTokens.length === 0 && expandedTokens.length === 0)
+      (primaryTokens.length === 0 &&
+        expandedTokens.length === 0 &&
+        classified.broadCategoryHints.length === 0 &&
+        entityHints.length === 0)
     ) {
       const missingIndicators: string[] = [];
       if (classified.intent === "medical_diagnosis") {
         missingIndicators.push(
-          "Terra AI Assistant provides internal product, device, and clinic operational knowledge only and cannot diagnose medical conditions or prescribe medications."
+          "Terra Solutions Assistant provides internal product, device, and clinic operational knowledge only and cannot diagnose medical conditions or prescribe medications."
         );
       } else if (classified.unknownClinicRequested) {
         missingIndicators.push(
@@ -453,6 +736,7 @@ export class KnowledgeRetriever {
         classified,
         primaryTokens,
         expandedTokens,
+        entityHints,
         results: [],
         confidence: "none",
         requiresClarification: false,
@@ -481,14 +765,23 @@ export class KnowledgeRetriever {
       );
     }
 
-    const scored: SearchResult[] = [];
-    for (const item of candidates) {
-      const res = this.scoreItem(item, primaryTokens, expandedTokens, classified);
-      if (res) scored.push(res);
-    }
+    const scored = this.scoreCandidates(candidates, plan);
+    let topResults = scored.slice(0, limit);
 
-    scored.sort((a, b) => b.score - a.score);
-    const topResults = scored.slice(0, limit);
+    if (classified.asksComparison && plan.comparisonClauses && topResults.length > 0) {
+      topResults = this.mergeComparisonEntities(
+        scored,
+        candidates,
+        plan.comparisonClauses,
+        limit
+      );
+    } else if (classified.broadCategoryHints.length > 0 && topResults.length > 0) {
+      topResults = this.balanceBroadCategoryResults(
+        scored,
+        classified.broadCategoryHints,
+        limit
+      );
+    }
 
     // Calibrated confidence & ambiguity detection
     let confidence: RetrievalConfidence = "none";
@@ -506,9 +799,10 @@ export class KnowledgeRetriever {
         classified.intent === "price_offer_lookup" ||
         classified.intent === "clinic_lookup" ||
         classified.intent === "comparison" ||
-        classified.intent === "company_info";
+        classified.intent === "company_info" ||
+        classified.broadCategoryHints.length > 0;
 
-      // Check if multiple distinct product entities tied closely on an underspecified query
+      // Underspecified single-brand ambiguity (e.g. "Juvederm")
       if (
         !isBroadIntent &&
         primaryTokens.length <= 2 &&
@@ -516,7 +810,9 @@ export class KnowledgeRetriever {
         second.score >= top.score * 0.9 &&
         top.record.recordType === "product" &&
         second.record.recordType === "product" &&
-        !top.matchedFields.includes("exact-name")
+        !top.matchedFields.includes("exact-name") &&
+        !top.matchedFields.includes("entity-exact_alias") &&
+        !top.matchedFields.includes("entity-phonetic_transliteration")
       ) {
         confidence = "ambiguous";
         requiresClarification = true;
@@ -524,7 +820,7 @@ export class KnowledgeRetriever {
           .filter((r) => r.score >= top.score * 0.85)
           .slice(0, 5)
           .map((r) => r.record);
-      } else if (top.score >= 14) {
+      } else if (top.score >= 13.5) {
         confidence = "strong";
       } else {
         confidence = "partial";
@@ -535,7 +831,7 @@ export class KnowledgeRetriever {
         !topResults.slice(0, 3).some((r) => r.record.prices.length > 0)
       ) {
         missingIndicators.push(
-          "Exact pricing or promotional offers for this item are not present in the supplied Excel knowledge base."
+          "السعر مش موجود في البيانات المتاحة حاليًا، محتاجين نراجعه مع المسؤول. / Exact pricing or promotional offers for this item are not present in the supplied Excel knowledge base."
         );
         if (confidence === "strong") confidence = "partial";
       }
@@ -550,7 +846,6 @@ export class KnowledgeRetriever {
       }
     }
 
-    // Related records expansion for top result
     const relatedRecords =
       topResults.length > 0 ? this.getRelated(topResults[0].record, 4) : [];
 
@@ -558,11 +853,11 @@ export class KnowledgeRetriever {
       topResults[0].relatedIds = relatedRecords.map((r) => r.id);
     }
 
-    // Surface relevant conflicts
     const relevantConflicts = this.conflicts.filter((cf) =>
       topResults.some((r) =>
-        r.record.conflictNotes?.some((n) => n.toLowerCase().includes(cf.topic.split(" ")[0].toLowerCase())) ||
-        cf.sources.some((s) => s.sheet === r.record.source.rawSheet)
+        r.record.conflictNotes?.some((n) =>
+          n.toLowerCase().includes(cf.topic.split(" ")[0].toLowerCase())
+        ) || cf.sources.some((s) => s.sheet === r.record.source.rawSheet)
       )
     );
 
@@ -570,6 +865,7 @@ export class KnowledgeRetriever {
       classified,
       primaryTokens,
       expandedTokens,
+      entityHints,
       results: topResults,
       confidence,
       requiresClarification,
@@ -590,18 +886,18 @@ export class KnowledgeRetriever {
       if (r.id === record.id) continue;
       let score = 0;
 
-      // Cross-link via clinicIds
       for (const cid of record.clinicIds) {
         if (r.clinicIds.includes(cid)) score += 6;
       }
 
-      // Cross-link treatments to pregnancy safety rule
       if (
         record.category !== "pregnancy-safety" &&
         r.category === "pregnancy-safety" &&
         r.recordType === "safety-rule"
       ) {
-        const cleanRule = normalizeText(r.name.replace("Pregnancy & Lactation Safety:", ""));
+        const cleanRule = normalizeText(
+          r.name.replace("Pregnancy & Lactation Safety:", "")
+        );
         if (
           cleanRule.length >= 3 &&
           (normalizeText(record.name).includes(cleanRule) ||

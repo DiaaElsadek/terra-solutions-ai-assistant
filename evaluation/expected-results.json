@@ -1,58 +1,971 @@
 [
-  { "id": "q01", "expectedRecordIds": ["filler-redensity-2-فلر-تحت-العين-teosyal", "skin-booster-jalupro-young-eye", "skin-booster-rrs-ha-eyes"], "expectedCategory": "fillers", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q02", "expectedRecordIds": ["safety-pregnancy-البوتوكس", "pregnancy-lactation-overview"], "expectedCategory": "pregnancy-safety", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q03", "expectedRecordIds": ["thread-aptos-cat-eye-threads"], "expectedCategory": "threads", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q04", "expectedRecordIds": ["thread-pdo-thread-1-thread"], "expectedCategory": "threads", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q05", "expectedRecordIds": ["body-filler-overview", "body-filler-goldfill-box-10", "body-filler-jealfil-box-20", "body-filler-privilege-box-10"], "expectedCategory": "body-fillers", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q06", "expectedRecordIds": ["body-filler-overview"], "expectedCategory": "body-fillers", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q07", "expectedRecordIds": ["tattoo-permanent-makeup-microblading-policy", "clinic-dermadent"], "expectedCategory": "tattoo-removal", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q08", "expectedRecordIds": ["laser-hair-removal-overview", "device-candela-gentlemax-pro-plus-أحدث-إصدار"], "expectedCategory": "laser", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q09", "expectedRecordIds": ["laser-hair-removal-overview", "machine-clear-brilliant-fractional-laser"], "expectedCategory": "laser", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q10", "expectedRecordIds": ["dental-veneers-overview"], "expectedCategory": "dental", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q11", "expectedRecordIds": ["dental-therapeutic-services-policy"], "expectedCategory": "dental", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q12", "expectedRecordIds": ["dental-veneer-removal-policy"], "expectedCategory": "dental", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q13", "expectedRecordIds": ["skin-booster-exofecta"], "expectedCategory": "skin-boosters", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q14", "expectedRecordIds": ["skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل"], "expectedCategory": "skin-boosters", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q15", "expectedRecordIds": ["skin-booster-virtue-aura"], "expectedCategory": "skin-boosters", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q16", "expectedRecordIds": ["facial-dermapen", "machine-vivace-microneedling-radiofrequency-فيفا"], "expectedCategory": "facial", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q17", "expectedRecordIds": ["facial-factor-five"], "expectedCategory": "facial", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q18", "expectedRecordIds": ["slimming-wegovy"], "expectedCategory": "slimming", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q19", "expectedRecordIds": ["safety-pregnancy-الفيلر", "pregnancy-lactation-overview"], "expectedCategory": "pregnancy-safety", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q20", "expectedRecordIds": ["comparison-botox-vs-fillers"], "expectedCategory": "botox", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q21", "expectedRecordIds": ["filler-juvederm-voluma"], "expectedCategory": "fillers", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q22", "expectedRecordIds": ["filler-juvederm-volux"], "expectedCategory": "fillers", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q23", "expectedRecordIds": ["filler-radiesse-1-5ml", "collagen-radiesse-3-ml"], "expectedCategory": "fillers", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q24", "expectedRecordIds": ["device-candela-gentlemax-pro-plus-أحدث-إصدار"], "expectedCategory": "laser", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q25", "expectedRecordIds": ["device-cynosure-elite-plus-سايناشور-إيليت-بلس"], "expectedCategory": "laser", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q26", "expectedRecordIds": ["hair-dr-cyj-filler"], "expectedCategory": "hair-treatments", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q27", "expectedRecordIds": ["skin-booster-restylane-skinboosters"], "expectedCategory": "skin-boosters", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q28", "expectedRecordIds": ["collagen-sculptra-10-ml"], "expectedCategory": "skin-boosters", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q29", "expectedRecordIds": ["machine-clear-brilliant-fractional-laser"], "expectedCategory": "facial-machines", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q30", "expectedRecordIds": ["machine-vivace-microneedling-radiofrequency-فيفا"], "expectedCategory": "facial-machines", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q31", "expectedRecordIds": ["machine-opatra-london-skin-analyser"], "expectedCategory": "facial-machines", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q32", "expectedRecordIds": ["machine-ultra-sound-for-filler-usa-2026-version"], "expectedCategory": "facial-machines", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q33", "expectedRecordIds": ["dental-night-guard"], "expectedCategory": "dental", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q34", "expectedRecordIds": ["dental-snap-on-smile"], "expectedCategory": "dental", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q35", "expectedRecordIds": ["dental-vip-lounge-smile-custom-100", "dental-diamond-feldspathic-porcelain"], "expectedCategory": "dental", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q36", "expectedRecordIds": ["device-endolift-french-dermacool-2025-doctors-on"], "expectedCategory": "slimming", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q37", "expectedRecordIds": ["device-z-lipo-cryolipolysis-well-touch", "device-z-wave-acoustic-wave-therapy-well-touch", "clinic-well-touch"], "expectedCategory": "slimming", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q38", "expectedRecordIds": ["device-hifu-high-intensity-focused-ultrasound-on", "device-cool-shaping-one-touch", "clinic-one-touch"], "expectedCategory": "slimming", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q39", "expectedRecordIds": ["comparison-hair-injections"], "expectedCategory": "hair-treatments", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q40", "expectedRecordIds": ["safety-pregnancy-hydrafacial", "facial-hydrafacial"], "expectedCategory": "pregnancy-safety", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q41", "expectedRecordIds": ["thread-aptos-lifting-threads"], "expectedCategory": "threads", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q42", "expectedRecordIds": ["filler-juvederm-voluma"], "expectedCategory": "fillers", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q43", "expectedRecordIds": ["botox-dysport-british-500-unit", "botox-botox-100-unit"], "expectedCategory": "botox", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q44", "expectedRecordIds": ["tattoo-permanent-makeup-microblading-policy", "clinic-dermadent"], "expectedCategory": "tattoo-removal", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q45", "expectedRecordIds": ["collagen-sculptra-10-ml"], "expectedCategory": "skin-boosters", "minConfidence": "partial", "expectAbstention": false },
-  { "id": "q46", "expectedRecordIds": ["tattoo-device-new-age", "clinic-new-age"], "expectedCategory": "tattoo-removal", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q47", "expectedRecordIds": ["clinic-dermadent", "tattoo-device-dermadent"], "expectedCategory": "clinics", "minConfidence": "strong", "expectAbstention": false },
-  { "id": "q48", "expectedRecordIds": ["filler-juvederm-ultra-4", "filler-juvederm-ultra-3", "filler-juvederm-voluma", "filler-juvederm-volux"], "expectedCategory": "fillers", "minConfidence": "ambiguous", "expectAbstention": false, "expectClarification": true },
-  { "id": "q49", "expectedRecordIds": [], "expectedCategory": "unknown", "minConfidence": "ambiguous", "expectAbstention": false, "expectClarification": true },
-  { "id": "q50", "expectedRecordIds": ["botox-botox-100-unit"], "expectedCategory": "botox", "minConfidence": "partial", "expectAbstention": false, "expectMissingIndicator": true },
-  { "id": "q51", "expectedRecordIds": ["clinic-well-touch"], "expectedCategory": "clinics", "minConfidence": "partial", "expectAbstention": false, "expectMissingIndicator": true },
-  { "id": "q52", "expectedRecordIds": [], "expectedCategory": "unknown", "minConfidence": "none", "expectAbstention": true },
-  { "id": "q53", "expectedRecordIds": [], "expectedCategory": "unknown", "minConfidence": "none", "expectAbstention": true },
-  { "id": "q54", "expectedRecordIds": [], "expectedCategory": "unknown", "minConfidence": "none", "expectAbstention": true },
-  { "id": "q55", "expectedRecordIds": [], "expectedCategory": "unknown", "minConfidence": "none", "expectAbstention": true },
-  { "id": "q56", "expectedRecordIds": [], "expectedCategory": "unknown", "minConfidence": "none", "expectAbstention": true }
+  {
+    "id": "q01",
+    "expectedRecordIds": [
+      "filler-redensity-2-فلر-تحت-العين-teosyal",
+      "skin-booster-jalupro-young-eye",
+      "skin-booster-rrs-ha-eyes"
+    ],
+    "expectedCategory": "fillers",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q02",
+    "expectedRecordIds": [
+      "safety-pregnancy-البوتوكس",
+      "pregnancy-lactation-overview"
+    ],
+    "expectedCategory": "pregnancy-safety",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q03",
+    "expectedRecordIds": [
+      "thread-aptos-cat-eye-threads"
+    ],
+    "expectedCategory": "threads",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q04",
+    "expectedRecordIds": [
+      "thread-pdo-thread-1-thread"
+    ],
+    "expectedCategory": "threads",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q05",
+    "expectedRecordIds": [
+      "body-filler-overview",
+      "body-filler-goldfill-box-10",
+      "body-filler-jealfil-box-20",
+      "body-filler-privilege-box-10"
+    ],
+    "expectedCategory": "body-fillers",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q06",
+    "expectedRecordIds": [
+      "body-filler-overview"
+    ],
+    "expectedCategory": "body-fillers",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q07",
+    "expectedRecordIds": [
+      "tattoo-permanent-makeup-microblading-policy",
+      "clinic-dermadent"
+    ],
+    "expectedCategory": "tattoo-removal",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q08",
+    "expectedRecordIds": [
+      "laser-hair-removal-overview",
+      "device-candela-gentlemax-pro-plus-أحدث-إصدار"
+    ],
+    "expectedCategory": "laser",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q09",
+    "expectedRecordIds": [
+      "laser-hair-removal-overview",
+      "machine-clear-brilliant-fractional-laser"
+    ],
+    "expectedCategory": "laser",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q10",
+    "expectedRecordIds": [
+      "dental-veneers-overview"
+    ],
+    "expectedCategory": "dental",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q11",
+    "expectedRecordIds": [
+      "dental-therapeutic-services-policy"
+    ],
+    "expectedCategory": "dental",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q12",
+    "expectedRecordIds": [
+      "dental-veneer-removal-policy"
+    ],
+    "expectedCategory": "dental",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q13",
+    "expectedRecordIds": [
+      "skin-booster-exofecta"
+    ],
+    "expectedCategory": "skin-boosters",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q14",
+    "expectedRecordIds": [
+      "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل"
+    ],
+    "expectedCategory": "skin-boosters",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q15",
+    "expectedRecordIds": [
+      "skin-booster-virtue-aura"
+    ],
+    "expectedCategory": "skin-boosters",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q16",
+    "expectedRecordIds": [
+      "facial-dermapen",
+      "machine-vivace-microneedling-radiofrequency-فيفا"
+    ],
+    "expectedCategory": "facial",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q17",
+    "expectedRecordIds": [
+      "facial-factor-five"
+    ],
+    "expectedCategory": "facial",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q18",
+    "expectedRecordIds": [
+      "slimming-wegovy"
+    ],
+    "expectedCategory": "slimming",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q19",
+    "expectedRecordIds": [
+      "safety-pregnancy-الفيلر",
+      "pregnancy-lactation-overview"
+    ],
+    "expectedCategory": "pregnancy-safety",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q20",
+    "expectedRecordIds": [
+      "comparison-botox-vs-fillers"
+    ],
+    "expectedCategory": "botox",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q21",
+    "expectedRecordIds": [
+      "filler-juvederm-voluma"
+    ],
+    "expectedCategory": "fillers",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q22",
+    "expectedRecordIds": [
+      "filler-juvederm-volux"
+    ],
+    "expectedCategory": "fillers",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q23",
+    "expectedRecordIds": [
+      "filler-radiesse-1-5ml",
+      "collagen-radiesse-3-ml"
+    ],
+    "expectedCategory": "fillers",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q24",
+    "expectedRecordIds": [
+      "device-candela-gentlemax-pro-plus-أحدث-إصدار"
+    ],
+    "expectedCategory": "laser",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q25",
+    "expectedRecordIds": [
+      "device-cynosure-elite-plus-سايناشور-إيليت-بلس"
+    ],
+    "expectedCategory": "laser",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q26",
+    "expectedRecordIds": [
+      "hair-dr-cyj-filler"
+    ],
+    "expectedCategory": "hair-treatments",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q27",
+    "expectedRecordIds": [
+      "skin-booster-restylane-skinboosters"
+    ],
+    "expectedCategory": "skin-boosters",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q28",
+    "expectedRecordIds": [
+      "collagen-sculptra-10-ml"
+    ],
+    "expectedCategory": "skin-boosters",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q29",
+    "expectedRecordIds": [
+      "machine-clear-brilliant-fractional-laser"
+    ],
+    "expectedCategory": "facial-machines",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q30",
+    "expectedRecordIds": [
+      "machine-vivace-microneedling-radiofrequency-فيفا"
+    ],
+    "expectedCategory": "facial-machines",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q31",
+    "expectedRecordIds": [
+      "machine-opatra-london-skin-analyser"
+    ],
+    "expectedCategory": "facial-machines",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q32",
+    "expectedRecordIds": [
+      "machine-ultra-sound-for-filler-usa-2026-version"
+    ],
+    "expectedCategory": "facial-machines",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q33",
+    "expectedRecordIds": [
+      "dental-night-guard"
+    ],
+    "expectedCategory": "dental",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q34",
+    "expectedRecordIds": [
+      "dental-snap-on-smile"
+    ],
+    "expectedCategory": "dental",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q35",
+    "expectedRecordIds": [
+      "dental-vip-lounge-smile-custom-100",
+      "dental-diamond-feldspathic-porcelain"
+    ],
+    "expectedCategory": "dental",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q36",
+    "expectedRecordIds": [
+      "device-endolift-french-dermacool-2025-doctors-on"
+    ],
+    "expectedCategory": "slimming",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q37",
+    "expectedRecordIds": [
+      "device-z-lipo-cryolipolysis-well-touch",
+      "device-z-wave-acoustic-wave-therapy-well-touch",
+      "clinic-well-touch"
+    ],
+    "expectedCategory": "slimming",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q38",
+    "expectedRecordIds": [
+      "device-hifu-high-intensity-focused-ultrasound-on",
+      "device-cool-shaping-one-touch",
+      "clinic-one-touch"
+    ],
+    "expectedCategory": "slimming",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q39",
+    "expectedRecordIds": [
+      "comparison-hair-injections"
+    ],
+    "expectedCategory": "hair-treatments",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q40",
+    "expectedRecordIds": [
+      "safety-pregnancy-hydrafacial",
+      "facial-hydrafacial"
+    ],
+    "expectedCategory": "pregnancy-safety",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q41",
+    "expectedRecordIds": [
+      "thread-aptos-lifting-threads"
+    ],
+    "expectedCategory": "threads",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q42",
+    "expectedRecordIds": [
+      "filler-juvederm-voluma"
+    ],
+    "expectedCategory": "fillers",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q43",
+    "expectedRecordIds": [
+      "botox-dysport-british-500-unit",
+      "botox-botox-100-unit"
+    ],
+    "expectedCategory": "botox",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q44",
+    "expectedRecordIds": [
+      "tattoo-permanent-makeup-microblading-policy",
+      "clinic-dermadent"
+    ],
+    "expectedCategory": "tattoo-removal",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q45",
+    "expectedRecordIds": [
+      "collagen-sculptra-10-ml"
+    ],
+    "expectedCategory": "skin-boosters",
+    "minConfidence": "partial",
+    "expectAbstention": false
+  },
+  {
+    "id": "q46",
+    "expectedRecordIds": [
+      "tattoo-device-new-age",
+      "clinic-new-age"
+    ],
+    "expectedCategory": "tattoo-removal",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q47",
+    "expectedRecordIds": [
+      "clinic-dermadent",
+      "tattoo-device-dermadent"
+    ],
+    "expectedCategory": "clinics",
+    "minConfidence": "strong",
+    "expectAbstention": false
+  },
+  {
+    "id": "q48",
+    "expectedRecordIds": [
+      "filler-juvederm-ultra-4",
+      "filler-juvederm-ultra-3",
+      "filler-juvederm-voluma",
+      "filler-juvederm-volux"
+    ],
+    "expectedCategory": "fillers",
+    "minConfidence": "ambiguous",
+    "expectAbstention": false,
+    "expectClarification": true
+  },
+  {
+    "id": "q49",
+    "expectedRecordIds": [],
+    "expectedCategory": "unknown",
+    "minConfidence": "ambiguous",
+    "expectAbstention": false,
+    "expectClarification": true
+  },
+  {
+    "id": "q50",
+    "expectedRecordIds": [
+      "botox-botox-100-unit"
+    ],
+    "expectedCategory": "botox",
+    "minConfidence": "partial",
+    "expectAbstention": false,
+    "expectMissingIndicator": true
+  },
+  {
+    "id": "q51",
+    "expectedRecordIds": [
+      "clinic-well-touch"
+    ],
+    "expectedCategory": "clinics",
+    "minConfidence": "partial",
+    "expectAbstention": false,
+    "expectMissingIndicator": true
+  },
+  {
+    "id": "q52",
+    "expectedRecordIds": [],
+    "expectedCategory": "unknown",
+    "minConfidence": "none",
+    "expectAbstention": true
+  },
+  {
+    "id": "q53",
+    "expectedRecordIds": [],
+    "expectedCategory": "unknown",
+    "minConfidence": "none",
+    "expectAbstention": true
+  },
+  {
+    "id": "q54",
+    "expectedRecordIds": [],
+    "expectedCategory": "unknown",
+    "minConfidence": "none",
+    "expectAbstention": true
+  },
+  {
+    "id": "q55",
+    "expectedRecordIds": [],
+    "expectedCategory": "unknown",
+    "minConfidence": "none",
+    "expectAbstention": true
+  },
+  {
+    "id": "q56",
+    "expectedRecordIds": [],
+    "expectedCategory": "unknown",
+    "minConfidence": "none",
+    "expectAbstention": true
+  },
+  {
+    "id": "q57",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q58",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q59",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q60",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q61",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q62",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q63",
+    "expectedRecordIds": [
+      "facial-dermapen"
+    ]
+  },
+  {
+    "id": "q64",
+    "expectedRecordIds": [
+      "skin-booster-overview"
+    ]
+  },
+  {
+    "id": "q65",
+    "expectedRecordIds": [
+      "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل"
+    ]
+  },
+  {
+    "id": "q66",
+    "expectedRecordIds": [
+      "botox-overview",
+      "botox-botox-100-unit"
+    ]
+  },
+  {
+    "id": "q67",
+    "expectedRecordIds": [
+      "fillers-overview"
+    ]
+  },
+  {
+    "id": "q68",
+    "expectedRecordIds": [
+      "laser-hair-removal-overview"
+    ]
+  },
+  {
+    "id": "q69",
+    "expectedRecordIds": [
+      "device-roblex-body-face-contouring",
+      "device-z-lipo-cryolipolysis-well-touch",
+      "device-hifu-high-intensity-focused-ultrasound-on"
+    ]
+  },
+  {
+    "id": "q70",
+    "expectedRecordIds": [
+      "dental-veneers-overview"
+    ]
+  },
+  {
+    "id": "q71",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q72",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q73",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q74",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q75",
+    "expectedRecordIds": [
+      "skin-booster-overview"
+    ]
+  },
+  {
+    "id": "q76",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q77",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q78",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q79",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q80",
+    "expectedRecordIds": [
+      "device-roblex-body-face-contouring"
+    ]
+  },
+  {
+    "id": "q81",
+    "expectedRecordIds": [
+      "skin-booster-overview"
+    ]
+  },
+  {
+    "id": "q82",
+    "expectedRecordIds": [
+      "laser-hair-removal-overview"
+    ],
+    "expectedIntents": [
+      "price_offer_lookup",
+      "service_inquiry"
+    ]
+  },
+  {
+    "id": "q83",
+    "expectedRecordIds": [
+      "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+      "device-cynosure-elite-plus-سايناشور-إيليت-بلس"
+    ],
+    "expectedIntents": [
+      "comparison"
+    ],
+    "requiredAllIds": [
+      "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+      "device-cynosure-elite-plus-سايناشور-إيليت-بلس"
+    ]
+  },
+  {
+    "id": "q84",
+    "expectedRecordIds": [
+      "safety-pregnancy-hydrafacial",
+      "safety-pregnancy-facial-تنظيف-عادي"
+    ],
+    "expectedIntents": [
+      "safety_pregnancy"
+    ]
+  },
+  {
+    "id": "q85",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q86",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q87",
+    "expectedRecordIds": [
+      "fillers-overview"
+    ]
+  },
+  {
+    "id": "q88",
+    "expectedRecordIds": [
+      "botox-overview",
+      "botox-botox-100-unit"
+    ]
+  },
+  {
+    "id": "q89",
+    "expectedRecordIds": [
+      "laser-hair-removal-overview"
+    ]
+  },
+  {
+    "id": "q90",
+    "expectedRecordIds": [
+      "tattoo-removal-protocol"
+    ]
+  },
+  {
+    "id": "q91",
+    "expectedRecordIds": [
+      "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل"
+    ]
+  },
+  {
+    "id": "q92",
+    "expectedRecordIds": [],
+    "expectAbstention": true
+  },
+  {
+    "id": "q93",
+    "expectedRecordIds": [
+      "facial-hydrafacial",
+      "skin-booster-overview",
+      "facial-dermapen",
+      "facial-peeling"
+    ]
+  },
+  {
+    "id": "q94",
+    "expectedRecordIds": [
+      "facial-hydrafacial",
+      "skin-booster-overview",
+      "fillers-overview",
+      "botox-overview"
+    ]
+  },
+  {
+    "id": "q95",
+    "expectedRecordIds": [
+      "laser-hair-removal-overview",
+      "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+      "device-cynosure-elite-plus-سايناشور-إيليت-بلس"
+    ]
+  },
+  {
+    "id": "q96",
+    "expectedRecordIds": [
+      "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+      "device-endolift-french-dermacool-2025-doctors-on",
+      "device-roblex-body-face-contouring",
+      "machine-vivace-microneedling-radiofrequency-فيفا"
+    ]
+  },
+  {
+    "id": "q97",
+    "expectedRecordIds": [
+      "slimming-wegovy",
+      "slimming-lipolysis",
+      "device-z-lipo-cryolipolysis-well-touch",
+      "device-roblex-body-face-contouring"
+    ]
+  },
+  {
+    "id": "q98",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ],
+    "expectMissingIndicator": true,
+    "expectedIntents": [
+      "price_offer_lookup"
+    ]
+  },
+  {
+    "id": "q99",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ],
+    "expectMissingIndicator": true,
+    "expectedIntents": [
+      "price_offer_lookup"
+    ]
+  },
+  {
+    "id": "q100",
+    "expectedRecordIds": [
+      "botox-overview",
+      "botox-botox-100-unit"
+    ],
+    "expectMissingIndicator": true,
+    "expectedIntents": [
+      "price_offer_lookup"
+    ]
+  },
+  {
+    "id": "q101",
+    "expectedRecordIds": [
+      "facial-hydrafacial",
+      "skin-booster-overview"
+    ],
+    "expectedIntents": [
+      "comparison"
+    ],
+    "requiredAllIds": [
+      "facial-hydrafacial",
+      "skin-booster-overview"
+    ]
+  },
+  {
+    "id": "q102",
+    "expectedRecordIds": [
+      "comparison-botox-vs-fillers",
+      "botox-overview",
+      "fillers-overview"
+    ],
+    "expectedIntents": [
+      "comparison"
+    ]
+  },
+  {
+    "id": "q103",
+    "expectedRecordIds": [
+      "comparison-collagen-vs-filler",
+      "collagen-sculptra-10-ml",
+      "fillers-overview"
+    ],
+    "expectedIntents": [
+      "comparison"
+    ]
+  },
+  {
+    "id": "q104",
+    "expectedRecordIds": [
+      "comparison-botox-vs-fillers"
+    ],
+    "expectedIntents": [
+      "comparison"
+    ]
+  },
+  {
+    "id": "q105",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ]
+  },
+  {
+    "id": "q106",
+    "expectedRecordIds": [
+      "facial-hydrafacial"
+    ],
+    "expectMissingIndicator": true
+  },
+  {
+    "id": "q107",
+    "expectedRecordIds": [
+      "facial-hydrafacial",
+      "facial-dermapen",
+      "facial-factor-five",
+      "facial-peeling"
+    ]
+  },
+  {
+    "id": "q108",
+    "expectedRecordIds": [
+      "skin-booster-overview"
+    ]
+  },
+  {
+    "id": "q109",
+    "expectedRecordIds": [
+      "safety-pregnancy-البوتوكس"
+    ],
+    "expectedIntents": [
+      "safety_pregnancy"
+    ]
+  },
+  {
+    "id": "q110",
+    "expectedRecordIds": [
+      "tattoo-device-dermadent",
+      "tattoo-permanent-makeup-microblading-policy"
+    ]
+  },
+  {
+    "id": "q111",
+    "expectedRecordIds": [
+      "comparison-botox-vs-fillers"
+    ],
+    "expectedIntents": [
+      "comparison"
+    ]
+  },
+  {
+    "id": "q112",
+    "expectedRecordIds": [
+      "hair-dr-cyj-filler"
+    ],
+    "expectMissingIndicator": true
+  },
+  {
+    "id": "q113",
+    "expectedRecordIds": [],
+    "expectClarification": true
+  },
+  {
+    "id": "q114",
+    "expectedRecordIds": [],
+    "expectAbstention": true
+  },
+  {
+    "id": "q115",
+    "expectedRecordIds": [],
+    "expectAbstention": true
+  },
+  {
+    "id": "q116",
+    "expectedRecordIds": [],
+    "expectAbstention": true
+  },
+  {
+    "id": "q117",
+    "expectedRecordIds": [],
+    "expectAbstention": true
+  },
+  {
+    "id": "q118",
+    "expectedRecordIds": [],
+    "expectAbstention": true,
+    "expectedIntents": [
+      "medical_diagnosis"
+    ]
+  }
 ]

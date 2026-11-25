@@ -1,0 +1,725 @@
+{
+  "version": 1,
+  "language": "ar-en",
+  "description": "Knowledge-aware canonical synonym, transliteration, typo, and unsupported-compound guard dictionary grounded strictly in verified Terra Solutions canonical records.",
+  "entries": [
+    {
+      "canonicalId": "facial-hydrafacial",
+      "canonicalName": "Hydrafacial (Basic, Deep, Korean Facial)",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "facial",
+        "facial treatment",
+        "face treatment",
+        "facial cleansing",
+        "فيشيال",
+        "فيشال",
+        "فيشيول",
+        "فيشل",
+        "فيشيل",
+        "فشيال",
+        "فيشيلز",
+        "الفيشيال",
+        "الفيشال",
+        "الفيشيل",
+        "هيدرافيشال",
+        "هايدرافيشال",
+        "هايدرا فيشال",
+        "تنظيف بشرة",
+        "جلسة تنظيف البشرة",
+        "facail",
+        "faciel",
+        "faical"
+      ],
+      "commonQuestions": [
+        "ايه هو الفيشيال",
+        "يعني ايه فيشيال",
+        "تفاصيل facial",
+        "الفيشال عبارة عن ايه",
+        "عايزة اعرف facial",
+        "facial بكام"
+      ],
+      "relatedConcepts": [
+        "facial-dermapen",
+        "facial-factor-five",
+        "facial-peeling",
+        "policy-facial-session-intervals",
+        "safety-pregnancy-hydrafacial",
+        "safety-pregnancy-facial-تنظيف-عادي"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "facial-dermapen",
+      "canonicalName": "Dermapen (Microneedling)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "dermapen",
+        "derma pen",
+        "microneedling",
+        "ديرمابن",
+        "ديرما بن",
+        "ديرمابين",
+        "مايكرونيدلينج",
+        "ميكرونيدلنج"
+      ],
+      "commonQuestions": [
+        "ايه هو الديرمابن",
+        "dermapen بيستخدم في ايه"
+      ],
+      "relatedConcepts": [
+        "facial-hydrafacial",
+        "facial-factor-five",
+        "policy-facial-session-intervals"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "facial-factor-five",
+      "canonicalName": "Factor Five (Acne-Safe Stem Cell Microneedling)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "factor five",
+        "factor 5",
+        "فاكتور فايف",
+        "فاكتور 5",
+        "جلسة الحبوب الملتهبة"
+      ],
+      "commonQuestions": [
+        "ايه هو فاكتور فايف",
+        "جلسة للحبوب الملتهبة"
+      ],
+      "relatedConcepts": [
+        "facial-dermapen",
+        "facial-hydrafacial"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "facial-peeling",
+      "canonicalName": "Chemical & Fruit Acid Peeling (TCA)",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "peeling",
+        "chemical peel",
+        "fruit acid peel",
+        "tca",
+        "تقشير",
+        "تقشير كيميائي",
+        "احماض الفواكه",
+        "تقشير بارد"
+      ],
+      "commonQuestions": [
+        "ايه هو التقشير",
+        "انواع التقشير"
+      ],
+      "relatedConcepts": [
+        "facial-hydrafacial",
+        "policy-facial-session-intervals"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "skin-booster-overview",
+      "canonicalName": "Skin Booster Injections Overview & Protocol",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "skin booster",
+        "skin boosters",
+        "skinbooster",
+        "سكين بوستر",
+        "سكن بوستر",
+        "سكين بوسترز",
+        "سكن بوسترز",
+        "ابرة النضارة",
+        "حقن النضارة",
+        "جلسات النضارة",
+        "نضارة الوجه"
+      ],
+      "commonQuestions": [
+        "عايزة skin booster",
+        "ايه هي حقن النضارة"
+      ],
+      "relatedConcepts": [
+        "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل",
+        "skin-booster-jalupro-super-hydro",
+        "skin-booster-exofecta",
+        "collagen-stimulators-overview"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل",
+      "canonicalName": "Profhilo ابرة الخمس نقاط (2 مل)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "profhilo",
+        "prophilo",
+        "بروفايلو",
+        "بروفيلو",
+        "ابرة الخمس نقاط",
+        "حقنة الخمس نقاط"
+      ],
+      "commonQuestions": [
+        "ما هي ابرة الخمس نقاط",
+        "تفاصيل البروفايلو"
+      ],
+      "relatedConcepts": [
+        "skin-booster-overview",
+        "skin-booster-exofecta"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "skin-booster-exofecta",
+      "canonicalName": "Exofecta (Factor Five — إبرة الفلتر / الإبرة البنفسجية السحرية)",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "exofecta",
+        "exosomes",
+        "اكزوفكتا",
+        "اكسوفكتا",
+        "اكزوسوم",
+        "ابرة الفلتر",
+        "الابرة البنفسجية"
+      ],
+      "commonQuestions": [
+        "ايه هي ابرة الفلتر"
+      ],
+      "relatedConcepts": [
+        "skin-booster-overview",
+        "skin-booster-profhilo-ابرة-الخمس-نقاط-2-مل"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "collagen-sculptra-10-ml",
+      "canonicalName": "Sculptra 10 ml",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "sculptra",
+        "sculptera",
+        "سكلبترا",
+        "سكالبترا",
+        "تحفيز الكولاجين"
+      ],
+      "commonQuestions": [
+        "تفاصيل سكلبترا"
+      ],
+      "relatedConcepts": [
+        "collagen-stimulators-overview",
+        "comparison-collagen-vs-filler"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "fillers-overview",
+      "canonicalName": "Dermal Fillers Overview, Benefits & Aftercare",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "filler",
+        "fillers",
+        "dermal filler",
+        "fillar",
+        "filer",
+        "filers",
+        "فيلر",
+        "فيلرز",
+        "فلر",
+        "فيلار",
+        "الفيلر",
+        "حقن الفيلر"
+      ],
+      "commonQuestions": [
+        "ايه هو الفيلر",
+        "الفيلر بكام"
+      ],
+      "relatedConcepts": [
+        "filler-juvederm-voluma",
+        "filler-juvederm-volux",
+        "filler-redensity-2-فلر-تحت-العين-teosyal",
+        "filler-radiesse-1-5ml",
+        "comparison-botox-vs-fillers"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "filler-juvederm-voluma",
+      "canonicalName": "Juvederm Voluma",
+      "relationshipType": "common_typo",
+      "aliases": [
+        "juvederm voluma",
+        "juviderm voluma",
+        "جوفيديرم فولوما",
+        "جوفدرم فولوما",
+        "فولوما"
+      ],
+      "commonQuestions": [
+        "تفاصيل juvederm voluma"
+      ],
+      "relatedConcepts": [
+        "filler-juvederm-volux",
+        "fillers-overview"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "filler-redensity-2-فلر-تحت-العين-teosyal",
+      "canonicalName": "Redensity 2 فلر تحت العين -(Teosyal)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "redensity 2",
+        "teosyal",
+        "teoxane",
+        "تيوسيال",
+        "ريدينستي",
+        "فيلر تحت العين",
+        "فلر تحت العين"
+      ],
+      "commonQuestions": [
+        "ايه الفيلر المناسب تحت العين"
+      ],
+      "relatedConcepts": [
+        "skin-booster-jalupro-young-eye",
+        "skin-booster-rrs-ha-eyes"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "filler-radiesse-1-5ml",
+      "canonicalName": "Radiesse (Calcium Filler 1.5 ml)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "radiesse",
+        "radiese",
+        "رادياس",
+        "راديس",
+        "فيلر الكالسيوم"
+      ],
+      "commonQuestions": [
+        "ايه هو الرادياس"
+      ],
+      "relatedConcepts": [
+        "collagen-radiesse-3-ml",
+        "fillers-overview"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "body-filler-overview",
+      "canonicalName": "Body Filler Overview, Uses & Post-Care",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "body filler",
+        "فيلر الجسم",
+        "فيلر جسم",
+        "جولدفيل",
+        "جيلافيل",
+        "بريفيليج"
+      ],
+      "commonQuestions": [
+        "انواع فيلر الجسم"
+      ],
+      "relatedConcepts": [
+        "body-filler-goldfill-box-10",
+        "body-filler-jealfil-box-20",
+        "body-filler-privilege-box-10"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "botox-overview",
+      "canonicalName": "Botox Overview, Uses & Aftercare",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "botox",
+        "botoks",
+        "botx",
+        "botulinum toxin",
+        "بوتوكس",
+        "بوتكس",
+        "البوتوكس",
+        "البوتكس",
+        "بوتاكس"
+      ],
+      "commonQuestions": [
+        "ايه هو البوتوكس",
+        "البوتكس بيعمل ايه"
+      ],
+      "relatedConcepts": [
+        "botox-botox-100-unit",
+        "botox-dysport-british-500-unit",
+        "botox-nabota-korean-100-unit",
+        "botox-xeomin",
+        "comparison-botox-vs-fillers"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "thread-aptos-cat-eye-threads",
+      "canonicalName": "Aptos Cat Eye Threads",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "aptos cat eye",
+        "cat eye threads",
+        "ابتوس كات اي",
+        "خيوط كات اي",
+        "خيوط الابتوس",
+        "خيوط ابتوس"
+      ],
+      "commonQuestions": [
+        "سعر خيوط Aptos Cat Eye كام"
+      ],
+      "relatedConcepts": [
+        "thread-aptos-lifting-threads",
+        "thread-pdo-thread-1-thread",
+        "threads-overview"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "threads-overview",
+      "canonicalName": "Face Threads (PDO / Lifting / Mono / Screw)",
+      "relationshipType": "exact_synonym",
+      "aliases": [
+        "face threads",
+        "threads",
+        "threds",
+        "pdo threads",
+        "lifting threads",
+        "خيوط الوجه",
+        "خيوط الشد",
+        "خيوط"
+      ],
+      "commonQuestions": [
+        "انواع خيوط الوجه"
+      ],
+      "relatedConcepts": [
+        "thread-aptos-cat-eye-threads",
+        "thread-aptos-lifting-threads",
+        "thread-pdo-thread-1-thread"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "laser-hair-removal-overview",
+      "canonicalName": "Laser Hair Removal Protocols, Pre/Post Care & FAQs",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "laser",
+        "lasers",
+        "lazer",
+        "laser hair removal",
+        "laser hair removel",
+        "ليزر",
+        "لازر",
+        "الليزر",
+        "ازالة الشعر بالليزر",
+        "جلسات الليزر"
+      ],
+      "commonQuestions": [
+        "ايه عروض Laser Hair Removal",
+        "عندكم جهاز ليزر ايه"
+      ],
+      "relatedConcepts": [
+        "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+        "device-candela-gentlemax-pro-أحدث-إصدار",
+        "device-cynosure-elite-plus-سايناشور-إيليت-بلس",
+        "device-deka-laser-ديكا",
+        "device-quanta-duo-كوانتا-ديو"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+      "canonicalName": "Candela GentleMax Pro Plus (أحدث إصدار)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "candela gentlemax pro plus",
+        "candela plus",
+        "gentlemax pro plus",
+        "كانديلا بلس",
+        "جنتل ماكس برو بلس",
+        "كانديلا"
+      ],
+      "commonQuestions": [
+        "مواصفات كانديلا"
+      ],
+      "relatedConcepts": [
+        "device-candela-gentlemax-pro-أحدث-إصدار",
+        "device-cynosure-elite-plus-سايناشور-إيليت-بلس"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "device-cynosure-elite-plus-سايناشور-إيليت-بلس",
+      "canonicalName": "Cynosure Elite Plus (سايناشور إيليت بلس)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "cynosure",
+        "cynosure elite plus",
+        "سايناشور",
+        "ساينوشور",
+        "اليت بلس"
+      ],
+      "commonQuestions": [
+        "تفاصيل سايناشور"
+      ],
+      "relatedConcepts": [
+        "device-candela-gentlemax-pro-plus-أحدث-إصدار",
+        "laser-hair-removal-overview"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "hair-dr-cyj-filler",
+      "canonicalName": "Dr. CYJ Hair Filler",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "dr cyj",
+        "cyj",
+        "hair filler",
+        "فيلر الشعر",
+        "فلر الشعر",
+        "دكتور سي واي جي"
+      ],
+      "commonQuestions": [
+        "تفاصيل فيلر الشعر dr cyj"
+      ],
+      "relatedConcepts": [
+        "treatment-prp-overview",
+        "comparison-hair-injections",
+        "treatment-mesotherapy"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "tattoo-removal-protocol",
+      "canonicalName": "Tattoo Removal Sessions, Pricing & Results",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "tattoo",
+        "tattoo removal",
+        "tatoo",
+        "q-switch",
+        "تاتو",
+        "تاتوه",
+        "ازالة التاتو",
+        "ازالة الوشم",
+        "وشم",
+        "ليزر كربوني"
+      ],
+      "commonQuestions": [
+        "تفاصيل ازالة التاتو"
+      ],
+      "relatedConcepts": [
+        "tattoo-permanent-makeup-microblading-policy",
+        "tattoo-device-dermadent",
+        "tattoo-device-well-touch",
+        "tattoo-device-new-age",
+        "tattoo-device-one-touch"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "tattoo-permanent-makeup-microblading-policy",
+      "canonicalName": "Permanent Makeup Exclusions, Microblading (Dermadent Only)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "microblading",
+        "مايكروبليدينغ",
+        "مايكروبليدنج",
+        "ميكروبليدنج",
+        "ميكروبليدينج",
+        "توريد الشفايف"
+      ],
+      "commonQuestions": [
+        "ازالة المايكروبليدينج فين"
+      ],
+      "relatedConcepts": [
+        "tattoo-device-dermadent",
+        "clinic-dermadent"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "slimming-wegovy",
+      "canonicalName": "Wegovy Injection (Weight Management)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "wegovy",
+        "ويجوفي",
+        "ويجوفى",
+        "حقن التخسيس",
+        "انقاص الوزن"
+      ],
+      "commonQuestions": [
+        "ما هي حقنة wegovy"
+      ],
+      "relatedConcepts": [
+        "slimming-lipolysis",
+        "safety-pregnancy-wegovy"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "slimming-lipolysis",
+      "canonicalName": "Lipolysis Injections (Aqualyx, Fat & Cellulite, BPS Serum)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "lipolysis",
+        "aqualyx",
+        "اذابة الدهون",
+        "تفتيت الدهون",
+        "حقن الدهون",
+        "ليبوليسيس",
+        "اكواليكس"
+      ],
+      "commonQuestions": [
+        "تفاصيل حقن اذابة الدهون"
+      ],
+      "relatedConcepts": [
+        "slimming-wegovy",
+        "device-z-lipo-cryolipolysis-well-touch"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "device-endolift-french-dermacool-2025-doctors-on",
+      "canonicalName": "Endolift (French Dermacool 2025 — Doctors Only)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "endolift",
+        "اندولفت",
+        "اندوليفت",
+        "جهاز الشد"
+      ],
+      "commonQuestions": [
+        "الاندولفت موجود في اي عيادة"
+      ],
+      "relatedConcepts": [
+        "clinic-dermadent",
+        "clinic-one-touch",
+        "clinic-well-touch",
+        "clinic-new-age"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "device-roblex-body-face-contouring",
+      "canonicalName": "Roblex (Body & Face Contouring)",
+      "relationshipType": "parent_category",
+      "aliases": [
+        "body contouring",
+        "body sculpting",
+        "roblex",
+        "بادي كونتورنج",
+        "بودي كونتورينج",
+        "نحت الجسم",
+        "روبلكس"
+      ],
+      "commonQuestions": [
+        "ممكن تفاصيل عن body contouring"
+      ],
+      "relatedConcepts": [
+        "device-venus-legacy",
+        "device-deka-slimming",
+        "device-hifu-high-intensity-focused-ultrasound-on",
+        "device-z-lipo-cryolipolysis-well-touch"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "canonicalId": "dental-veneers-overview",
+      "canonicalName": "Dental Veneers Overview (E-Max German, Age 18+, Enamel Filing)",
+      "relationshipType": "transliteration",
+      "aliases": [
+        "veneer",
+        "veneers",
+        "e-max",
+        "hollywood smile",
+        "فينير",
+        "فينيير",
+        "فينيرز",
+        "هوليود سمايل",
+        "ابتسامة هوليود",
+        "عدسات الاسنان"
+      ],
+      "commonQuestions": [
+        "تفاصيل الفينير"
+      ],
+      "relatedConcepts": [
+        "dental-veneer-2d",
+        "dental-diamond-feldspathic-porcelain",
+        "dental-veneer-removal-policy"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "clinic-dermadent",
+      "canonicalName": "Dermadent Clinic Profile",
+      "relationshipType": "common_typo",
+      "aliases": [
+        "dermadent",
+        "demadent",
+        "dermaden",
+        "ديرمادنت",
+        "ديرما دنت",
+        "ديمادنت"
+      ],
+      "commonQuestions": [
+        "ايه الاجهزة في عيادة ديرمادنت"
+      ],
+      "relatedConcepts": [
+        "tattoo-device-dermadent",
+        "tattoo-permanent-makeup-microblading-policy"
+      ],
+      "confidence": 1.0
+    },
+    {
+      "canonicalId": "pregnancy-lactation-overview",
+      "canonicalName": "Pregnancy & Lactation Complete Safety Matrix & Agent Scripts",
+      "relationshipType": "parent_category",
+      "aliases": [
+        "pregnancy",
+        "pregnant",
+        "lactation",
+        "breastfeeding",
+        "الحمل",
+        "حامل",
+        "حمل",
+        "الرضاعة",
+        "رضاعة",
+        "مرضع",
+        "بترضع"
+      ],
+      "commonQuestions": [
+        "هل البوتوكس مسموح للحامل",
+        "المسموح والممنوع اثناء الرضاعة"
+      ],
+      "relatedConcepts": [
+        "safety-pregnancy-البوتوكس",
+        "safety-pregnancy-الفيلر",
+        "safety-pregnancy-hydrafacial",
+        "safety-pregnancy-الليزر-لإزالة-الشعر"
+      ],
+      "confidence": 0.75
+    }
+  ],
+  "unsupportedCompoundGuards": [
+    {
+      "id": "hair-botox-unsupported",
+      "patterns": [
+        "بوتوكس الشعر",
+        "بوتكس الشعر",
+        "بوتوكس للشعر",
+        "بوتكس للشعر",
+        "hair botox",
+        "botox for hair"
+      ],
+      "reasonAr": "خدمة أو علاج «بوتوكس الشعر» (Hair Botox) غير مسجلة في ملفات Terra Solutions المعتمدة حاليًا (البيانات المتاحة تغطي حقن البوتوكس التجميلية للوجه والجسم، وحقن الشعر الموثقة هي Dr. CYJ Hair Filler و PRP و Mesotherapy و Stem Cells فقط).",
+      "reasonEn": "\"Hair Botox\" is not listed in Terra Solutions' approved knowledge base (documented services include injectable Botox for face/body and specific hair treatments such as Dr. CYJ Hair Filler, PRP, Mesotherapy, and Stem Cells)."
+    }
+  ]
+}
+

@@ -36,8 +36,16 @@ export function buildContextPackage(
   const warnings: string[] = [];
   let charCount = 0;
 
+  const detectedEntitiesSummary =
+    retrieval.entityHints && retrieval.entityHints.length > 0
+      ? `, detectedEntities=[${retrieval.entityHints
+          .slice(0, 4)
+          .map((e) => `${e.canonicalName} (${e.via})`)
+          .join(", ")}]`
+      : "";
+
   parts.push(
-    `RETRIEVAL METADATA: intent=${retrieval.classified.intent}, confidence=${retrieval.confidence}, language=${retrieval.classified.language}` +
+    `RETRIEVAL METADATA: intent=${retrieval.classified.intent}, confidence=${retrieval.confidence}, language=${retrieval.classified.language}${detectedEntitiesSummary}` +
       (options.contextualAnchors && options.contextualAnchors.length > 0
         ? `, contextAnchors=[${options.contextualAnchors.join(", ")}]`
         : "")

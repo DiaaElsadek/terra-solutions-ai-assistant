@@ -10,7 +10,10 @@
 import { knowledgeRetriever } from "@/lib/knowledge/retriever";
 import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 import { CATEGORIES } from "@/lib/knowledge/categories";
-import { UNAVAILABLE_KNOWLEDGE_MESSAGES } from "@/lib/ai/prompts/terra-system-prompt";
+import {
+  MISSING_PRICE_MESSAGES,
+  UNAVAILABLE_KNOWLEDGE_MESSAGES,
+} from "@/lib/ai/prompts/terra-system-prompt";
 import { toSafeErrorMessage } from "@/lib/security/api-guard";
 import type { KnowledgeRecord, RetrievalConfidence } from "@/types/knowledge";
 import type { MessageSource } from "@/types";
@@ -665,84 +668,18 @@ export const localFallbackProvider: AIProvider = {
       );
     }
 
-    // 6. Strict honest abstention when unavailable, nonexistent clinic/device, or medical diagnosis
-    if (confidence === "none" || results.length === 0) {
-      const unavailableMsg = arabic
-        ? UNAVAILABLE_KNOWLEDGE_MESSAGES.ar
-        : UNAVAILABLE_KNOWLEDGE_MESSAGES.en;
-
-      const blocks: RichResponseBlock[] = [
-        {
-          type: "callout",
-          tone: "warning",
-          title: arabic ? "المعلومة غير متوفرة" : "Information Not Available",
-          text: unavailableMsg,
-        },
-      ];
-
-      if (retrieval.missingIndicators.length > 0) {
-        blocks.push({
-          type: "list",
-          style: "bullet",
-          title: arabic ? "التفاصيل" : "Details",
-          items: retrieval.missingIndicators,
-          tone: "muted",
-        });
-      }
-
-      appendExternalBlocks(blocks, request, arabic);
-
-      const warnings =
-        retrieval.missingIndicators.length > 0
-          ? retrieval.missingIndicators
-          : [unavailableMsg];
-
-      return withFallbackMeta(
-        buildFinalAIResponse({
-          rich: {
-            schemaVersion: "1.0",
-            language: lang,
-            status: "not_found",
-            answer: { summary: unavailableMsg, blocks },
-            sources: [],
-            meta: { ...metaBase, grounded: false },
-          },
-          sources: [],
-          externalSources,
-          intent: classified.intent,
-          confidenceLevel: "none",
-          requiresClarification: false,
-          warnings,
-        })
-      );
-    }
-
-    // 7. Specialized grounded handlers (only when results exist)
-    if (classified.intent === "device_specs") {
-      return withFallbackMeta(buildRichDevicesResponse(request, arabic, lang));
-    }
-
-    if (classified.intent === "price_offer_lookup") {
-      return withFallbackMeta(buildRichPricingResponse(request, arabic, lang));
-    }
-
-    if (
-      classified.intent === "clinic_lookup" &&
-      !/tattoo|microblading|slimming|z-lipo|hifu|endolift|تاتو|تنحيف/i.test(
-        classified.normalized
-      )
-    ) {
-      return withFallbackMeta(buildRichClinicResponse(request, arabic, lang));
-    }
-
-    // 8. Ambiguity clarification across tied candidates
+    // 6. Ambiguity clarification across underspecified options or generic session queries
     if (
       retrieval.requiresClarification &&
       retrieval.clarificationCandidates.length >= 2
     ) {
       const candidates = retrieval.clarificationCandidates;
       const clarificationQuestion = arabic
-        ? "وجدت أكثر من منتج أو خدمة مطابقة لبحثك. أي واحد تحديدًا تقصد؟"
+        ? classified.isAmbiguousGeneric
+          ? "أي جلسة أو خدمة تحديدًا تقصد؟ اختر الخدمة المطلوبة لأعرض لك تفاصيلها المعتمدة:"
+          : "وجدت أكثر من منتج أو خدمة مطابقة لبحثك. أي واحد تحديدًا تقصد؟"
+        : classified.isAmbiguousGeneric
+        ? "Which specific session or service are you asking about? Select one of the documented categories below:"
         : "Multiple matching options were found in the knowledge base. Which specific one are you asking about?";
       const refs = toVerifiedRefs(candidates);
 
@@ -786,11 +723,203 @@ export const localFallbackProvider: AIProvider = {
       );
     }
 
-    // 9. Standard rich grounded response
+    // 7. Strict honest abstention when unavailable, unsupported compound (e.g. hair botox), nonexistent clinic/device, or diagnosis
+    if (confidence === "none" || results.length === 0) {
+      const unavailableMsg = arabic
+        ? UNAVAILABLE_KNOWLEDGE_MESSAGES.ar
+        : UNAVAILABLE_KNOWLEDGE_MESSAGES.en;
+
+      const blocks: RichResponseBlock[] = [
+        {
+          type: "callout",
+          tone: "warning",
+          title: arabic ? "المعلومة غير متوفرة في قاعدة البيانات" : "Information Not Available",
+          text:
+            retrieval.missingIndicators.length > 0
+              ? `${unavailableMsg}\n${retrieval.missingIndicators[0]}`
+              : unavailableMsg,
+        },
+      ];
+
+      if (retrieval.missingIndicators.length > 1) {
+        blocks.push({
+          type: "list",
+          style: "bullet",
+          title: arabic ? "التفاصيل" : "Details",
+          items: retrieval.missingIndicators.slice(1),
+          tone: "muted",
+        });
+      }
+
+      appendExternalBlocks(blocks, request, arabic);
+
+      const warnings =
+        retrieval.missingIndicators.length > 0
+          ? retrieval.missingIndicators
+          : [unavailableMsg];
+
+      return withFallbackMeta(
+        buildFinalAIResponse({
+          rich: {
+            schemaVersion: "1.0",
+            language: lang,
+            status: "not_found",
+            answer: { summary: unavailableMsg, blocks },
+            sources: [],
+            meta: { ...metaBase, grounded: false },
+          },
+          sources: [],
+          externalSources,
+          intent: classified.intent,
+          confidenceLevel: "none",
+          requiresClarification: false,
+          warnings,
+        })
+      );
+    }
+
+    // 8. Broad category inquiry (e.g. "ايه خدمات البشرة عندكم؟")
+    if (classified.broadCategoryHints.length > 0 && results.length >= 2) {
+      const catRecords = results.slice(0, 6).map((r) => r.record);
+      const refs = toVerifiedRefs(catRecords);
+      const summary = arabic
+        ? `هذه الخدمات الموثقة المتاحة في قاعدة البيانات المرتبطة بطلبك (${catRecords.length} سجلات):`
+        : `Here are the documented services available in Terra's knowledge base (${catRecords.length} records):`;
+
+      const blocks: RichResponseBlock[] = [
+        {
+          type: "heading",
+          level: 2,
+          text: arabic ? "الخدمات الموثقة المتاحة" : "Documented Services Available",
+          tone: "accent",
+        },
+        {
+          type: "table",
+          columns: [
+            { key: "name", label: arabic ? "الخدمة / الإجراء" : "Service" },
+            { key: "category", label: arabic ? "القسم" : "Department" },
+            { key: "price", label: arabic ? "السعر المسجل" : "Recorded Price" },
+            { key: "source", label: arabic ? "المصدر" : "Source" },
+          ],
+          rows: catRecords.map((r) => ({
+            name: r.name,
+            category: arabic
+              ? CATEGORIES[r.category]?.nameAr || r.category
+              : CATEGORIES[r.category]?.nameEn || r.category,
+            price: r.prices.length > 0 ? r.prices.map((p) => p.note).join(", ") : "—",
+            source: `${r.source.sheet} (R${r.source.row})`,
+          })),
+        },
+        {
+          type: "source_list",
+          title: arabic ? "المصادر المعتمدة" : "Verified Company Sources",
+          items: refs,
+        },
+      ];
+
+      return withFallbackMeta(
+        buildFinalAIResponse({
+          rich: {
+            schemaVersion: "1.0",
+            language: lang,
+            status: "success",
+            answer: { summary, blocks },
+            sources: refs,
+            meta: { ...metaBase, grounded: true },
+          },
+          sources: toMessageSources(catRecords),
+          externalSources,
+          intent: classified.intent,
+          confidenceLevel: confidence,
+          requiresClarification: false,
+          warnings: retrieval.missingIndicators,
+        })
+      );
+    }
+
+    // 9. Specialized grounded handlers for general directory queries (specific queries fall through to standard handler)
+    const genericDeviceTokens = new Set([
+      "جهاز",
+      "اجهزة",
+      "أجهزة",
+      "device",
+      "devices",
+      "machine",
+      "machines",
+      "specs",
+      "specification",
+      "specifications",
+      "مواصفات",
+      "متاح",
+      "متوفرة",
+      "عيادات",
+      "عيادة",
+      "clinic",
+      "clinics",
+      "عندكم",
+    ]);
+    const asksSpecificDevice =
+      retrieval.primaryTokens.some((t: string) => !genericDeviceTokens.has(t)) &&
+      results[0]?.record.recordType === "device";
+
+    if (classified.intent === "device_specs" && !asksSpecificDevice) {
+      return withFallbackMeta(buildRichDevicesResponse(request, arabic, lang));
+    }
+
+    const genericPricingTokens = new Set([
+      "سعر",
+      "اسعار",
+      "أسعار",
+      "بكام",
+      "كم",
+      "تكلفة",
+      "عروض",
+      "عرض",
+      "باقة",
+      "باقات",
+      "price",
+      "prices",
+      "pricing",
+      "cost",
+      "offer",
+      "offers",
+      "package",
+      "packages",
+      "available",
+      "متاح",
+      "متوفرة",
+    ]);
+    const asksSpecificPricedEntity = retrieval.primaryTokens.some(
+      (t: string) => !genericPricingTokens.has(t)
+    );
+
+    if (classified.intent === "price_offer_lookup" && !asksSpecificPricedEntity) {
+      return withFallbackMeta(buildRichPricingResponse(request, arabic, lang));
+    }
+
+    if (
+      classified.intent === "clinic_lookup" &&
+      !/tattoo|microblading|slimming|z-lipo|hifu|endolift|تاتو|تنحيف/i.test(
+        classified.normalized
+      )
+    ) {
+      return withFallbackMeta(buildRichClinicResponse(request, arabic, lang));
+    }
+
+    // 10. Standard rich grounded response
     const topItems = results.slice(0, 4);
     const records = topItems.map((r) => r.record);
     const refs = toVerifiedRefs(records);
     const warnings: string[] = [...retrieval.missingIndicators];
+
+    const missingRequestedPrice =
+      classified.asksPrice && records.every((r) => r.prices.length === 0);
+    if (missingRequestedPrice) {
+      const priceNote = arabic ? MISSING_PRICE_MESSAGES.ar : MISSING_PRICE_MESSAGES.en;
+      if (!warnings.includes(priceNote)) {
+        warnings.push(priceNote);
+      }
+    }
 
     for (const cf of retrieval.conflicts) {
       warnings.push(cf.description);
@@ -810,6 +939,63 @@ export const localFallbackProvider: AIProvider = {
         tone: confidence === "strong" ? "success" : "warning",
       },
     ];
+
+    if (missingRequestedPrice) {
+      blocks.push({
+        type: "callout",
+        tone: "warning",
+        title: arabic ? "السعر غير مسجل بالملف" : "Price Not Recorded in Workbook",
+        text: arabic ? MISSING_PRICE_MESSAGES.ar : MISSING_PRICE_MESSAGES.en,
+      });
+    }
+
+    // Synthesize side-by-side comparison table when comparing two non-pre-tabulated items
+    if (
+      classified.asksComparison &&
+      records.length >= 2 &&
+      records[0].recordType !== "comparison"
+    ) {
+      const [recA, recB] = records;
+      const attrKeys = Array.from(
+        new Set([...Object.keys(recA.attributes), ...Object.keys(recB.attributes)])
+      ).slice(0, 5);
+      const compRows: Array<Record<string, string>> = [
+        {
+          aspect: arabic ? "القسم" : "Department",
+          itemA: arabic
+            ? CATEGORIES[recA.category]?.nameAr || recA.category
+            : CATEGORIES[recA.category]?.nameEn || recA.category,
+          itemB: arabic
+            ? CATEGORIES[recB.category]?.nameAr || recB.category
+            : CATEGORIES[recB.category]?.nameEn || recB.category,
+        },
+        {
+          aspect: arabic ? "السعر المسجل" : "Recorded Price",
+          itemA: recA.prices.length > 0 ? recA.prices.map((p) => p.note).join(", ") : "—",
+          itemB: recB.prices.length > 0 ? recB.prices.map((p) => p.note).join(", ") : "—",
+        },
+        ...attrKeys.map((k) => ({
+          aspect: k,
+          itemA: recA.attributes[k] || "—",
+          itemB: recB.attributes[k] || "—",
+        })),
+        {
+          aspect: arabic ? "المصدر" : "Source",
+          itemA: `${recA.source.sheet} (R${recA.source.row})`,
+          itemB: `${recB.source.sheet} (R${recB.source.row})`,
+        },
+      ];
+      blocks.push({
+        type: "table",
+        title: arabic ? "مقارنة سريعة بين الخيارين" : "Side-by-Side Comparison",
+        columns: [
+          { key: "aspect", label: arabic ? "وجه المقارنة" : "Aspect" },
+          { key: "itemA", label: recA.name },
+          { key: "itemB", label: recB.name },
+        ],
+        rows: compRows,
+      });
+    }
 
     for (const res of topItems) {
       const r = res.record;
@@ -877,12 +1063,15 @@ export const localFallbackProvider: AIProvider = {
       }
     }
 
-    if (retrieval.missingIndicators.length > 0) {
+    const extraMissing = retrieval.missingIndicators.filter(
+      (m) => !missingRequestedPrice || !/السعر مش موجود|Exact pricing/i.test(m)
+    );
+    if (extraMissing.length > 0) {
       blocks.push({
         type: "callout",
         tone: "warning",
         title: arabic ? "معلومات غير متوفرة بالملف" : "Missing Information Notice",
-        text: retrieval.missingIndicators.join(" "),
+        text: extraMissing.join(" "),
       });
     }
 
