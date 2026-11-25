@@ -3,6 +3,7 @@
 import { useState, useRef, useMemo } from "react";
 import { AlertTriangle, ExternalLink, RotateCcw } from "lucide-react";
 import type { Message, MessageSource } from "@/types";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -60,11 +61,17 @@ export function MessageBubble({
   }, [message.structured]);
 
   const openSourceInspector = async (src: MessageSource) => {
+    const freshLink =
+      src.type !== "external" ? buildGoogleSheetCellLink(src) : { url: undefined, hasSheetGid: false };
+    const enrichedSrc: MessageSource =
+      freshLink.url
+        ? { ...src, url: freshLink.url, hasSheetGid: freshLink.hasSheetGid }
+        : src;
     const reqId = ++activeFetchIdRef.current;
-    setSelectedSource(src);
+    setSelectedSource(enrichedSrc);
     setSheetContext(null);
 
-    if (src.type === "external" || !src.sheet || !src.row || src.row <= 0) {
+    if (enrichedSrc.type === "external" || !enrichedSrc.sheet || !enrichedSrc.row || enrichedSrc.row <= 0) {
       setLoadingSheet(false);
       return;
     }
@@ -72,11 +79,11 @@ export function MessageBubble({
     setLoadingSheet(true);
     try {
       const params = new URLSearchParams({
-        sheet: src.rawSheet || src.sheet,
-        row: String(src.row),
+        sheet: enrichedSrc.rawSheet || enrichedSrc.sheet,
+        row: String(enrichedSrc.row),
       });
-      if (src.cell) params.set("cell", src.cell);
-      if (src.cellRange) params.set("range", src.cellRange);
+      if (enrichedSrc.cell) params.set("cell", enrichedSrc.cell);
+      if (enrichedSrc.cellRange) params.set("range", enrichedSrc.cellRange);
 
       const res = await fetch(`/api/knowledge?${params.toString()}`);
       if (activeFetchIdRef.current !== reqId) return;
@@ -242,6 +249,7 @@ export function MessageBubble({
           onInspectSource={(src) => void openSourceInspector(src)}
         />
 
+<<<<<<< HEAD
         {/* Subtle Utility Actions */}
         <MessageActions
           onCopyResponse={() => void handleCopy()}
@@ -251,6 +259,139 @@ export function MessageBubble({
           isStreaming={message.status === "streaming"}
           onRetry={onRetry}
         />
+=======
+            {sourcesExpanded && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {message.sources.map((src, idx) => {
+                  const cellBadge =
+                    src.cellRange ||
+                    src.cell ||
+                    (src.row !== undefined && src.row > 0 ? `R${src.row}` : undefined);
+                  const freshLink =
+                    src.type !== "external"
+                      ? buildGoogleSheetCellLink(src)
+                      : { url: src.url, hasSheetGid: false };
+                  const targetUrl = freshLink.url || src.url;
+                  return (
+                    <div
+                      key={`${src.category}-${src.title}-${idx}`}
+                      className="inline-flex max-w-full items-center rounded-md bg-background-secondary border border-border hover:border-primary/60 transition-colors overflow-hidden"
+                    >
+                      {targetUrl ? (
+                        <a
+                          href={targetUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={`Open ${src.sheet || src.category} at ${cellBadge || "row"} in Google Sheets`}
+                          aria-label={`Open ${src.title} (${cellBadge || "row"}) in Google Sheets`}
+                          className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors"
+                        >
+                          <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
+                            {src.sheet || src.category}
+                          </span>
+                          <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
+                            {src.title}
+                          </span>
+                          {cellBadge && (
+                            <span className="shrink-0 text-[10px] font-mono text-primary/90">
+                              {cellBadge}
+                            </span>
+                          )}
+                          <ExternalLink className="h-3 w-3 shrink-0 text-primary/80" />
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void openSourceInspector(src)}
+                          title="Inspect source record details"
+                          className="inline-flex min-w-0 flex-1 items-center gap-1.5 px-2.5 py-1 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
+                        >
+                          <span className="text-primary font-medium truncate max-w-[110px] sm:max-w-[140px]">
+                            {src.sheet || src.category}
+                          </span>
+                          <span className="truncate min-w-0 max-w-[140px] sm:max-w-[170px] text-foreground-muted">
+                            {src.title}
+                          </span>
+                          {cellBadge && (
+                            <span className="shrink-0 text-[10px] font-mono text-primary/90">
+                              {cellBadge}
+                            </span>
+                          )}
+                        </button>
+                      )}
+                      {src.type !== "external" && src.row !== undefined && src.row > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => void openSourceInspector(src)}
+                          title="Preview highlighted Excel row inside Terra Assistant"
+                          aria-label={`Preview ${src.title} (${cellBadge || "row"})`}
+                          className="shrink-0 inline-flex items-center justify-center px-2 py-1 border-s border-border/70 text-foreground-muted hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                        >
+                          <Eye className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Secondary External Web Sources */}
+        {message.externalSources && message.externalSources.length > 0 && (
+          <div className="pt-2 border-t border-border/40 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-300 me-1">
+              <Globe className="h-3 w-3" />
+              External Reference (Non-Policy):
+            </span>
+            {message.externalSources.map((src, idx) => (
+              <button
+                key={`ext-${idx}`}
+                type="button"
+                onClick={() => void openSourceInspector(src)}
+                className="inline-flex items-center gap-1 rounded-md bg-sky-500/10 border border-sky-500/30 hover:border-sky-400 px-2 py-0.5 text-[11px] text-sky-200 transition-colors cursor-pointer"
+              >
+                <span className="truncate max-w-[180px]">{src.title}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Restrained Action Bar */}
+        <div className="flex items-center gap-1 pt-0.5">
+          <button
+            type="button"
+            onClick={handleCopy}
+            aria-label="Copy full answer"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3 w-3 text-emerald-400" />
+                <span className="text-emerald-400">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3 w-3" />
+                <span>Copy response</span>
+              </>
+            )}
+          </button>
+
+          {isLastAssistant && onRetry && message.status !== "streaming" && (
+            <button
+              type="button"
+              onClick={onRetry}
+              aria-label="Regenerate response"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] text-foreground-muted hover:text-foreground hover:bg-background-tertiary transition-colors cursor-pointer"
+            >
+              <RotateCcw className="h-3 w-3" />
+              <span>Retry</span>
+            </button>
+          )}
+        </div>
+>>>>>>> features
       </div>
 
       {/* Source Provenance & Live Spreadsheet Row Modal */}

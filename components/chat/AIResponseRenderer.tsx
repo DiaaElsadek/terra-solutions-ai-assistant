@@ -2,6 +2,7 @@
 
 import { ExternalLink, FileSpreadsheet, Quote } from "lucide-react";
 import { clsx } from "clsx";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 import {
   ALLOWED_BLOCK_TYPES,
   normalizeTone,
@@ -435,11 +436,21 @@ export function AIResponseRenderer({
                       (item.rowNumber !== undefined && item.rowNumber > 0
                         ? `R${item.rowNumber}`
                         : undefined);
+                    const freshUrl =
+                      buildGoogleSheetCellLink({
+                        file: item.fileName,
+                        sheet: item.sheetName,
+                        rawSheet: item.rawSheet,
+                        row: item.rowNumber,
+                        cell: item.cell,
+                        cellRange: item.cellRange,
+                      }).url || item.sourceUrl;
                     return (
                       <div
                         key={`${item.fileName}-${item.rowNumber ?? sIdx}-${sIdx}`}
                         className="inline-flex max-w-full items-center rounded-lg border border-border bg-background-tertiary hover:border-primary/60 transition-colors overflow-hidden"
                       >
+<<<<<<< HEAD
                         <button
                           type="button"
                           onClick={() => onSelectSource?.(item)}
@@ -461,16 +472,68 @@ export function AIResponseRenderer({
                           )}
                         </button>
                         {item.sourceUrl && (
+=======
+                        {freshUrl ? (
+>>>>>>> features
                           <a
-                            href={item.sourceUrl}
+                            href={freshUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            title={`Move to ${coordLabel || "row"} in Google Sheets`}
+                            title={`Move to ${item.sheetName || "sheet"} ${coordLabel || "row"} in Google Sheets`}
                             aria-label={`Open ${item.title || item.fileName} (${coordLabel || "row"}) in Google Sheets`}
+<<<<<<< HEAD
                             className="shrink-0 inline-flex items-center justify-center px-1.5 py-1 border-s border-border/70 text-primary hover:bg-primary/15 transition-colors"
+=======
+                            className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors"
+>>>>>>> features
                           >
-                            <ExternalLink className="h-3 w-3" />
+                            <span className="truncate max-w-[170px]">
+                              {sanitizePlainText(item.title || item.fileName)}
+                            </span>
+                            {item.sheetName && (
+                              <span className="text-[10px] text-foreground-muted">
+                                · {sanitizePlainText(item.sheetName)}
+                              </span>
+                            )}
+                            {coordLabel && (
+                              <span className="text-[10px] font-mono text-primary">
+                                {coordLabel}
+                              </span>
+                            )}
+                            <ExternalLink className="h-3 w-3 text-primary/80 shrink-0" />
                           </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onSelectSource?.(item)}
+                            title="Inspect spreadsheet row and highlighted cell"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] text-terra-gold-pale hover:text-foreground transition-colors cursor-pointer"
+                          >
+                            <span className="truncate max-w-[170px]">
+                              {sanitizePlainText(item.title || item.fileName)}
+                            </span>
+                            {item.sheetName && (
+                              <span className="text-[10px] text-foreground-muted">
+                                · {sanitizePlainText(item.sheetName)}
+                              </span>
+                            )}
+                            {coordLabel && (
+                              <span className="text-[10px] font-mono text-primary">
+                                {coordLabel}
+                              </span>
+                            )}
+                          </button>
+                        )}
+                        {onSelectSource && (
+                          <button
+                            type="button"
+                            onClick={() => onSelectSource(item)}
+                            title="Preview highlighted Excel row inside Terra Assistant"
+                            aria-label={`Preview ${item.title || item.fileName} (${coordLabel || "row"})`}
+                            className="inline-flex items-center justify-center px-1.5 py-1 border-s border-border/70 text-foreground-muted hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                          >
+                            <Eye className="h-3 w-3" />
+                          </button>
                         )}
                       </div>
                     );

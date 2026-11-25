@@ -61,6 +61,18 @@ describe("Canonical Knowledge Dataset & Pipeline Integrity", () => {
 
     const prevGids = process.env.GOOGLE_SHEETS_GIDS;
     try {
+      clearSheetGidCache();
+      for (const r of records.filter((rec) => /knowlege\.xlsx$/i.test(rec.source.file))) {
+        const direct = buildGoogleSheetCellLink(r.source);
+        assert.equal(direct.hasSheetGid, true, `Expected default gid for ${r.source.sheet}`);
+        assert.ok(
+          direct.url?.includes("https://docs.google.com/spreadsheets/d/1hRfpnI6eU50BjdVu9lxB8vnNYGeH6MHE/edit?usp=sharing&ouid=109986504837760137236&rtpof=true&sd=true"),
+          `Expected configured Google Sheet workbook URL on ${r.id}`
+        );
+        assert.ok(direct.url?.includes("#gid="));
+        assert.ok(direct.url?.includes("&range="));
+      }
+
       process.env.GOOGLE_SHEETS_GIDS = JSON.stringify({ Laser: "123456789" });
       clearSheetGidCache();
       const withGid = buildGoogleSheetCellLink({

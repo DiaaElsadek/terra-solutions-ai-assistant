@@ -8,8 +8,10 @@ import {
   ArrowLeft,
   FileSpreadsheet,
   Building2,
+  ExternalLink,
   Link2,
 } from "lucide-react";
+import { buildGoogleSheetCellLink } from "@/lib/knowledge/source-links";
 import { clsx } from "clsx";
 import type {
   KnowledgeCategory,
@@ -163,15 +165,30 @@ export function KnowledgeDrawer({
             <div className="space-y-2">
               <div className="flex flex-wrap gap-1.5">
                 <Badge variant="gold">{detailRecord.recordType}</Badge>
-                <Badge variant="muted">
-                  <FileSpreadsheet className="h-3 w-3" />
-                  {detailRecord.source.file} · {detailRecord.source.sheet} (Rows{" "}
-                  {detailRecord.source.rows.join(", ")}
-                  {detailRecord.source.cellRange
-                    ? ` · ${detailRecord.source.cellRange}`
-                    : ""}
-                  )
-                </Badge>
+                {(() => {
+                  const detailUrl =
+                    buildGoogleSheetCellLink(detailRecord.source).url ||
+                    detailRecord.source.url;
+                  const label = `${detailRecord.source.file} · ${detailRecord.source.sheet} (Rows ${detailRecord.source.rows.join(", ")}${detailRecord.source.cellRange ? ` · ${detailRecord.source.cellRange}` : ""})`;
+                  return detailUrl ? (
+                    <a
+                      href={detailUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`Move to ${detailRecord.source.cellRange || detailRecord.source.cell || `row ${detailRecord.source.row}`} in Google Sheets`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
+                    >
+                      <FileSpreadsheet className="h-3 w-3" />
+                      <span>{label}</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <Badge variant="muted">
+                      <FileSpreadsheet className="h-3 w-3" />
+                      {label}
+                    </Badge>
+                  );
+                })()}
               </div>
               <h3
                 dir="auto"
@@ -222,19 +239,42 @@ export function KnowledgeDrawer({
                   Related Records
                 </div>
                 <div className="space-y-1.5">
-                  {relatedRecords.map((rel) => (
-                    <button
-                      key={rel.id}
-                      type="button"
-                      onClick={() => void openDetail(rel.id)}
-                      className="w-full text-start rounded-lg border border-border bg-background-tertiary/50 hover:border-primary/50 p-2.5 text-xs transition-colors"
-                    >
-                      <div className="font-medium text-foreground">{rel.name}</div>
-                      <div className="text-[10px] text-foreground-muted">
-                        {rel.source.sheet} · R{rel.source.row}
+                  {relatedRecords.map((rel) => {
+                    const relUrl =
+                      buildGoogleSheetCellLink(rel.source).url || rel.source.url;
+                    const relCoord =
+                      rel.source.cellRange || rel.source.cell || `R${rel.source.row}`;
+                    return (
+                      <div
+                        key={rel.id}
+                        className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background-tertiary/50 hover:border-primary/50 p-2.5 text-xs transition-colors"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => void openDetail(rel.id)}
+                          className="flex-1 min-w-0 text-start cursor-pointer"
+                        >
+                          <div className="font-medium text-foreground truncate">{rel.name}</div>
+                          <div className="text-[10px] text-foreground-muted">
+                            {rel.source.sheet} · {relCoord}
+                          </div>
+                        </button>
+                        {relUrl && (
+                          <a
+                            href={relUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`Move to ${relCoord} in Google Sheets`}
+                            aria-label={`Open ${rel.name} (${relCoord}) in Google Sheets`}
+                            className="shrink-0 inline-flex items-center gap-1 rounded-md border border-border bg-background-secondary px-2 py-1 text-[10px] font-medium text-primary hover:bg-primary/15 transition-colors"
+                          >
+                            <span>{relCoord}</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        )}
                       </div>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -408,14 +448,39 @@ export function KnowledgeDrawer({
                         type="button"
                         onClick={() => void openDetail(record.id)}
                         dir="auto"
-                        className="text-start font-display text-xs font-semibold text-foreground hover:text-primary transition-colors"
+                        className="text-start font-display text-xs font-semibold text-foreground hover:text-primary transition-colors cursor-pointer"
                       >
                         {record.name}
                       </button>
-                      <Badge variant="muted" className="shrink-0 text-[10px]">
-                        <FileSpreadsheet className="h-2.5 w-2.5" />
-                        {record.source.sheet} R{record.source.row}
-                      </Badge>
+                      {(() => {
+                        const cardUrl =
+                          buildGoogleSheetCellLink(record.source).url ||
+                          record.source.url;
+                        const cardCoord =
+                          record.source.cellRange ||
+                          record.source.cell ||
+                          `R${record.source.row}`;
+                        return cardUrl ? (
+                          <a
+                            href={cardUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`Move to ${record.source.sheet} ${cardCoord} in Google Sheets`}
+                            className="shrink-0 inline-flex items-center gap-1 rounded-full border border-border bg-background-secondary px-2 py-0.5 text-[10px] font-medium text-primary hover:border-primary/60 hover:bg-primary/10 transition-colors"
+                          >
+                            <FileSpreadsheet className="h-2.5 w-2.5" />
+                            <span>
+                              {record.source.sheet} {cardCoord}
+                            </span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        ) : (
+                          <Badge variant="muted" className="shrink-0 text-[10px]">
+                            <FileSpreadsheet className="h-2.5 w-2.5" />
+                            {record.source.sheet} R{record.source.row}
+                          </Badge>
+                        );
+                      })()}
                     </div>
 
                     <p

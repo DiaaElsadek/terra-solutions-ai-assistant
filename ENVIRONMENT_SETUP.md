@@ -13,8 +13,9 @@ Configure secret credentials on the server only. **Never prefix API keys with `N
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | Server only | Optional | Secondary OpenAI adapter support (`gpt-4o-mini` default) |
 | `GOOGLE_SEARCH_API_KEY` | Server only | Optional | Google Custom Search secondary external web references |
 | `GOOGLE_SEARCH_ENGINE_ID` | Server only | Optional | Programmable Search Engine ID (`cx`) for Google Search |
-| `GOOGLE_SHEETS_SPREADSHEET_ID` | Server only | Optional | Target Google Sheets workbook ID (defaults to `1hRfpnI6eU50BjdVu9lxB8vnNYGeH6MHE`) |
-| `GOOGLE_SHEETS_GIDS` | Server only | Optional | JSON object mapping worksheet names to Google tab `gid`s (e.g. `{"Laser":"..."}`) for direct tab + cell jumps |
+| `GOOGLE_SHEETS_SPREADSHEET_ID` | Server only | Optional | Target Google Sheets workbook ID or full sharing URL (defaults to `1hRfpnI6eU50BjdVu9lxB8vnNYGeH6MHE`) |
+| `GOOGLE_SHEETS_OUID` | Server only | Optional | Google Sheets workbook `ouid` parameter (defaults to `109986504837760137236`) |
+| `GOOGLE_SHEETS_GIDS` | Server only | Optional | Override/extend pre-mapped worksheet tab `gid`s JSON (all 10 Knowlege.xlsx sheet GIDs are pre-configured by default) |
 | `NEXT_PUBLIC_APP_NAME` | Public | Set in `.env.local` | Display title (`"Terra AI Assistant"`) |
 | `NEXT_PUBLIC_APP_VERSION` | Public | Set in `.env.local` | App display version |
 
